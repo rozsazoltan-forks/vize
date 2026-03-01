@@ -3,7 +3,7 @@ export type {
   LoadConfigOptions,
   ConfigEnv,
   UserConfigExport,
-} from "../../vize/src/types.js";
+} from "../../vize/src/types/index.js";
 
 export interface SfcCompileOptionsNapi {
   filename?: string;

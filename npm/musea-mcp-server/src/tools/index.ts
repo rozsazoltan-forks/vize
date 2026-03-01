@@ -7,4 +7,4 @@
  */
 
 export { toolDefinitions } from "./definitions.js";
-export { handleToolCall } from "./handler.js";
+export { handleToolCall } from "./handler/index.js";

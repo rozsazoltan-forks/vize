@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { ArtFileInfo } from '../../src/types.js'
+import type { ArtFileInfo } from '../../src/types/index.js'
 
 const query = ref('')
 

@@ -7,7 +7,7 @@
 
 import path from "node:path";
 
-import type { VrtResult, VrtSummary } from "./runner.js";
+import type { VrtResult, VrtSummary } from "./types.js";
 import { escapeHtml } from "./comparison.js";
 
 /**

@@ -7,7 +7,7 @@
 
 import path from "node:path";
 
-import type { ArtFileInfo } from "./types.js";
+import type { ArtFileInfo } from "./types/index.js";
 import { toPascalCase } from "./utils.js";
 
 /**

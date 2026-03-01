@@ -5,7 +5,7 @@
  * as a JSON manifest.
  */
 
-import type { ArtFileInfo } from "./types.js";
+import type { ArtFileInfo } from "./types/index.js";
 
 /**
  * Generate the virtual manifest module code containing all art file metadata.

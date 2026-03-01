@@ -13,7 +13,7 @@
  * ```
  */
 
-export { musea } from "./plugin.js";
+export { musea } from "./plugin/index.js";
 
 export type {
   MuseaOptions,
@@ -32,7 +32,7 @@ export type {
   CaptureConfig,
   ComparisonConfig,
   CiConfig,
-} from "./types.js";
+} from "./types/index.js";
 
 export {
   MuseaVrtRunner,
@@ -57,7 +57,7 @@ export {
   type TokenUsageMap,
 } from "./style-dictionary.js";
 
-export { MuseaA11yRunner, type A11ySummary } from "./a11y.js";
+export { MuseaA11yRunner, type A11ySummary } from "./a11y/index.js";
 
 export {
   generateArtFile,
@@ -66,7 +66,7 @@ export {
   type AutogenOutput,
   type PropDefinition,
   type GeneratedVariant,
-} from "./autogen.js";
+} from "./autogen/index.js";
 
-import { musea } from "./plugin.js";
+import { musea } from "./plugin/index.js";
 export default musea;

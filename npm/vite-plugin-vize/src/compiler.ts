@@ -6,7 +6,7 @@ import type {
   BatchCompileResultWithFiles,
   StyleBlockInfo,
 } from "./types.js";
-import { generateScopeId } from "./utils.js";
+import { generateScopeId } from "./utils/index.js";
 
 const { compileSfc, compileSfcBatchWithResults } = native;
 

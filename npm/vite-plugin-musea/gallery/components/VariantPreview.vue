@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
-import type { ArtVariant } from '../../src/types.js'
+import type { ArtVariant } from '../../src/types/index.js'
 import { getPreviewUrl } from '../api'
 import { useAddons } from '../composables/useAddons'
 import { sendMessage } from '../composables/usePostMessage'

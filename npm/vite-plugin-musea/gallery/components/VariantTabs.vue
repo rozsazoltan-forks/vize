@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import type { ArtVariant } from '../../src/types.js'
+import type { ArtVariant } from '../../src/types/index.js'
 
 const props = defineProps<{
   variants: ArtVariant[]

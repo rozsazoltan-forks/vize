@@ -2,7 +2,10 @@
  * Main Musea Vite plugin implementation.
  *
  * Contains the `musea()` factory function that creates the Vite plugin,
- * including dev server middleware, virtual module handling, and HMR support.
+ * including dev server middleware, config resolution, and build-start scanning.
+ *
+ * Virtual module hooks (resolveId / load / handleHotUpdate) are extracted into
+ * `virtual.ts`.
  *
  * Middleware and API route logic is extracted into:
  * - `server-middleware.ts` -- gallery SPA, preview, art module serving
@@ -14,27 +17,19 @@ import fs from "node:fs";
 import path from "node:path";
 import { vizeConfigStore } from "@vizejs/vite-plugin";
 
-import type { MuseaOptions, ArtFileInfo } from "./types.js";
+import type { MuseaOptions, ArtFileInfo } from "../types/index.js";
 
-import { loadNative } from "./native-loader.js";
-import { generateGalleryModule } from "./gallery.js";
-import { generatePreviewModule } from "./preview.js";
-import { generateManifestModule } from "./manifest.js";
-import { generateArtModule, extractScriptSetupContent } from "./art-module.js";
+import { loadNative } from "../native-loader.js";
+import { extractScriptSetupContent } from "../art-module.js";
+import { shouldProcess, scanArtFiles, generateStorybookFiles, buildThemeConfig } from "../utils.js";
+import { registerMiddleware } from "../server-middleware.js";
+import { createApiMiddleware } from "../api-routes/index.js";
 import {
-  shouldProcess,
-  scanArtFiles,
-  generateStorybookFiles,
-  toPascalCase,
-  buildThemeConfig,
-} from "./utils.js";
-import { registerMiddleware } from "./server-middleware.js";
-import { createApiMiddleware } from "./api-routes.js";
-
-// Virtual module prefixes
-const VIRTUAL_MUSEA_PREFIX = "\0musea:";
-const VIRTUAL_GALLERY = "\0musea-gallery";
-const VIRTUAL_MANIFEST = "\0musea-manifest";
+  createResolveId,
+  createLoad,
+  createHandleHotUpdate,
+  type VirtualModuleState,
+} from "./virtual.js";
 
 /**
  * Create Musea Vite plugin.
@@ -56,6 +51,25 @@ export function musea(options: MuseaOptions = {}): Plugin[] {
   const artFiles = new Map<string, ArtFileInfo>();
   let resolvedPreviewCss: string[] = [];
   let resolvedPreviewSetup: string | null = null;
+
+  // Shared state for virtual module hooks
+  const virtualState: VirtualModuleState = {
+    basePath,
+    get inlineArt() {
+      return inlineArt;
+    },
+    artFiles,
+    resolvedPreviewCss,
+    resolvedPreviewSetup,
+    getConfigRoot: () => config.root,
+    getServer: () => server,
+    processArtFile,
+  };
+
+  // Create virtual module hooks
+  const resolveId = createResolveId(virtualState);
+  const load = createLoad(virtualState);
+  const handleHotUpdate = createHandleHotUpdate(virtualState);
 
   // Main plugin
   const mainPlugin: Plugin = {
@@ -90,6 +104,9 @@ export function musea(options: MuseaOptions = {}): Plugin[] {
         if (options.inlineArt === undefined && mc.inlineArt !== undefined) inlineArt = mc.inlineArt;
       }
 
+      // Update virtualState.basePath in case it changed from config resolution
+      virtualState.basePath = basePath;
+
       // Resolve previewCss paths to absolute paths
       resolvedPreviewCss = previewCss.map((cssPath) =>
         path.isAbsolute(cssPath) ? cssPath : path.resolve(resolvedConfig.root, cssPath),
@@ -101,6 +118,10 @@ export function musea(options: MuseaOptions = {}): Plugin[] {
           ? previewSetup
           : path.resolve(resolvedConfig.root, previewSetup);
       }
+
+      // Update shared state references after resolution
+      virtualState.resolvedPreviewCss = resolvedPreviewCss;
+      virtualState.resolvedPreviewSetup = resolvedPreviewSetup;
     },
 
     configureServer(devServer) {
@@ -214,113 +235,9 @@ export function musea(options: MuseaOptions = {}): Plugin[] {
       }
     },
 
-    resolveId(id) {
-      if (id === VIRTUAL_GALLERY) {
-        return VIRTUAL_GALLERY;
-      }
-      if (id === VIRTUAL_MANIFEST) {
-        return VIRTUAL_MANIFEST;
-      }
-      // Handle virtual:musea-preview: prefix for preview modules
-      if (id.startsWith("virtual:musea-preview:")) {
-        return "\0musea-preview:" + id.slice("virtual:musea-preview:".length);
-      }
-      // Handle virtual:musea-art: prefix for preview modules
-      // Append ?musea-virtual to prevent other plugins (e.g. unplugin-vue-i18n)
-      // from treating .vue-ending virtual IDs as Vue SFC files
-      if (id.startsWith("virtual:musea-art:")) {
-        const artPath = id.slice("virtual:musea-art:".length);
-        if (artFiles.has(artPath)) {
-          return "\0musea-art:" + artPath + "?musea-virtual";
-        }
-      }
-      if (id.endsWith(".art.vue")) {
-        const resolved = path.resolve(config.root, id);
-        if (artFiles.has(resolved)) {
-          return VIRTUAL_MUSEA_PREFIX + resolved + "?musea-virtual";
-        }
-      }
-      // Inline art: resolve .vue files that have <art> blocks
-      if (inlineArt && id.endsWith(".vue") && !id.endsWith(".art.vue")) {
-        const resolved = path.resolve(config.root, id);
-        if (artFiles.has(resolved)) {
-          return VIRTUAL_MUSEA_PREFIX + resolved + "?musea-virtual";
-        }
-      }
-      return null;
-    },
-
-    load(id) {
-      if (id === VIRTUAL_GALLERY) {
-        return generateGalleryModule(basePath);
-      }
-      if (id === VIRTUAL_MANIFEST) {
-        return generateManifestModule(artFiles);
-      }
-      // Handle \0musea-preview: prefix for preview modules
-      if (id.startsWith("\0musea-preview:")) {
-        const rest = id.slice("\0musea-preview:".length);
-        const lastColonIndex = rest.lastIndexOf(":");
-        if (lastColonIndex !== -1) {
-          const artPath = rest.slice(0, lastColonIndex);
-          const variantName = rest.slice(lastColonIndex + 1);
-          const art = artFiles.get(artPath);
-          if (art) {
-            const variantComponentName = toPascalCase(variantName);
-            return generatePreviewModule(
-              art,
-              variantComponentName,
-              variantName,
-              resolvedPreviewCss,
-              resolvedPreviewSetup,
-            );
-          }
-        }
-      }
-      // Handle \0musea-art: prefix for preview modules
-      if (id.startsWith("\0musea-art:")) {
-        const artPath = id.slice("\0musea-art:".length).replace(/\?musea-virtual$/, "");
-        const art = artFiles.get(artPath);
-        if (art) {
-          return generateArtModule(art, artPath);
-        }
-      }
-      if (id.startsWith(VIRTUAL_MUSEA_PREFIX)) {
-        const realPath = id.slice(VIRTUAL_MUSEA_PREFIX.length).replace(/\?musea-virtual$/, "");
-        const art = artFiles.get(realPath);
-        if (art) {
-          return generateArtModule(art, realPath);
-        }
-      }
-      return null;
-    },
-
-    async handleHotUpdate(ctx) {
-      const { file } = ctx;
-      if (file.endsWith(".art.vue") && artFiles.has(file)) {
-        await processArtFile(file);
-
-        // Invalidate virtual modules
-        const virtualId = VIRTUAL_MUSEA_PREFIX + file + "?musea-virtual";
-        const modules = server?.moduleGraph.getModulesByFile(virtualId);
-        if (modules) {
-          return [...modules];
-        }
-      }
-
-      // Inline art: HMR for .vue files with <art> blocks
-      if (inlineArt && file.endsWith(".vue") && !file.endsWith(".art.vue") && artFiles.has(file)) {
-        await processArtFile(file);
-
-        const virtualId = VIRTUAL_MUSEA_PREFIX + file;
-        const modules = server?.moduleGraph.getModulesByFile(virtualId);
-        if (modules) {
-          return [...modules];
-        }
-      }
-
-      return undefined;
-    },
+    resolveId,
+    load,
+    handleHotUpdate,
   };
 
   // Helper functions scoped to this plugin instance

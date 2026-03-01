@@ -9,7 +9,7 @@ import type {
   ConfigEnv,
   GlobalTypesConfig,
   GlobalTypeDeclaration,
-} from "./types.js";
+} from "./types/index.js";
 
 const CONFIG_FILE_NAMES = [
   "vize.config.ts",

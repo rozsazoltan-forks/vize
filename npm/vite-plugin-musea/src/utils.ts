@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import type { ArtFileInfo } from "./types.js";
+import type { ArtFileInfo } from "./types/index.js";
 import { loadNative } from "./native-loader.js";
 
 export function shouldProcess(

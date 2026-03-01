@@ -11,9 +11,9 @@ import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 
-import type { ArtFileInfo } from "./types.js";
-import { generateGalleryHtml } from "./gallery.js";
-import { generatePreviewModule, generatePreviewHtml } from "./preview.js";
+import type { ArtFileInfo } from "./types/index.js";
+import { generateGalleryHtml } from "./gallery/index.js";
+import { generatePreviewModule, generatePreviewHtml } from "./preview/index.js";
 import { generateArtModule } from "./art-module.js";
 import { toPascalCase } from "./utils.js";
 

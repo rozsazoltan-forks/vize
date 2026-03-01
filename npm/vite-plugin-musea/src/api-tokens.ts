@@ -11,7 +11,7 @@
 
 import path from "node:path";
 
-import type { ApiRoutesContext, SendJson, SendError, ReadBody } from "./api-routes.js";
+import type { ApiRoutesContext, SendJson, SendError, ReadBody } from "./api-routes/index.js";
 import {
   parseTokens,
   buildTokenMap,

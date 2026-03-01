@@ -1,4 +1,4 @@
-import type { ArtFileInfo } from '../src/types.js'
+import type { ArtFileInfo } from '../src/types/index.js'
 
 export interface PaletteControl {
   name: string

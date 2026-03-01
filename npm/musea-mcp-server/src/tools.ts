@@ -5,4 +5,4 @@
  */
 
 export { toolDefinitions } from "./tools/definitions.js";
-export { handleToolCall } from "./tools/handler.js";
+export { handleToolCall } from "./tools/handler/index.js";

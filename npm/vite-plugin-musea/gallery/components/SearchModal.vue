@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { mdiMagnify, mdiHistory, mdiPalette, mdiDiamond, mdiHome, mdiCheckCircleOutline, mdiNavigationOutline } from '@mdi/js'
-import type { ArtFileInfo } from '../../src/types.js'
+import type { ArtFileInfo } from '../../src/types/index.js'
 import MdiIcon from './MdiIcon.vue'
 
 const props = defineProps<{

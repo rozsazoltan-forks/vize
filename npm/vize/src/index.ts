@@ -27,7 +27,7 @@ export type {
   MaybePromise,
   RuleSeverity,
   RuleCategory,
-} from "./types.js";
+} from "./types/index.js";
 
 // Config utilities
 export { defineConfig, loadConfig, normalizeGlobalTypes } from "./config.js";
