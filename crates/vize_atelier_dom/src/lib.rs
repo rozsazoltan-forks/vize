@@ -181,4 +181,48 @@ mod tests {
         // Empty div generates minimal code
         assert!(!result.code.is_empty());
     }
+
+    #[test]
+    fn test_event_handler_setup_ref_value() {
+        use vize_atelier_core::options::BindingType;
+        use vize_carton::FxHashMap;
+
+        let allocator = Bump::new();
+        let mut bindings_map = FxHashMap::default();
+        bindings_map.insert("quoteId".into(), BindingType::SetupRef);
+        bindings_map.insert("renoteTargetNote".into(), BindingType::SetupRef);
+        let binding_metadata = vize_atelier_core::options::BindingMetadata {
+            bindings: bindings_map,
+            props_aliases: FxHashMap::default(),
+            is_script_setup: true,
+        };
+
+        let opts = DomCompilerOptions {
+            mode: CodegenMode::Module,
+            prefix_identifiers: true,
+            inline: true,
+            cache_handlers: true,
+            binding_metadata: Some(binding_metadata),
+            ..Default::default()
+        };
+        let template = r#"<button @click="quoteId = null; renoteTargetNote = null;">x</button>"#;
+        let (_, errors, result) = compile_template_with_options(&allocator, template, opts);
+
+        eprintln!(
+            "=== Template Output ===\npreamble:\n{}\ncode:\n{}",
+            result.preamble, result.code
+        );
+        assert!(errors.is_empty(), "Errors: {:?}", errors);
+        let full = format!("{}\n{}", result.preamble, result.code);
+        assert!(
+            full.contains("quoteId.value"),
+            "quoteId should have .value in assignment. Got:\n{}",
+            full
+        );
+        assert!(
+            full.contains("renoteTargetNote.value"),
+            "renoteTargetNote should have .value in assignment. Got:\n{}",
+            full
+        );
+    }
 }

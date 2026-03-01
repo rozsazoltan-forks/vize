@@ -236,6 +236,13 @@ const editDashboard = ref()
         "Multi-statement handler should use block body ($event: any) => {{ ... }}. Got:\n{}",
         result.code
     );
+
+    // SetupRef assignment in template event handler should add .value
+    assert!(
+        result.code.contains("editDashboard.value"),
+        "SetupRef assignment in event handler should add .value. Got:\n{}",
+        result.code
+    );
 }
 
 #[test]

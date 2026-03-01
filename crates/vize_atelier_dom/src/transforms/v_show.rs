@@ -33,7 +33,7 @@ pub fn generate_show_directive(dir: &DirectiveNode<'_>) -> String {
 mod tests {
     use super::{generate_show_directive, generate_show_style, is_v_show, RuntimeHelper, V_SHOW};
     use vize_atelier_core::{DirectiveNode, ExpressionNode, SimpleExpressionNode, SourceLocation};
-    use vize_carton::{cstr, Box, Bump};
+    use vize_carton::{Box, Bump};
 
     fn create_show_directive<'a>(allocator: &'a Bump, exp: &str) -> DirectiveNode<'a> {
         let mut dir = DirectiveNode::new(allocator, "show", SourceLocation::STUB);

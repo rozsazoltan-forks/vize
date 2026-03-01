@@ -1,12 +1,12 @@
-[submodule "e2e/elk"]
+[submodule "tests/_fixtures/_git/elk"]
 	path = tests/_fixtures/_git/elk
 	url = https://github.com/elk-zone/elk
-[submodule "e2e/misskey"]
+[submodule "tests/_fixtures/_git/misskey"]
 	path = tests/_fixtures/_git/misskey
 	url = https://github.com/misskey-dev/misskey
-[submodule "e2e/npmx.dev"]
+[submodule "tests/_fixtures/_git/npmx.dev"]
 	path = tests/_fixtures/_git/npmx.dev
 	url = https://github.com/npmx-dev/npmx.dev
-[submodule "e2e/_git/vuefes-2025"]
+[submodule "tests/_fixtures/_git/vuefes-2025"]
 	path = tests/_fixtures/_git/vuefes-2025
 	url = https://github.com/vuejs-jp/vuefes-2025-website.git

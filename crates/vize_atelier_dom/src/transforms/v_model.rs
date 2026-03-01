@@ -188,7 +188,7 @@ mod tests {
         use vize_atelier_core::{
             ElementNode, ExpressionNode, SimpleExpressionNode, SourceLocation,
         };
-        use vize_carton::{cstr, Box, Bump};
+        use vize_carton::{Box, Bump};
 
         let allocator = Bump::new();
         let element = ElementNode::new(&allocator, "input", SourceLocation::STUB);

@@ -95,7 +95,50 @@ pub(crate) fn rewrite_expression(
             }
         }
         Err(_) => {
-            // Parse failed - fallback to simple identifier check
+            // Expression parsing failed - try parsing as a program (multi-statement handlers)
+            let oxc_allocator2 = OxcAllocator::default();
+            let parser2 = Parser::new(&oxc_allocator2, &js_content, source_type);
+            let parse_result2 = parser2.parse();
+
+            if parse_result2.errors.is_empty() {
+                // Successfully parsed as program - walk the AST and collect identifiers
+                let mut collector = IdentifierCollector::new(ctx, &js_content);
+                collector.visit_program(&parse_result2.program);
+
+                let used_unref = collector.used_unref;
+
+                let mut all_rewrites: Vec<(usize, String, String)> = collector
+                    .rewrites
+                    .into_iter()
+                    .map(|(pos, prefix)| (pos, prefix, String::default()))
+                    .collect();
+
+                for (pos, suffix) in collector.suffix_rewrites {
+                    all_rewrites.push((pos, String::default(), suffix));
+                }
+
+                all_rewrites.sort_by(|a, b| b.0.cmp(&a.0));
+
+                let mut result = js_content.clone();
+                for (pos, prefix, suffix) in all_rewrites {
+                    // No offset adjustment needed - program parsing has no wrapping parens
+                    if pos <= result.len() {
+                        if !suffix.is_empty() {
+                            result.insert_str(pos, &suffix);
+                        }
+                        if !prefix.is_empty() {
+                            result.insert_str(pos, &prefix);
+                        }
+                    }
+                }
+
+                return RewriteResult {
+                    code: result,
+                    used_unref,
+                };
+            }
+
+            // Program parsing also failed - fallback to simple identifier check
             let code: String = if is_simple_identifier(&js_content) {
                 if let Some(prefix) = get_identifier_prefix(&js_content, ctx) {
                     let mut s = String::with_capacity(prefix.len() + js_content.len());

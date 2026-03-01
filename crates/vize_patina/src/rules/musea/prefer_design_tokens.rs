@@ -294,9 +294,7 @@ fn normalize_value(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        normalize_value, MuseaLintResult, PreferDesignTokens, PreferDesignTokensConfig, TokenInfo,
-    };
+    use super::{normalize_value, MuseaLintResult, PreferDesignTokens, PreferDesignTokensConfig};
 
     fn create_config() -> PreferDesignTokensConfig {
         let mut config = PreferDesignTokensConfig::default();

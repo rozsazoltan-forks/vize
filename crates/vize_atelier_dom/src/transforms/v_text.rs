@@ -37,7 +37,7 @@ pub fn generate_text_children(dir: &DirectiveNode<'_>) -> Option<String> {
 mod tests {
     use super::{generate_text_children, generate_text_content, is_v_text};
     use vize_atelier_core::{DirectiveNode, ExpressionNode, SimpleExpressionNode, SourceLocation};
-    use vize_carton::{cstr, Box, Bump};
+    use vize_carton::{Box, Bump};
 
     fn create_test_directive<'a>(allocator: &'a Bump, name: &str, exp: &str) -> DirectiveNode<'a> {
         let mut dir = DirectiveNode::new(allocator, name, SourceLocation::STUB);

@@ -452,7 +452,7 @@ impl Default for CssLinter {
 
 #[cfg(test)]
 mod disable_tests {
-    use super::{strip_vize_comments, CssLinter, CssRuleMeta, DisabledRules};
+    use super::{strip_vize_comments, CssLinter, DisabledRules};
 
     #[test]
     fn test_parse_disable_comments() {
