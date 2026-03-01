@@ -11,7 +11,7 @@
     "test:browser": "vitest --browser.headless",
     "test:vrt": "playwright test",
     "test:vrt:update": "playwright test --update-snapshots",
-    "lint": "oxlint --deny-warnings --type-aware --tsconfig tsconfig.json",
+    "lint": "oxlint --deny-warnings --type-aware --tsconfig tsconfig.json && vize lint",
     "lint:fix": "oxlint --type-aware --tsconfig tsconfig.json --fix",
     "fmt": "oxfmt --write src",
     "fmt:check": "oxfmt src",

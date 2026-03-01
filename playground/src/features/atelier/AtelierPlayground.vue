@@ -102,12 +102,12 @@ onUnmounted(() => {
     <div class="panel-header">
       <h2>{{ inputMode === "sfc" ? "SFC (.vue)" : "Template" }}</h2>
       <div class="panel-actions">
-        <button @click="handlePresetChange(selectedPreset)" class="btn-ghost">Reset</button>
-        <button @click="copyToClipboard(source)" class="btn-ghost">Copy</button>
+        <button class="btn-ghost" @click="handlePresetChange(selectedPreset)">Reset</button>
+        <button class="btn-ghost" @click="copyToClipboard(source)">Copy</button>
       </div>
     </div>
     <div class="editor-container">
-      <MonacoEditor v-model="source" :language="editorLanguage" :theme="theme" />
+      <MonacoEditor v-model="source" :language="editorLanguage" :theme />
     </div>
   </div>
 
@@ -183,6 +183,7 @@ onUnmounted(() => {
                 </button>
               </div>
               <button
+                class="btn-ghost"
                 @click="
                   copyToClipboard(
                     isTypeScript && codeViewMode === 'js'
@@ -190,7 +191,6 @@ onUnmounted(() => {
                       : formattedCode || output.code,
                   )
                 "
-                class="btn-ghost"
               >
                 Copy
               </button>
@@ -200,14 +200,14 @@ onUnmounted(() => {
             v-if="isTypeScript && codeViewMode === 'js'"
             :code="formattedJsCode"
             language="javascript"
-            :theme="theme"
+            :theme
             show-line-numbers
           />
           <CodeHighlight
             v-else
             :code="formattedCode || output.code"
             :language="isTypeScript ? 'typescript' : 'javascript'"
-            :theme="theme"
+            :theme
             show-line-numbers
           />
         </div>
@@ -218,21 +218,21 @@ onUnmounted(() => {
             <h4>Abstract Syntax Tree</h4>
             <div class="ast-options">
               <label class="ast-option">
-                <input type="checkbox" v-model="astHideLoc" />
+                <input v-model="astHideLoc" type="checkbox" />
                 <span>Hide loc</span>
               </label>
               <label class="ast-option">
-                <input type="checkbox" v-model="astHideSource" />
+                <input v-model="astHideSource" type="checkbox" />
                 <span>Hide source</span>
               </label>
               <label class="ast-option">
-                <input type="checkbox" v-model="astCollapsed" />
+                <input v-model="astCollapsed" type="checkbox" />
                 <span>Compact</span>
               </label>
-              <button @click="copyToClipboard(astJson)" class="btn-ghost btn-small">Copy</button>
+              <button class="btn-ghost btn-small" @click="copyToClipboard(astJson)">Copy</button>
             </div>
           </div>
-          <CodeHighlight :code="astJson" language="json" :theme="theme" show-line-numbers />
+          <CodeHighlight :code="astJson" language="json" :theme show-line-numbers />
         </div>
 
         <!-- Helpers Tab -->
@@ -257,11 +257,7 @@ onUnmounted(() => {
                 sfcResult.descriptor.template.lang ? `(${sfcResult.descriptor.template.lang})` : ""
               }}
             </h5>
-            <CodeHighlight
-              :code="sfcResult.descriptor.template.content"
-              language="html"
-              :theme="theme"
-            />
+            <CodeHighlight :code="sfcResult.descriptor.template.content" language="html" :theme />
           </div>
 
           <div v-if="sfcResult.descriptor.scriptSetup" class="sfc-block">
@@ -276,7 +272,7 @@ onUnmounted(() => {
             <CodeHighlight
               :code="sfcResult.descriptor.scriptSetup.content"
               language="typescript"
-              :theme="theme"
+              :theme
             />
           </div>
 
@@ -288,7 +284,7 @@ onUnmounted(() => {
             <CodeHighlight
               :code="sfcResult.descriptor.script.content"
               language="typescript"
-              :theme="theme"
+              :theme
             />
           </div>
 
@@ -299,7 +295,7 @@ onUnmounted(() => {
                 <span v-if="style.scoped" class="badge">scoped</span>
                 <span v-if="style.lang" class="badge">{{ style.lang }}</span>
               </span>
-              <CodeHighlight :code="style.content" language="css" :theme="theme" />
+              <CodeHighlight :code="style.content" language="css" :theme />
             </div>
           </div>
         </div>
@@ -310,11 +306,11 @@ onUnmounted(() => {
 
           <div class="css-options">
             <label class="option checkbox">
-              <input type="checkbox" v-model="cssOptions.minify" />
+              <input v-model="cssOptions.minify" type="checkbox" />
               <span>Minify</span>
             </label>
             <label class="option checkbox">
-              <input type="checkbox" v-model="cssOptions.scoped" />
+              <input v-model="cssOptions.scoped" type="checkbox" />
               <span>Force Scoped</span>
             </label>
           </div>
@@ -323,14 +319,14 @@ onUnmounted(() => {
             <div class="css-compiled">
               <h5>Compiled CSS</h5>
               <div class="code-actions">
-                <button @click="copyToClipboard(formattedCss || cssResult.code)" class="btn-ghost">
+                <button class="btn-ghost" @click="copyToClipboard(formattedCss || cssResult.code)">
                   Copy
                 </button>
               </div>
               <CodeHighlight
                 :code="formattedCss || cssResult.code"
                 language="css"
-                :theme="theme"
+                :theme
                 show-line-numbers
               />
             </div>
@@ -362,7 +358,7 @@ onUnmounted(() => {
           <h4>Script Setup Bindings</h4>
 
           <div class="bindings-summary">
-            <div class="summary-card" v-for="(count, type) in bindingsSummary" :key="type">
+            <div v-for="(count, type) in bindingsSummary" :key="type" class="summary-card">
               <span class="summary-count">{{ count }}</span>
               <span :class="['summary-type', `type-${type}`]">{{ type }}</span>
             </div>
@@ -431,8 +427,8 @@ onUnmounted(() => {
 
           <h4>By Type</h4>
           <div class="token-groups">
-            <template v-for="(tokens, type) in tokensByType" :key="type">
-              <div v-if="tokens.length > 0" class="token-group">
+            <template v-for="(tokens, type) in tokensByType">
+              <div v-if="tokens.length > 0" :key="type" class="token-group">
                 <div
                   class="group-header"
                   :style="{

@@ -62,46 +62,91 @@ mod tests {
     }
 
     #[test]
-    fn test_disable_next_line() {
+    fn test_vize_forget_suppresses_next_element() {
         let linter = Linter::new();
-        // Without disable comment - should have error
+        // Without @vize:forget - should have error
         let result = linter.lint_template(
             r#"<ul><li v-for="item in items">{{ item }}</li></ul>"#,
             "test.vue",
         );
         assert!(result.error_count > 0, "Should have error without key");
 
-        // With disable comment - should suppress error
+        // With @vize:forget - should suppress error on the next element
         let result = linter.lint_template(
-            r#"<ul><!-- vize-disable-next-line -->
+            r#"<ul><!-- @vize:forget v-for key not needed here -->
 <li v-for="item in items">{{ item }}</li></ul>"#,
             "test.vue",
         );
-        assert_eq!(result.error_count, 0, "Error should be suppressed");
+        assert_eq!(
+            result.error_count, 0,
+            "Error should be suppressed by @vize:forget"
+        );
     }
 
     #[test]
-    fn test_disable_specific_rule() {
+    fn test_vize_forget_without_reason_warns() {
         let linter = Linter::new();
-        // With specific rule disable
         let result = linter.lint_template(
-            r#"<ul><!-- vize-disable-next-line vue/require-v-for-key -->
+            r#"<ul><!-- @vize:forget -->
 <li v-for="item in items">{{ item }}</li></ul>"#,
             "test.vue",
         );
-        assert_eq!(result.error_count, 0, "Specific rule should be suppressed");
+        // The v-for error should still be suppressed
+        assert_eq!(result.error_count, 0, "v-for error should be suppressed");
+        // But a warning should be emitted for missing reason
+        assert_eq!(result.warning_count, 1, "Should warn about missing reason");
+        assert_eq!(result.diagnostics[0].rule_name, "vize/forget");
     }
 
     #[test]
-    fn test_disable_all() {
+    fn test_vize_forget_multiline_element() {
         let linter = Linter::new();
-        // With disable all
         let result = linter.lint_template(
-            r#"<!-- vize-disable -->
-<ul><li v-for="item in items">{{ item }}</li></ul>"#,
+            r#"<ul><!-- @vize:forget complex rendering -->
+<li
+  v-for="item in items"
+  class="item"
+>{{ item }}</li></ul>"#,
             "test.vue",
         );
-        assert_eq!(result.error_count, 0, "All rules should be disabled");
+        assert_eq!(
+            result.error_count, 0,
+            "Multiline element should be fully suppressed"
+        );
+    }
+
+    #[test]
+    fn test_vize_forget_suppresses_template_v_for() {
+        let linter = Linter::new();
+        // <template v-for> becomes a ForNode in the AST, not an ElementNode.
+        // @vize:forget should suppress diagnostics on ForNode too.
+        let result = linter.lint_template(
+            r#"<div><!-- @vize:forget template key is valid in Vue 3 -->
+<template v-for="item in items" :key="item.id">
+  <li>{{ item.name }}</li>
+</template></div>"#,
+            "test.vue",
+        );
+        assert_eq!(
+            result.error_count, 0,
+            "ForNode should be suppressed by @vize:forget"
+        );
+    }
+
+    #[test]
+    fn test_vize_forget_suppresses_template_v_if() {
+        let linter = Linter::new();
+        // <div v-if> becomes part of an IfNode in the AST.
+        // @vize:forget should suppress diagnostics on IfNode too.
+        let result = linter.lint_template(
+            r#"<div><!-- @vize:forget conditional rendering -->
+<span v-if="show" v-for="item in items">{{ item }}</span></div>"#,
+            "test.vue",
+        );
+        assert_eq!(
+            result.error_count, 0,
+            "IfNode should be suppressed by @vize:forget"
+        );
     }
 
     #[test]

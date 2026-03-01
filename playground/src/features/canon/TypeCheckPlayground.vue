@@ -190,12 +190,12 @@ onUnmounted(() => {
           <h2>Source</h2>
         </div>
         <div class="panel-actions">
-          <button @click="setPreset('untyped')" class="btn-ghost">Untyped</button>
-          <button @click="setPreset('typed')" class="btn-ghost">Typed</button>
+          <button class="btn-ghost" @click="setPreset('untyped')">Untyped</button>
+          <button class="btn-ghost" @click="setPreset('typed')">Typed</button>
         </div>
       </div>
       <div class="editor-container">
-        <MonacoEditor v-model="source" language="vue" :diagnostics="diagnostics" :theme="theme" />
+        <MonacoEditor v-model="source" language="vue" :diagnostics :theme />
       </div>
     </div>
 
@@ -248,7 +248,7 @@ onUnmounted(() => {
               <span class="output-title">Type Issues</span>
               <div class="options-toggle">
                 <label class="option-label">
-                  <input type="checkbox" v-model="strictMode" />
+                  <input v-model="strictMode" type="checkbox" />
                   Strict
                 </label>
               </div>
@@ -256,23 +256,23 @@ onUnmounted(() => {
 
             <div class="options-panel">
               <label class="option-label highlight">
-                <input type="checkbox" v-model="useMonacoTs" />
+                <input v-model="useMonacoTs" type="checkbox" />
                 TypeScript (Monaco)
               </label>
               <label class="option-label">
-                <input type="checkbox" v-model="checkProps" />
+                <input v-model="checkProps" type="checkbox" />
                 Check Props
               </label>
               <label class="option-label">
-                <input type="checkbox" v-model="checkEmits" />
+                <input v-model="checkEmits" type="checkbox" />
                 Check Emits
               </label>
               <label class="option-label">
-                <input type="checkbox" v-model="checkTemplateBindings" />
+                <input v-model="checkTemplateBindings" type="checkbox" />
                 Check Template Bindings
               </label>
               <label class="option-label">
-                <input type="checkbox" v-model="includeVirtualTs" />
+                <input v-model="includeVirtualTs" type="checkbox" />
                 Show Virtual TS
               </label>
             </div>
@@ -299,12 +299,14 @@ onUnmounted(() => {
                     {{ diagnostic.startLine }}:{{ diagnostic.startColumn }}
                   </span>
                 </div>
+                <!-- @vize:forget formatMessage output is pre-escaped -->
                 <div class="diagnostic-message" v-html="formatMessage(diagnostic.message)"></div>
                 <div v-if="diagnostic.help" class="diagnostic-help">
                   <div class="help-header">
                     <span class="help-icon">?</span>
                     <span class="help-label">Hint</span>
                   </div>
+                  <!-- @vize:forget formatHelp output is pre-escaped -->
                   <div class="help-content" v-html="formatHelp(diagnostic.help)"></div>
                 </div>
               </div>
@@ -325,7 +327,7 @@ onUnmounted(() => {
                 :model-value="typeCheckResult.virtualTs"
                 language="typescript"
                 :read-only="true"
-                :theme="theme"
+                :theme
               />
             </div>
             <div v-else class="empty-state">

@@ -234,6 +234,7 @@ onUnmounted(() => {
                     <span class="help-icon">?</span>
                     <span class="help-label">Hint</span>
                   </div>
+                  <!-- @vize:forget formatHelp output is pre-escaped -->
                   <div class="help-content" v-html="formatHelp(diagnostic.help)"></div>
                 </div>
               </div>

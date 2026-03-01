@@ -37,6 +37,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build vize CLI
+        run: cargo build --release -p vize
+      - name: Install vize CLI
+        run: cp target/release/vize /usr/local/bin/vize
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -77,8 +83,13 @@ jobs:
 
   playground-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ github.token }}
 
       # Rust is always needed for @vizejs/native (used by vite-plugin-vize)
       - name: Setup Rust
@@ -151,9 +162,33 @@ jobs:
       - name: Run VRT
         working-directory: playground
         run: pnpm test:vrt
+        continue-on-error: true
+        id: vrt
+
+      - name: Update VRT snapshots
+        if: steps.vrt.outcome == 'failure'
+        working-directory: playground
+        run: pnpm test:vrt:update
+
+      - name: Commit updated snapshots
+        if: steps.vrt.outcome == 'failure' && github.event_name == 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add playground/e2e/vrt/__snapshots__/
+          if git diff --cached --quiet; then
+            echo "No snapshot changes"
+          else
+            git commit -m "chore: update VRT snapshots"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
+
+      - name: Fail if VRT failed and no auto-update
+        if: steps.vrt.outcome == 'failure' && github.event_name != 'pull_request'
+        run: exit 1
 
       - name: Upload VRT diff artifacts
-        if: failure()
+        if: steps.vrt.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: vrt-diff

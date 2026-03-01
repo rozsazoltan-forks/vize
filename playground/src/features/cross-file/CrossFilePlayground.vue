@@ -221,7 +221,7 @@ onUnmounted(() => {
     :class="{ resizing: isResizingSidebar || isResizingDiagnostics }"
   >
     <!-- Sidebar: File Tree & Dependency Graph -->
-    <aside class="sidebar">
+    <aside class="sidebar" aria-label="File tree and dependency graph">
       <!-- Preset Selector -->
       <div class="sidebar-section preset-section">
         <div class="section-header">
@@ -232,8 +232,8 @@ onUnmounted(() => {
             v-for="preset in PRESETS"
             :key="preset.id"
             :class="['preset-item', { active: currentPreset === preset.id }]"
-            @click="handleSelectPreset($event)"
             :title="preset.description"
+            @click="handleSelectPreset($event)"
           >
             <svg class="preset-icon" viewBox="0 0 24 24">
               <path :d="preset.icon" fill="currentColor" />
@@ -247,10 +247,10 @@ onUnmounted(() => {
         <div class="section-header">
           <h3>Project Files</h3>
           <div class="section-actions">
-            <button @click="addFile" class="icon-btn" title="Add file">
+            <button class="icon-btn" title="Add file" @click="addFile">
               <svg viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
             </button>
-            <button @click="resetProject" class="icon-btn" title="Reset">
+            <button class="icon-btn" title="Reset" @click="resetProject">
               <svg viewBox="0 0 24 24"><path :d="mdiRefresh" fill="currentColor" /></svg>
             </button>
           </div>
@@ -259,6 +259,8 @@ onUnmounted(() => {
           <div
             v-for="name in fileNames"
             :key="name"
+            role="button"
+            tabindex="0"
             :class="[
               'file-item',
               {
@@ -268,6 +270,7 @@ onUnmounted(() => {
               },
             ]"
             @click="handleFileClick($event)"
+            @keydown.enter="handleFileClick($event)"
           >
             <svg class="file-icon" viewBox="0 0 24 24">
               <path :d="getFileIcon(name)" fill="currentColor" />
@@ -280,7 +283,7 @@ onUnmounted(() => {
             >
               <span class="badge-count">{{ issuesByFile[name].length }}</span>
             </span>
-            <button v-if="fileNames.length > 1" @click.stop="removeFile(name)" class="file-delete">
+            <button v-if="fileNames.length > 1" class="file-delete" @click.stop="removeFile(name)">
               <svg viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
             </button>
           </div>
@@ -299,7 +302,14 @@ onUnmounted(() => {
                 <svg class="dep-arrow" viewBox="0 0 24 24">
                   <path :d="mdiArrowRight" fill="currentColor" />
                 </svg>
-                <span class="dep-target" @click="handleFileClick($event)">{{ dep }}</span>
+                <span
+                  role="button"
+                  tabindex="0"
+                  class="dep-target"
+                  @click="handleFileClick($event)"
+                  @keydown.enter="handleFileClick($event)"
+                  >{{ dep }}</span
+                >
               </div>
             </div>
           </div>
@@ -317,27 +327,27 @@ onUnmounted(() => {
         </div>
         <div class="options-grid">
           <label class="option-toggle">
-            <input type="checkbox" v-model="options.provideInject" />
+            <input v-model="options.provideInject" type="checkbox" />
             <span>Provide/Inject</span>
           </label>
           <label class="option-toggle">
-            <input type="checkbox" v-model="options.componentEmits" />
+            <input v-model="options.componentEmits" type="checkbox" />
             <span>Component Emits</span>
           </label>
           <label class="option-toggle">
-            <input type="checkbox" v-model="options.fallthroughAttrs" />
+            <input v-model="options.fallthroughAttrs" type="checkbox" />
             <span>Fallthrough Attrs</span>
           </label>
           <label class="option-toggle">
-            <input type="checkbox" v-model="options.reactivityTracking" />
+            <input v-model="options.reactivityTracking" type="checkbox" />
             <span>Reactivity</span>
           </label>
           <label class="option-toggle">
-            <input type="checkbox" v-model="options.uniqueIds" />
+            <input v-model="options.uniqueIds" type="checkbox" />
             <span>Unique IDs</span>
           </label>
           <label class="option-toggle">
-            <input type="checkbox" v-model="options.serverClientBoundary" />
+            <input v-model="options.serverClientBoundary" type="checkbox" />
             <span>SSR Boundary</span>
           </label>
         </div>
@@ -345,7 +355,13 @@ onUnmounted(() => {
     </aside>
 
     <!-- Resize Handle: Sidebar -->
-    <div class="resize-handle resize-handle-left" @mousedown="startSidebarResize"></div>
+    <div
+      role="button"
+      tabindex="0"
+      class="resize-handle resize-handle-left"
+      @mousedown="startSidebarResize"
+      @keydown.enter="startSidebarResize"
+    ></div>
 
     <!-- Main Content: Editor -->
     <main class="editor-pane">
@@ -381,22 +397,28 @@ onUnmounted(() => {
           v-model="currentSource"
           :language="editorLanguage"
           :diagnostics="currentDiagnostics"
-          :theme="theme"
+          :theme
         />
       </div>
     </main>
 
     <!-- Resize Handle: Diagnostics -->
-    <div class="resize-handle resize-handle-right" @mousedown="startDiagnosticsResize"></div>
+    <div
+      role="button"
+      tabindex="0"
+      class="resize-handle resize-handle-right"
+      @mousedown="startDiagnosticsResize"
+      @keydown.enter="startDiagnosticsResize"
+    ></div>
 
     <!-- Right Panel: Diagnostics -->
-    <aside class="diagnostics-pane">
+    <aside class="diagnostics-pane" aria-label="Diagnostics">
       <div class="diagnostics-header">
         <h3>Diagnostics</h3>
         <div class="diagnostics-stats">
-          <span class="stat-chip error" v-if="stats.errors">{{ stats.errors }} errors</span>
-          <span class="stat-chip warning" v-if="stats.warnings">{{ stats.warnings }} warnings</span>
-          <span class="stat-chip info" v-if="stats.infos">{{ stats.infos }} info</span>
+          <span v-if="stats.errors" class="stat-chip error">{{ stats.errors }} errors</span>
+          <span v-if="stats.warnings" class="stat-chip warning">{{ stats.warnings }} warnings</span>
+          <span v-if="stats.infos" class="stat-chip info">{{ stats.infos }} info</span>
         </div>
       </div>
 
@@ -416,8 +438,11 @@ onUnmounted(() => {
             <div
               v-for="issue in issues"
               :key="issue.id"
+              role="button"
+              tabindex="0"
               :class="['issue-card', issue.severity, { selected: selectedIssue?.id === issue.id }]"
               @click="handleSelectIssue(issue)"
+              @keydown.enter="handleSelectIssue(issue)"
             >
               <div class="issue-header">
                 <svg class="severity-icon" viewBox="0 0 24 24">

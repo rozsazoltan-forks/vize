@@ -159,8 +159,10 @@ impl Rule for FormControlHasLabel {
         }
 
         // Check for various label methods
-        let has_label =
-            Self::has_aria_label(element) || Self::has_id(element) || Self::has_title(element);
+        let has_label = Self::has_aria_label(element)
+            || Self::has_id(element)
+            || Self::has_title(element)
+            || ctx.has_ancestor(|parent| parent.tag.as_str() == "label");
 
         if !has_label {
             let help = if Self::has_placeholder(element) {
@@ -218,6 +220,24 @@ mod tests {
     fn test_valid_submit_button() {
         let linter = create_linter();
         let result = linter.lint_template(r#"<input type="submit" value="Submit" />"#, "test.vue");
+        assert_eq!(result.warning_count, 0);
+    }
+
+    #[test]
+    fn test_valid_inside_label() {
+        let linter = create_linter();
+        let result =
+            linter.lint_template(r#"<label>Name <input type="text" /></label>"#, "test.vue");
+        assert_eq!(result.warning_count, 0);
+    }
+
+    #[test]
+    fn test_valid_inside_label_nested_span() {
+        let linter = create_linter();
+        let result = linter.lint_template(
+            r#"<label><span><input type="checkbox" /></span></label>"#,
+            "test.vue",
+        );
         assert_eq!(result.warning_count, 0);
     }
 

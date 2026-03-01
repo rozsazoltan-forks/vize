@@ -345,16 +345,6 @@ impl<'a> LintContext<'a> {
         }
     }
 
-    /// Disable all rules for the next line only.
-    pub fn disable_next_line(&mut self, current_line: u32) {
-        self.disable_all(current_line + 1, Some(current_line + 1));
-    }
-
-    /// Disable specific rules for the next line only.
-    pub fn disable_rules_next_line(&mut self, rules: &[&str], current_line: u32) {
-        self.disable_rules(rules, current_line + 1, Some(current_line + 1));
-    }
-
     /// Begin a `@vize:ignore-start` region (disables all rules from this line).
     pub fn push_ignore_region(&mut self, line: u32) {
         self.disable_all(line, None);

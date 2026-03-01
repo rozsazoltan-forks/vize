@@ -26,6 +26,8 @@ pub enum DirectiveKind {
     Deprecated,
     /// `@vize:dev-only` - strip in production, keep in dev mode
     DevOnly,
+    /// `@vize:forget <reason>` - suppress all diagnostics for the next element
+    Forget,
     /// Unknown `@vize:` directive
     Unknown,
 }
@@ -74,6 +76,7 @@ pub fn parse_vize_directive(content: &str, line: u32, offset: u32) -> Option<Viz
         s if s.starts_with("level(") && s.ends_with(')') => DirectiveKind::Level,
         "deprecated" => DirectiveKind::Deprecated,
         "dev-only" => DirectiveKind::DevOnly,
+        "forget" => DirectiveKind::Forget,
         _ => DirectiveKind::Unknown,
     };
 
@@ -227,6 +230,21 @@ mod tests {
     fn test_todo_no_message() {
         let d = parse_vize_directive("@vize:todo", 1, 0).unwrap();
         assert_eq!(d.kind, DirectiveKind::Todo);
+        assert_eq!(d.payload.as_str(), "");
+    }
+
+    #[test]
+    fn test_parse_forget() {
+        let d = parse_vize_directive("@vize:forget shiki output is pre-escaped", 3, 50).unwrap();
+        assert_eq!(d.kind, DirectiveKind::Forget);
+        assert_eq!(d.payload.as_str(), "shiki output is pre-escaped");
+        assert_eq!(d.line, 3);
+    }
+
+    #[test]
+    fn test_parse_forget_no_reason() {
+        let d = parse_vize_directive("@vize:forget", 1, 0).unwrap();
+        assert_eq!(d.kind, DirectiveKind::Forget);
         assert_eq!(d.payload.as_str(), "");
     }
 }

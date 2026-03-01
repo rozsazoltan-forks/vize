@@ -134,8 +134,8 @@ onMounted(async () => {
       <div class="options">
         <button
           class="theme-toggle"
-          @click="toggleTheme"
           :title="isDark ? 'Light mode' : 'Dark mode'"
+          @click="toggleTheme"
         >
           <svg
             v-if="isDark"
@@ -178,6 +178,7 @@ onMounted(async () => {
           target="_blank"
           rel="noopener noreferrer"
           class="github-link"
+          aria-label="GitHub repository"
         >
           <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
             <path
@@ -190,25 +191,25 @@ onMounted(async () => {
 
     <main class="main">
       <template v-if="mainTab === 'patina'">
-        <PatinaPlayground :compiler="compiler" />
+        <PatinaPlayground :compiler />
       </template>
       <template v-else-if="mainTab === 'canon'">
-        <TypeCheckPlayground :compiler="compiler" />
+        <TypeCheckPlayground :compiler />
       </template>
       <template v-else-if="mainTab === 'croquis'">
-        <CroquisPlayground :compiler="compiler" />
+        <CroquisPlayground :compiler />
       </template>
       <template v-else-if="mainTab === 'cross-file'">
-        <CrossFilePlayground :compiler="compiler" />
+        <CrossFilePlayground :compiler />
       </template>
       <template v-else-if="mainTab === 'musea'">
-        <MuseaPlayground :compiler="compiler" />
+        <MuseaPlayground :compiler />
       </template>
       <template v-else-if="mainTab === 'glyph'">
-        <GlyphPlayground :compiler="compiler" />
+        <GlyphPlayground :compiler />
       </template>
       <template v-else>
-        <AtelierPlayground :compiler="compiler" />
+        <AtelierPlayground :compiler />
       </template>
     </main>
 

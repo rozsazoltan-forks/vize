@@ -15,13 +15,19 @@ use vize_relief::ast::{
 pub struct LintVisitor<'a, 'ctx, 'rules> {
     ctx: &'ctx mut LintContext<'a>,
     rules: &'rules [Box<dyn Rule>],
+    /// When true, suppress all diagnostics for the next element
+    forget_next_element: bool,
 }
 
 impl<'a, 'ctx, 'rules> LintVisitor<'a, 'ctx, 'rules> {
     /// Create a new visitor
     #[inline]
     pub fn new(ctx: &'ctx mut LintContext<'a>, rules: &'rules [Box<dyn Rule>]) -> Self {
-        Self { ctx, rules }
+        Self {
+            ctx,
+            rules,
+            forget_next_element: false,
+        }
     }
 
     /// Visit the root node and traverse the AST
@@ -42,51 +48,46 @@ impl<'a, 'ctx, 'rules> LintVisitor<'a, 'ctx, 'rules> {
     #[inline]
     fn visit_child(&mut self, node: &TemplateChildNode<'a>) {
         match node {
-            TemplateChildNode::Element(el) => self.visit_element(el),
+            TemplateChildNode::Element(el) => {
+                if self.forget_next_element {
+                    self.forget_next_element = false;
+                    let start_line = self.ctx.offset_to_line(el.loc.start.offset);
+                    let end_line = self.ctx.offset_to_line(el.loc.end.offset);
+                    self.ctx.disable_all(start_line, Some(end_line));
+                }
+                self.visit_element(el);
+            }
             TemplateChildNode::Interpolation(interp) => {
                 for rule in self.rules.iter() {
                     self.ctx.current_rule = rule.meta().name;
                     rule.check_interpolation(self.ctx, interp);
                 }
             }
-            TemplateChildNode::If(if_node) => self.visit_if(if_node),
-            TemplateChildNode::For(for_node) => self.visit_for(for_node),
+            TemplateChildNode::If(if_node) => {
+                if self.forget_next_element {
+                    self.forget_next_element = false;
+                    let start_line = self.ctx.offset_to_line(if_node.loc.start.offset);
+                    let end_line = self.ctx.offset_to_line(if_node.loc.end.offset);
+                    self.ctx.disable_all(start_line, Some(end_line));
+                }
+                self.visit_if(if_node);
+            }
+            TemplateChildNode::For(for_node) => {
+                if self.forget_next_element {
+                    self.forget_next_element = false;
+                    let start_line = self.ctx.offset_to_line(for_node.loc.start.offset);
+                    let end_line = self.ctx.offset_to_line(for_node.loc.end.offset);
+                    self.ctx.disable_all(start_line, Some(end_line));
+                }
+                self.visit_for(for_node);
+            }
             TemplateChildNode::Comment(comment) => {
-                self.process_disable_comment(&comment.content, comment.loc.start.line);
                 if let Some(kind) = comment.directive {
                     self.process_vize_directive(comment, kind);
                 }
             }
             TemplateChildNode::Text(_) => {}
             _ => {}
-        }
-    }
-
-    /// Process disable comments like `vize-disable` or `vize-disable-next-line`
-    fn process_disable_comment(&mut self, content: &str, line: u32) {
-        let content = content.trim();
-
-        // vize-disable-next-line [rule1, rule2, ...]
-        if let Some(rest) = content.strip_prefix("vize-disable-next-line") {
-            let rest = rest.trim();
-            if rest.is_empty() {
-                self.ctx.disable_next_line(line);
-            } else {
-                let rules: Vec<&str> = rest.split(',').map(|s| s.trim()).collect();
-                self.ctx.disable_rules_next_line(&rules, line);
-            }
-            return;
-        }
-
-        // vize-disable [rule1, rule2, ...]
-        if let Some(rest) = content.strip_prefix("vize-disable") {
-            let rest = rest.trim();
-            if rest.is_empty() {
-                self.ctx.disable_all(line, None);
-            } else {
-                let rules: Vec<&str> = rest.split(',').map(|s| s.trim()).collect();
-                self.ctx.disable_rules(&rules, line, None);
-            }
         }
     }
 
@@ -144,6 +145,16 @@ impl<'a, 'ctx, 'rules> LintVisitor<'a, 'ctx, 'rules> {
                     };
                     self.ctx.current_rule = "vize/deprecated";
                     self.ctx.warn(msg, loc);
+                }
+            }
+            DirectiveKind::Forget => {
+                if let Some(d) = parse_vize_directive(&comment.content, line, loc.start.offset) {
+                    if d.payload.is_empty() {
+                        self.ctx.current_rule = "vize/forget";
+                        self.ctx
+                            .warn(CompactString::from("@vize:forget requires a reason"), loc);
+                    }
+                    self.forget_next_element = true;
                 }
             }
             // Docs, DevOnly, Unknown: no lint action needed

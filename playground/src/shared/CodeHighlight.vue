@@ -136,6 +136,7 @@ watch(() => [props.code, props.language], highlight);
       <span v-for="i in lineCount" :key="i" class="line-number">{{ i }}</span>
     </div>
     <div class="code-content">
+      <!-- @vize:forget shiki output is pre-escaped -->
       <div
         v-for="(line, index) in highlightedLines"
         :key="index"
