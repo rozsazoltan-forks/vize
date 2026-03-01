@@ -163,9 +163,16 @@ function handleSelectIssue(issue: (typeof crossFileIssues.value)[0]) {
   setEditorValue(files.value[issue.file] ?? "");
 }
 
-function handleSelectPreset(presetId: string) {
-  selectPreset(presetId, analyzeAll);
-  setEditorValue(currentSource.value);
+// Workaround for vite-plugin-vize: v-for scoped variables are not correctly
+// passed to event handlers. We read the preset name from DOM instead.
+function handleSelectPreset(event: Event) {
+  const el = event.currentTarget as HTMLElement;
+  const name = el.querySelector(".preset-name")?.textContent?.trim();
+  const preset = PRESETS.find((p) => p.name === name);
+  if (preset) {
+    selectPreset(preset.id, analyzeAll);
+    setEditorValue(currentSource.value);
+  }
 }
 
 // Workaround for vite-plugin-vize prop reactivity issue
@@ -225,7 +232,7 @@ onUnmounted(() => {
             v-for="preset in PRESETS"
             :key="preset.id"
             :class="['preset-item', { active: currentPreset === preset.id }]"
-            @click="handleSelectPreset(preset.id)"
+            @click="handleSelectPreset($event)"
             :title="preset.description"
           >
             <svg class="preset-icon" viewBox="0 0 24 24">

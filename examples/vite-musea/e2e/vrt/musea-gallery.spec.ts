@@ -22,7 +22,11 @@ test.describe("musea gallery", () => {
       await page.goto("/__musea__");
       await page.waitForLoadState("networkidle");
 
-      await page.getByRole("link", { name: component }).first().click();
+      // Gallery sidebar uses <li class="art-item"> with <span> text, not <a> links
+      await page
+        .locator(".art-item", { hasText: component })
+        .first()
+        .click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(500);
 

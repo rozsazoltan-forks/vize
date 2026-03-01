@@ -102,9 +102,6 @@ importers:
       '@vizejs/vite-plugin-musea':
         specifier: workspace:*
         version: link:../../npm/vite-plugin-musea
-      playwright:
-        specifier: ^1.40.0
-        version: 1.57.0
       typescript:
         specifier: ^5.7.0
         version: 5.9.3

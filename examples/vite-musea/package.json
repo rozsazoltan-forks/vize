@@ -19,7 +19,6 @@
     "@vizejs/vite-plugin": "workspace:*",
     "@vizejs/vite-plugin-musea": "workspace:*",
     "@playwright/test": "^1.40.0",
-    "playwright": "^1.40.0",
     "typescript": "^5.7.0",
     "vite": "^8.0.0-beta.0",
     "vue-tsc": "^2.0.0"
