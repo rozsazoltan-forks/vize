@@ -4,6 +4,23 @@
 //! detection, unused variable tracking, and export validation.
 
 use vize_carton::{CompactString, FxHashMap, String};
+
+/// Vue compiler macro names that are auto-available in `<script setup>`.
+///
+/// These are transformed at compile time and should NOT be explicitly imported.
+/// Used by:
+/// - Canon: to detect shadowed imports at module level (void references)
+/// - Patina: to lint against explicit imports of compiler macros
+pub const COMPILER_MACRO_NAMES: &[&str] = &[
+    "defineProps",
+    "defineEmits",
+    "defineExpose",
+    "defineModel",
+    "defineOptions",
+    "defineSlots",
+    "withDefaults",
+    "useTemplateRef",
+];
 use vize_relief::BindingType;
 
 /// Binding metadata extracted from script analysis.
@@ -137,6 +154,20 @@ pub struct TypeExport {
 pub enum TypeExportKind {
     Type = 0,
     Interface = 1,
+}
+
+/// Span of an import statement in script content.
+#[derive(Debug, Clone, Copy)]
+pub struct ImportStatementInfo {
+    pub start: u32,
+    pub end: u32,
+}
+
+/// Span of a re-export statement (`export { ... } from "..."`) in script content.
+#[derive(Debug, Clone, Copy)]
+pub struct ReExportInfo {
+    pub start: u32,
+    pub end: u32,
 }
 
 /// Invalid export in script setup

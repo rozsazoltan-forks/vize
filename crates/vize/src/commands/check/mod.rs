@@ -44,11 +44,6 @@ pub struct CheckArgs {
     /// Path to tsgo executable (can also use TSGO_PATH env var)
     #[arg(long)]
     pub tsgo_path: Option<String>,
-
-    /// Template globals to declare (e.g., "$t:(...args: any[]) => string,$route:any").
-    /// Overrides vize.config.json check.globals. Use "none" to disable all globals.
-    #[arg(long)]
-    pub globals: Option<String>,
 }
 
 /// Intermediate representation of a generated virtual TypeScript file.

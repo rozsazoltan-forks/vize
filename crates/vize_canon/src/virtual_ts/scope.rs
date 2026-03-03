@@ -238,26 +238,26 @@ fn generate_component_props(
         }
     }
 
-    // Collect all v-for scope IDs and determine which are nested
-    let vfor_scope_ids: FxHashSet<u32> = summary
+    // Collect all closure scope IDs (v-for and v-slot)
+    let closure_scope_ids: FxHashSet<u32> = summary
         .scopes
         .iter()
-        .filter(|s| matches!(s.kind, ScopeKind::VFor))
+        .filter(|s| matches!(s.kind, ScopeKind::VFor | ScopeKind::VSlot))
         .map(|s| s.id.as_u32())
         .collect();
 
-    // Root VFor scopes: VFor scopes whose parent is NOT a VFor scope
-    let root_vfor_scope_ids: FxHashSet<u32> = summary
+    // Root closure scopes: VFor/VSlot scopes whose parent is NOT a closure scope
+    let root_closure_scope_ids: FxHashSet<u32> = summary
         .scopes
         .iter()
         .filter(|s| {
-            matches!(s.kind, ScopeKind::VFor)
+            matches!(s.kind, ScopeKind::VFor | ScopeKind::VSlot)
                 && s.parent().is_none_or(|pid| {
                     summary
                         .scopes
                         .iter()
                         .find(|p| p.id == pid)
-                        .is_none_or(|p| !matches!(p.kind, ScopeKind::VFor))
+                        .is_none_or(|p| !matches!(p.kind, ScopeKind::VFor | ScopeKind::VSlot))
                 })
         })
         .map(|s| s.id.as_u32())
@@ -265,19 +265,19 @@ fn generate_component_props(
 
     ts.push_str("\n  // Component props value checks (template scope)\n");
     for (idx, usage) in summary.component_usages.iter().enumerate() {
-        if vfor_scope_ids.contains(&usage.scope_id.as_u32()) {
-            continue; // Will be emitted inside v-for scope
+        if closure_scope_ids.contains(&usage.scope_id.as_u32()) {
+            continue; // Will be emitted inside v-for/v-slot scope
         }
         generate_component_prop_checks(ts, mappings, usage, idx, template_offset, "  ");
     }
 
-    // Emit value checks for components in v-for scopes (recursive for nesting)
+    // Emit value checks for components in closure scopes (v-for and v-slot)
     for scope in summary.scopes.iter() {
-        if !matches!(scope.kind, ScopeKind::VFor) {
+        if !matches!(scope.kind, ScopeKind::VFor | ScopeKind::VSlot) {
             continue;
         }
-        // Only process root v-for scopes here; nested ones are handled recursively
-        if !root_vfor_scope_ids.contains(&scope.id.as_u32()) {
+        // Only process root closure scopes; nested ones are handled recursively
+        if !root_closure_scope_ids.contains(&scope.id.as_u32()) {
             continue;
         }
         let props_ctx = VForPropsContext {
@@ -286,7 +286,7 @@ fn generate_component_props(
             children_map,
             template_offset,
         };
-        generate_vfor_component_props_recursive(ts, mappings, &props_ctx, scope, "  ");
+        generate_closure_component_props_recursive(ts, mappings, &props_ctx, scope, "  ");
     }
 }
 
@@ -314,8 +314,13 @@ fn generate_scope_node(
             // e.g., "(expr) as OptionSponsor[]" -> "(expr)" with type annotation
             let (source_expr, type_annotation) = strip_as_assertion(&data.source);
 
+            // Detect numeric literal (e.g., `v-for="n in 4"`)
+            let is_numeric = source_expr.trim().parse::<u64>().is_ok();
+
             let is_simple_identifier = source_expr.chars().all(|c| c.is_alphanumeric() || c == '_');
-            let element_type = if let Some(ref ta) = type_annotation {
+            let element_type = if is_numeric {
+                "number".into()
+            } else if let Some(ref ta) = type_annotation {
                 // Use the asserted type's element type
                 cstr!("{ta}[number]")
             } else if is_simple_identifier {
@@ -324,11 +329,19 @@ fn generate_scope_node(
                 "any".into()
             };
 
-            append!(
-                *ts,
-                "{indent}({source_expr}).forEach(({}: {element_type}",
-                data.value_alias,
-            );
+            if is_numeric {
+                append!(
+                    *ts,
+                    "{indent}(Array.from({{length: {source_expr}}}, (_, __i) => __i + 1)).forEach(({}: {element_type}",
+                    data.value_alias,
+                );
+            } else {
+                append!(
+                    *ts,
+                    "{indent}({source_expr}).forEach(({}: {element_type}",
+                    data.value_alias,
+                );
+            }
 
             if let Some(ref key) = data.key_alias {
                 append!(*ts, ", {key}: number");
@@ -412,9 +425,10 @@ fn generate_scope_node(
                 };
 
                 // Type alias (block-scoped in TypeScript)
+                // Include scope_id to deduplicate when same component+event appears multiple times
                 append!(
                     *ts,
-                    "{indent}type __{component_name}_{safe_event_name}_event = typeof {component_name} extends {{ new (): {{ $props: infer __P }} }}\n",
+                    "{indent}type __{component_name}_{scope_id}_{safe_event_name}_event = typeof {component_name} extends {{ new (): {{ $props: infer __P }} }}\n",
                 );
                 append!(
                     *ts,
@@ -430,7 +444,7 @@ fn generate_scope_node(
                 );
                 append!(*ts, "{indent}    : unknown;\n");
 
-                let event_type = cstr!("__{component_name}_{safe_event_name}_event");
+                let event_type = cstr!("__{component_name}_{scope_id}_{safe_event_name}_event");
                 append!(*ts, "{indent}(($event: {event_type}) => {{\n");
 
                 generate_event_handler_expressions(
@@ -532,8 +546,8 @@ fn generate_child_scopes(
     }
 }
 
-/// Recursively generate component prop checks inside nested v-for scopes.
-fn generate_vfor_component_props_recursive(
+/// Recursively generate component prop checks inside nested closure scopes (v-for and v-slot).
+fn generate_closure_component_props_recursive(
     ts: &mut String,
     mappings: &mut Vec<VizeMapping>,
     ctx: &VForPropsContext<'_>,
@@ -543,81 +557,151 @@ fn generate_vfor_component_props_recursive(
     let scope_id = scope.id.as_u32();
     let inner_indent = cstr!("{indent}  ");
 
-    if let ScopeData::VFor(data) = scope.data() {
-        let (source_expr, type_annotation) = strip_as_assertion(&data.source);
+    match scope.data() {
+        ScopeData::VFor(data) => {
+            let (source_expr, type_annotation) = strip_as_assertion(&data.source);
 
-        let is_simple_identifier = source_expr.chars().all(|c| c.is_alphanumeric() || c == '_');
-        let element_type = if let Some(ref ta) = type_annotation {
-            cstr!("{ta}[number]")
-        } else if is_simple_identifier {
-            cstr!("typeof {source_expr}[number]")
-        } else {
-            "any".into()
-        };
+            let is_numeric = source_expr.trim().parse::<u64>().is_ok();
 
-        append!(
-            *ts,
-            "\n{indent}// Component props in v-for scope: {} in {}\n",
-            data.value_alias,
-            data.source
-        );
-        append!(
-            *ts,
-            "{indent}({source_expr}).forEach(({}: {element_type}",
-            data.value_alias,
-        );
-        if let Some(ref key) = data.key_alias {
-            append!(*ts, ", {key}: number");
-        }
-        if let Some(ref index) = data.index_alias {
-            if data.key_alias.is_none() {
-                ts.push_str(", _key: number");
-            }
-            append!(*ts, ", {index}: number");
-        }
-        ts.push_str(") => {\n");
+            let is_simple_identifier = source_expr.chars().all(|c| c.is_alphanumeric() || c == '_');
+            let element_type = if is_numeric {
+                "number".into()
+            } else if let Some(ref ta) = type_annotation {
+                cstr!("{ta}[number]")
+            } else if is_simple_identifier {
+                cstr!("typeof {source_expr}[number]")
+            } else {
+                "any".into()
+            };
 
-        // Mark v-for variables as used to avoid TS6133
-        append!(*ts, "{inner_indent}void {};\n", data.value_alias);
-        if let Some(ref key) = data.key_alias {
-            append!(*ts, "{inner_indent}void {key};\n");
-        }
-        if let Some(ref index) = data.index_alias {
-            append!(*ts, "{inner_indent}void {index};\n");
-        }
-
-        // Emit component prop checks for this scope
-        if let Some(usages) = ctx.components_by_scope.get(&scope_id) {
-            for &(idx, usage) in usages {
-                generate_component_prop_checks(
-                    ts,
-                    mappings,
-                    usage,
-                    idx,
-                    ctx.template_offset,
-                    &inner_indent,
+            append!(
+                *ts,
+                "\n{indent}// Component props in v-for scope: {} in {}\n",
+                data.value_alias,
+                data.source
+            );
+            if is_numeric {
+                append!(
+                    *ts,
+                    "{indent}(Array.from({{length: {source_expr}}}, (_, __i) => __i + 1)).forEach(({}: {element_type}",
+                    data.value_alias,
+                );
+            } else {
+                append!(
+                    *ts,
+                    "{indent}({source_expr}).forEach(({}: {element_type}",
+                    data.value_alias,
                 );
             }
-        }
+            if let Some(ref key) = data.key_alias {
+                append!(*ts, ", {key}: number");
+            }
+            if let Some(ref index) = data.index_alias {
+                if data.key_alias.is_none() {
+                    ts.push_str(", _key: number");
+                }
+                append!(*ts, ", {index}: number");
+            }
+            ts.push_str(") => {\n");
 
-        // Recursively handle child v-for scopes
-        if let Some(child_ids) = ctx.children_map.get(&scope_id) {
-            for &child_id in child_ids {
-                if let Some(child_scope) = ctx.summary.scopes.get_scope(child_id) {
-                    if matches!(child_scope.kind, ScopeKind::VFor) {
-                        generate_vfor_component_props_recursive(
-                            ts,
-                            mappings,
-                            ctx,
-                            child_scope,
-                            &inner_indent,
-                        );
+            // Mark v-for variables as used to avoid TS6133
+            append!(*ts, "{inner_indent}void {};\n", data.value_alias);
+            if let Some(ref key) = data.key_alias {
+                append!(*ts, "{inner_indent}void {key};\n");
+            }
+            if let Some(ref index) = data.index_alias {
+                append!(*ts, "{inner_indent}void {index};\n");
+            }
+
+            // Emit component prop checks for this scope
+            if let Some(usages) = ctx.components_by_scope.get(&scope_id) {
+                for &(idx, usage) in usages {
+                    generate_component_prop_checks(
+                        ts,
+                        mappings,
+                        usage,
+                        idx,
+                        ctx.template_offset,
+                        &inner_indent,
+                    );
+                }
+            }
+
+            // Recursively handle child closure scopes (v-for and v-slot)
+            if let Some(child_ids) = ctx.children_map.get(&scope_id) {
+                for &child_id in child_ids {
+                    if let Some(child_scope) = ctx.summary.scopes.get_scope(child_id) {
+                        if matches!(child_scope.kind, ScopeKind::VFor | ScopeKind::VSlot) {
+                            generate_closure_component_props_recursive(
+                                ts,
+                                mappings,
+                                ctx,
+                                child_scope,
+                                &inner_indent,
+                            );
+                        }
                     }
                 }
             }
-        }
 
-        ts.push_str(indent);
-        ts.push_str("});\n");
+            ts.push_str(indent);
+            ts.push_str("});\n");
+        }
+        ScopeData::VSlot(data) => {
+            let props_pattern = data.props_pattern.as_deref().unwrap_or("slotProps");
+            append!(
+                *ts,
+                "\n{indent}// Component props in v-slot scope: #{}\n",
+                data.name
+            );
+            append!(
+                *ts,
+                "{indent}void function _slot_props_{}({props_pattern}: any) {{\n",
+                data.name,
+            );
+            // Mark slot prop variables as used
+            if data.prop_names.is_empty() {
+                append!(*ts, "{inner_indent}void {props_pattern};\n");
+            } else {
+                for prop_name in data.prop_names.iter() {
+                    append!(*ts, "{inner_indent}void {prop_name};\n");
+                }
+            }
+
+            // Emit component prop checks for this scope
+            if let Some(usages) = ctx.components_by_scope.get(&scope_id) {
+                for &(idx, usage) in usages {
+                    generate_component_prop_checks(
+                        ts,
+                        mappings,
+                        usage,
+                        idx,
+                        ctx.template_offset,
+                        &inner_indent,
+                    );
+                }
+            }
+
+            // Recursively handle child closure scopes (v-for and v-slot)
+            if let Some(child_ids) = ctx.children_map.get(&scope_id) {
+                for &child_id in child_ids {
+                    if let Some(child_scope) = ctx.summary.scopes.get_scope(child_id) {
+                        if matches!(child_scope.kind, ScopeKind::VFor | ScopeKind::VSlot) {
+                            generate_closure_component_props_recursive(
+                                ts,
+                                mappings,
+                                ctx,
+                                child_scope,
+                                &inner_indent,
+                            );
+                        }
+                    }
+                }
+            }
+
+            ts.push_str(indent);
+            ts.push_str("};\n");
+        }
+        _ => {}
     }
 }

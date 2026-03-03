@@ -1,6 +1,6 @@
 import { execSync, spawn, type ChildProcess } from "node:child_process";
 import { createConnection } from "node:net";
-import type { AppConfig } from "./apps";
+import type { AppConfig } from "./apps.ts";
 
 const VITE_PLUS_BIN = `${process.env.HOME ?? ""}/.vite-plus/bin`;
 

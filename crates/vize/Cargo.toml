@@ -66,6 +66,9 @@ oxc_transformer = { workspace = true }
 # Regex for script language detection
 regex-lite = "0.1"
 
+# PKL configuration language
+rpkl = "0.7"
+
 # Home/config directory detection
 dirs = "5.0"
 

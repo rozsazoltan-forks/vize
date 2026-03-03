@@ -16,7 +16,9 @@ mod macros;
 use oxc_ast::ast::{Declaration, Expression, Statement};
 use oxc_span::GetSpan;
 
-use crate::analysis::{InvalidExport, InvalidExportKind, TypeExport, TypeExportKind};
+use crate::analysis::{
+    ImportStatementInfo, InvalidExport, InvalidExportKind, ReExportInfo, TypeExport, TypeExportKind,
+};
 use crate::scope::{BlockKind, BlockScopeData, ClosureScopeData, ExternalModuleScopeData};
 use crate::ScopeBinding;
 use vize_carton::CompactString;
@@ -101,6 +103,11 @@ pub fn process_statement(result: &mut ScriptParseResult, stmt: &Statement<'_>, s
 
         // Module declarations (imports, exports)
         Statement::ImportDeclaration(import) => {
+            result.import_statements.push(ImportStatementInfo {
+                start: import.span.start,
+                end: import.span.end,
+            });
+
             let is_type_only = import.import_kind.is_type();
 
             // Create external module scope for this import
@@ -164,6 +171,15 @@ pub fn process_statement(result: &mut ScriptParseResult, stmt: &Statement<'_>, s
         }
 
         Statement::ExportNamedDeclaration(export) => {
+            // Re-export: `export { ... } from "..."`
+            if export.source.is_some() {
+                result.re_exports.push(ReExportInfo {
+                    start: export.span.start,
+                    end: export.span.end,
+                });
+                return;
+            }
+
             if let Some(decl) = &export.declaration {
                 // Check if the declaration itself is a type declaration
                 match decl {

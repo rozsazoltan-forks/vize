@@ -29,12 +29,19 @@ pub struct VirtualTsOptions {
     /// Additional template globals beyond Vue core ($attrs, $slots, $refs, $emit).
     /// Use this to declare plugin globals like $t (vue-i18n), $route (vue-router), etc.
     pub template_globals: Vec<TemplateGlobal>,
+    /// CSS module names from `<style module>` blocks (e.g., "$style", "$custom").
+    pub css_modules: Vec<String>,
+    /// Auto-import stub declarations (e.g., Nuxt composables).
+    /// Each entry is a full TypeScript `declare function ...;` statement.
+    pub auto_import_stubs: Vec<String>,
 }
 
 impl Default for VirtualTsOptions {
     fn default() -> Self {
         Self {
             template_globals: default_plugin_globals(),
+            css_modules: Vec::new(),
+            auto_import_stubs: Vec::new(),
         }
     }
 }

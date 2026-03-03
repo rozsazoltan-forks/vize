@@ -10,18 +10,28 @@ const props = defineProps<{
   <div class="og">
     <div class="left">
       <div class="header">
-        <img class="header-logo" src="/logo.svg" width="28" height="28" />
-        <span class="site-name">VIZE</span>
+        <img class="header-logo" height="28" src="/logo.svg" width="28" />
+        <span class="site-name">
+          VIZE
+        </span>
       </div>
       <div class="title-area">
-        <h1 class="title">{{ props.title }}</h1>
-        <p class="desc">{{ props.description || 'Unofficial High-Performance Vue.js Toolchain in Rust' }}</p>
+        <h1 class="title">
+          {{ props.title }}
+        </h1>
+        <p class="desc">
+          {{ props.description || "Unofficial High-Performance Vue.js Toolchain in Rust" }}
+        </p>
       </div>
-      <span class="url">vizejs.dev</span>
+      <span class="url">
+        vizejs.dev
+      </span>
     </div>
     <div class="right">
       <img class="logo" src="/logo.svg" />
-      <span class="tagline">High-Performance Vue.js Toolchain in Rust</span>
+      <span class="tagline">
+        High-Performance Vue.js Toolchain in Rust
+      </span>
     </div>
   </div>
 </template>
@@ -33,7 +43,7 @@ const props = defineProps<{
   background: #e6e2d6;
   position: relative;
   overflow: hidden;
-  font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  font-family: Helvetica Neue, Helvetica, Arial, system-ui, sans-serif;
   color: #121212;
   display: flex;
 }
@@ -71,8 +81,8 @@ const props = defineProps<{
 .site-name {
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.2em;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  letter-spacing: .2em;
+  font-family: JetBrains Mono, ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
   color: #5a5750;
 }
 
@@ -86,7 +96,7 @@ const props = defineProps<{
 .title {
   font-size: 96px;
   font-weight: 700;
-  letter-spacing: -0.06em;
+  letter-spacing: -.06em;
   line-height: 1.15;
   margin: 0;
   padding-bottom: 4px;
@@ -98,8 +108,8 @@ const props = defineProps<{
   font-weight: 500;
   color: #5a5750;
   line-height: 1.35;
-  letter-spacing: -0.02em;
-  margin: 32px 0 0 0;
+  letter-spacing: -.02em;
+  margin: 32px 0 0;
   max-width: 480px;
   overflow: hidden;
   display: -webkit-box;
@@ -111,14 +121,14 @@ const props = defineProps<{
   font-size: 14px;
   font-weight: 500;
   color: #5a5750;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-  letter-spacing: 0.02em;
+  font-family: JetBrains Mono, ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+  letter-spacing: .02em;
 }
 
 .logo {
   width: auto;
   height: 340px;
-  opacity: 0.85;
+  opacity: .85;
   position: absolute;
   right: -16px;
   top: 50%;
@@ -129,15 +139,15 @@ const props = defineProps<{
   position: absolute;
   right: 40px;
   bottom: 56px;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-family: JetBrains Mono, ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
   font-size: 10px;
   font-weight: 400;
-  letter-spacing: 0.02em;
+  letter-spacing: .02em;
   line-height: 1.6;
   color: #5a5750;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   max-height: 240px;
-  opacity: 0.5;
+  opacity: .5;
 }
 </style>

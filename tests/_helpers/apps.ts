@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const TESTS_DIR = path.resolve(__dirname, "..");
 const GIT_DIR = path.join(TESTS_DIR, "_fixtures", "_git");
+const PROJECTS_DIR = path.join(TESTS_DIR, "_fixtures", "_projects");
 const NPM_DIR = path.resolve(__dirname, "../../npm");
 
 export interface AppConfig {
@@ -558,6 +559,123 @@ export const vuefesApp: AppConfig = {
   lint: {
     cwd: path.join(GIT_DIR, "vuefes-2025"),
     patterns: ["app/**/*.vue"],
+  },
+};
+
+export const antDesignVueApp: AppConfig = {
+  name: "ant-design-vue",
+  cwd: path.join(GIT_DIR, "ant-design-vue"),
+  command: "npx",
+  args: ["pnpm@10", "dev"],
+  port: 5316,
+  url: "http://localhost:5316",
+  mountSelector: "#app",
+  readyPattern: /Local:\s+http:\/\/localhost:5316/,
+  allowNon200: true,
+  waitUntil: "load",
+  readyDelay: 10_000,
+  startupTimeout: 120_000,
+  check: {
+    cwd: path.join(GIT_DIR, "ant-design-vue"),
+    patterns: ["components/**/*.vue", "site/**/*.vue"],
+  },
+  lint: {
+    cwd: path.join(GIT_DIR, "ant-design-vue"),
+    patterns: ["components/**/*.vue", "site/**/*.vue"],
+  },
+};
+
+export const nuxtUiApp: AppConfig = {
+  name: "nuxt-ui",
+  cwd: path.join(GIT_DIR, "nuxt-ui"),
+  command: "npx",
+  args: ["pnpm@10", "dev"],
+  port: 5317,
+  url: "http://localhost:5317",
+  mountSelector: "#app",
+  readyPattern: /Local:\s+http:\/\/localhost:5317/,
+  allowNon200: true,
+  waitUntil: "load",
+  readyDelay: 10_000,
+  startupTimeout: 120_000,
+  check: {
+    cwd: path.join(GIT_DIR, "nuxt-ui"),
+    patterns: ["src/**/*.vue"],
+  },
+  lint: {
+    cwd: path.join(GIT_DIR, "nuxt-ui"),
+    patterns: ["src/**/*.vue"],
+  },
+};
+
+export const rekaUiApp: AppConfig = {
+  name: "reka-ui",
+  cwd: path.join(GIT_DIR, "reka-ui"),
+  command: "npx",
+  args: ["pnpm@10", "dev"],
+  port: 5318,
+  url: "http://localhost:5318",
+  mountSelector: "#app",
+  readyPattern: /Local:\s+http:\/\/localhost:5318/,
+  allowNon200: true,
+  waitUntil: "load",
+  readyDelay: 10_000,
+  startupTimeout: 120_000,
+  check: {
+    cwd: path.join(GIT_DIR, "reka-ui"),
+    patterns: ["packages/**/*.vue"],
+  },
+  lint: {
+    cwd: path.join(GIT_DIR, "reka-ui"),
+    patterns: ["packages/**/*.vue"],
+  },
+};
+
+export const typecheckErrorsApp: AppConfig = {
+  name: "typecheck-errors",
+  cwd: path.join(PROJECTS_DIR, "typecheck-errors"),
+  command: "",
+  args: [],
+  port: 0,
+  url: "",
+  mountSelector: "",
+  readyPattern: /./,
+  startupTimeout: 0,
+  check: {
+    cwd: path.join(PROJECTS_DIR, "typecheck-errors"),
+    patterns: ["src/**/*.vue"],
+  },
+};
+
+export const compilerMacrosApp: AppConfig = {
+  name: "compiler-macros",
+  cwd: path.join(PROJECTS_DIR, "compiler-macros"),
+  command: "",
+  args: [],
+  port: 0,
+  url: "",
+  mountSelector: "",
+  readyPattern: /./,
+  startupTimeout: 0,
+  check: {
+    cwd: path.join(PROJECTS_DIR, "compiler-macros"),
+    patterns: ["src/**/*.vue"],
+  },
+};
+
+export const stylePreprocessorsApp: AppConfig = {
+  name: "style-preprocessors",
+  cwd: path.join(PROJECTS_DIR, "style-preprocessors"),
+  command: "",
+  args: [],
+  port: 0,
+  url: "",
+  mountSelector: "",
+  readyPattern: /./,
+  startupTimeout: 0,
+  check: {
+    cwd: path.join(PROJECTS_DIR, "style-preprocessors"),
+    patterns: ["src/**/*.vue"],
   },
 };
 

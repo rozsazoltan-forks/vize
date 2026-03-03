@@ -35,8 +35,9 @@ mod vir;
 
 // Re-export all public types so downstream `use analysis::*` still works.
 pub use bindings::{
-    BindingMetadata, InvalidExport, InvalidExportKind, TypeExport, TypeExportKind, UndefinedRef,
-    UnusedTemplateVar, UnusedVarContext,
+    BindingMetadata, ImportStatementInfo, InvalidExport, InvalidExportKind, ReExportInfo,
+    TypeExport, TypeExportKind, UndefinedRef, UnusedTemplateVar, UnusedVarContext,
+    COMPILER_MACRO_NAMES,
 };
 pub use croquis::AnalysisStats;
 pub use template::{
@@ -115,6 +116,12 @@ pub struct Croquis {
 
     /// Element IDs found in template (for cross-file uniqueness checking)
     pub element_ids: Vec<ElementIdInfo>,
+
+    /// Import statement spans in script content
+    pub import_statements: Vec<ImportStatementInfo>,
+
+    /// Re-export statement spans (`export { ... } from "..."`) in script content
+    pub re_exports: Vec<ReExportInfo>,
 
     /// Definition spans for bindings (name -> (start, end) offset in script)
     /// Used for Go-to-Definition support.

@@ -19,7 +19,7 @@ pub(crate) const VUE_SETUP_COMPILER_MACROS: &str = r#"  // Compiler macros (only
   function defineModel<_T = unknown>(_name?: string, _options?: any): _T { void _name; void _options; return undefined as unknown as _T; }
   function defineSlots<_T = unknown>(): _T { return undefined as unknown as _T; }
   function withDefaults<_T = unknown, _D = unknown>(_props: _T, _defaults: _D): _T & _D { void _props; void _defaults; return undefined as unknown as _T & _D; }
-  function useTemplateRef<_T extends Element | import('vue').ComponentPublicInstance = Element>(_key: string): import('vue').ShallowRef<_T | null> { void _key; return undefined as unknown as import('vue').ShallowRef<_T | null>; }
+  function useTemplateRef<_T extends Element | $Vue['ComponentPublicInstance'] = Element>(_key: string): $Vue['ShallowRef']<_T | null> { void _key; return undefined as unknown as $Vue['ShallowRef']<_T | null>; }
   // Mark compiler macros as used
   void defineProps; void defineEmits; void defineExpose; void defineModel; void defineSlots; void withDefaults; void useTemplateRef;"#;
 
@@ -53,35 +53,59 @@ declare global {
 "#;
 
 /// Generate Vue template context declarations dynamically.
-/// Includes Vue core globals ($attrs, $slots, $refs, $emit) and
-/// user-configurable plugin globals ($t, $route, etc.).
+///
+/// Derives `$`-prefixed globals from `ComponentPublicInstance` so that
+/// type resolution is delegated to tsgo via Vue's type system
+/// (including `ComponentCustomProperties` augmentations from plugins).
 pub(crate) fn generate_template_context(options: &VirtualTsOptions) -> String {
     let mut ctx = String::default();
 
-    // Vue core globals (always present)
-    ctx.push_str("    // Vue instance context (available in template)\n");
-    ctx.push_str("    const $attrs: Record<string, unknown> = {} as any;\n");
-    ctx.push_str("    const $slots: Record<string, (...args: any[]) => any> = {} as any;\n");
-    ctx.push_str("    const $refs: Record<string, any> = {} as any;\n");
-    ctx.push_str("    const $emit: (...args: any[]) => void = (() => {}) as any;\n");
+    let needs_global_helper =
+        !options.template_globals.is_empty() || !options.css_modules.is_empty();
 
-    // Plugin globals (configurable)
+    // Instance type + conditional accessor helper
+    ctx.push_str("    // Vue template context (delegates to ComponentPublicInstance)\n");
+    ctx.push_str("    type __VizeCtx = $Vue['ComponentPublicInstance'];\n");
+    if needs_global_helper {
+        ctx.push_str("    type __VizeGlobal<K extends string, F = unknown> = K extends keyof __VizeCtx ? __VizeCtx[K] : F;\n");
+    }
+    ctx.push_str("    const __ctx = undefined as unknown as __VizeCtx;\n");
+
+    // Core Vue globals (always present on ComponentPublicInstance)
+    ctx.push_str("    const $attrs = __ctx.$attrs;\n");
+    ctx.push_str("    const $slots = __ctx.$slots;\n");
+    ctx.push_str("    const $refs = __ctx.$refs;\n");
+    ctx.push_str("    const $emit = __ctx.$emit;\n");
+
+    // Plugin globals (resolved via ComponentCustomProperties if augmented,
+    // otherwise falls back to the configured type_annotation)
     if !options.template_globals.is_empty() {
-        ctx.push_str("    // Plugin globals (configurable via --globals)\n");
+        ctx.push_str("    // Plugin globals (via ComponentCustomProperties)\n");
         for global in &options.template_globals {
             append!(
                 ctx,
-                "    const {}: {} = {};\n",
+                "    const {}: __VizeGlobal<'{}', {}> = undefined as any;\n",
                 global.name,
-                global.type_annotation,
-                global.default_value
+                global.name,
+                global.type_annotation
+            );
+        }
+    }
+
+    // CSS module globals (resolved via ComponentCustomProperties if augmented,
+    // otherwise falls back to Record<string, string>)
+    if !options.css_modules.is_empty() {
+        ctx.push_str("    // CSS modules (from <style module>)\n");
+        for module_name in &options.css_modules {
+            append!(
+                ctx,
+                "    const {module_name}: __VizeGlobal<'{module_name}', Record<string, string>> = undefined as any;\n"
             );
         }
     }
 
     // Mark all as used
-    ctx.push_str("    // Mark template context as used\n");
-    ctx.push_str("    void $attrs; void $slots; void $refs; void $emit;\n");
+    ctx.push_str("    void __ctx; void $attrs; void $slots; void $refs; void $emit;\n");
     if !options.template_globals.is_empty() {
         ctx.push_str("    ");
         for (i, global) in options.template_globals.iter().enumerate() {
@@ -92,43 +116,18 @@ pub(crate) fn generate_template_context(options: &VirtualTsOptions) -> String {
         }
         ctx.push('\n');
     }
+    if !options.css_modules.is_empty() {
+        ctx.push_str("    ");
+        for (i, module_name) in options.css_modules.iter().enumerate() {
+            if i > 0 {
+                ctx.push(' ');
+            }
+            append!(ctx, "void {module_name};");
+        }
+        ctx.push('\n');
+    }
 
     ctx
-}
-
-/// Check if a type declaration is complete based on brace depth and declaration kind.
-pub(crate) fn is_type_decl_complete(trimmed: &str, brace_depth: i32, is_alias: bool) -> bool {
-    if is_alias {
-        // Type aliases end with `;` when brace depth is 0
-        brace_depth <= 0 && trimmed.ends_with(';')
-    } else {
-        // Interfaces and enums end with `}` when brace depth returns to 0
-        brace_depth <= 0 && (trimmed.ends_with('}') || trimmed.ends_with("};"))
-    }
-}
-
-/// Check if a trimmed line starts a type declaration that should be at module level.
-pub(crate) fn is_type_declaration_start(trimmed: &str) -> bool {
-    // Match: interface X, type X =, enum X, export interface X, export type X =, export enum X
-    // But NOT: export default, export function, export const, export { ... } from
-    // Also NOT: destructured props like `type = "button"` (no identifier after `type`)
-    let s = trimmed.strip_prefix("export ").unwrap_or(trimmed);
-    if s.starts_with("interface ") || s.starts_with("enum ") {
-        return true;
-    }
-    // For `type` keyword: require a valid identifier after `type `
-    // e.g., `type Foo = ...` or `type Foo<T> = ...`
-    if let Some(rest) = s.strip_prefix("type ") {
-        let rest = rest.trim_start();
-        // The next token must be an identifier (starts with letter or _)
-        if let Some(first_char) = rest.chars().next() {
-            if first_char.is_ascii_alphabetic() || first_char == '_' {
-                // Check it's followed by '=' or '<' (generic) eventually
-                return rest.contains('=');
-            }
-        }
-    }
-    false
 }
 
 /// Strip TypeScript `as Type` assertion from a v-for source expression.

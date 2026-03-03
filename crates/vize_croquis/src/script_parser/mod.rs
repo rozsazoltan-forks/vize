@@ -23,7 +23,7 @@ use oxc_parser::Parser;
 use oxc_span::SourceType;
 
 use crate::analysis::BindingMetadata;
-use crate::analysis::{InvalidExport, TypeExport};
+use crate::analysis::{ImportStatementInfo, InvalidExport, ReExportInfo, TypeExport};
 use crate::macros::MacroTracker;
 use crate::provide::ProvideInjectTracker;
 use crate::reactivity::ReactivityTracker;
@@ -61,6 +61,10 @@ pub struct ScriptParseResult {
     pub setup_context: SetupContextTracker,
     /// Flag to track if we're in a non-setup script context
     pub(crate) is_non_setup_script: bool,
+    /// Import statement spans in script content
+    pub import_statements: Vec<ImportStatementInfo>,
+    /// Re-export statement spans (`export { ... } from "..."`)
+    pub re_exports: Vec<ReExportInfo>,
     /// Definition spans for bindings (name -> (start, end) offset in script)
     pub binding_spans: FxHashMap<CompactString, (u32, u32)>,
 }
@@ -186,11 +190,13 @@ fn setup_global_scopes(scopes: &mut ScopeChain, source_len: u32) {
     // Stay in module scope - setup/plain will be created as children
 }
 
-/// Parse script setup source code using OXC parser.
+/// Parse script setup source code using OXC parser with an optional generic parameter.
+///
+/// `generic` is the value from `<script setup generic="T">` attribute, if present.
 ///
 /// This is a high-performance alternative to string-based analysis,
 /// providing accurate AST-based detection with proper span tracking.
-pub fn parse_script_setup(source: &str) -> ScriptParseResult {
+pub fn parse_script_setup_with_generic(source: &str, generic: Option<&str>) -> ScriptParseResult {
     let allocator = Allocator::default();
     let source_type = SourceType::from_path("script.ts").unwrap_or_default();
 
@@ -216,7 +222,7 @@ pub fn parse_script_setup(source: &str) -> ScriptParseResult {
         ScriptSetupScopeData {
             is_ts: true,
             is_async: false,
-            generic: None, // TODO: Extract from <script setup generic="T">
+            generic: generic.map(CompactString::new),
         },
         0,
         source_len,
@@ -228,6 +234,14 @@ pub fn parse_script_setup(source: &str) -> ScriptParseResult {
     }
 
     result
+}
+
+/// Parse script setup source code using OXC parser.
+///
+/// This is a high-performance alternative to string-based analysis,
+/// providing accurate AST-based detection with proper span tracking.
+pub fn parse_script_setup(source: &str) -> ScriptParseResult {
+    parse_script_setup_with_generic(source, None)
 }
 
 /// Parse non-script-setup (Options API) source code using OXC parser.

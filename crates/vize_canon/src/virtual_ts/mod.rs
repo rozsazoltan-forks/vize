@@ -68,6 +68,7 @@ mod tests {
                     default_value: "{} as any".into(),
                 },
             ],
+            ..Default::default()
         };
         let ctx = generate_template_context(&options);
         assert!(ctx.contains("$t"));

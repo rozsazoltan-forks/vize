@@ -35,8 +35,12 @@ declare global {
   }
 }
 
+type $Vue = import('vue');
+
 // ========== Module Scope (imports) ==========
 import { ref, useTemplateRef } from 'vue'
+// Prevent TS6133 for imports shadowed by setup-scope compiler macros
+void useTemplateRef;
 
 // ========== Exported Types ==========
 export type Props = {};
@@ -52,7 +56,7 @@ function __setup() {
   function defineModel<_T = unknown>(_name?: string, _options?: any): _T { void _name; void _options; return undefined as unknown as _T; }
   function defineSlots<_T = unknown>(): _T { return undefined as unknown as _T; }
   function withDefaults<_T = unknown, _D = unknown>(_props: _T, _defaults: _D): _T & _D { void _props; void _defaults; return undefined as unknown as _T & _D; }
-  function useTemplateRef<_T extends Element | import('vue').ComponentPublicInstance = Element>(_key: string): import('vue').ShallowRef<_T | null> { void _key; return undefined as unknown as import('vue').ShallowRef<_T | null>; }
+  function useTemplateRef<_T extends Element | $Vue['ComponentPublicInstance'] = Element>(_key: string): $Vue['ShallowRef']<_T | null> { void _key; return undefined as unknown as $Vue['ShallowRef']<_T | null>; }
   // Mark compiler macros as used
   void defineProps; void defineEmits; void defineExpose; void defineModel; void defineSlots; void withDefaults; void useTemplateRef;
 
@@ -61,17 +65,28 @@ function __setup() {
   
   const inputRef = ref<HTMLInputElement | null>(null)
   const buttonEl = useTemplateRef('btn')
-  // @vize-map: 2613:2714 -> 0:135
+  // @vize-map: 2714:2815 -> 0:135
 
   // ========== Template Scope (inherits from setup) ==========
+  // Ref type captures (before template scope shadows them)
+  type __VizeRef_buttonEl = typeof buttonEl;
+  type __VizeRef_ref = typeof ref;
+  type __VizeRef_inputRef = typeof inputRef;
+  type __VizeRef_useTemplateRef = typeof useTemplateRef;
   (function __template() {
-    // Vue instance context (available in template)
-    const $attrs: Record<string, unknown> = {} as any;
-    const $slots: Record<string, (...args: any[]) => any> = {} as any;
-    const $refs: Record<string, any> = {} as any;
-    const $emit: (...args: any[]) => void = (() => {}) as any;
-    // Mark template context as used
-    void $attrs; void $slots; void $refs; void $emit;
+    // Auto-unwrap refs (Vue template behavior)
+    var buttonEl: $Vue['UnwrapRef']<__VizeRef_buttonEl> = undefined as any;
+    var ref: $Vue['UnwrapRef']<__VizeRef_ref> = undefined as any;
+    var inputRef: $Vue['UnwrapRef']<__VizeRef_inputRef> = undefined as any;
+    var useTemplateRef: $Vue['UnwrapRef']<__VizeRef_useTemplateRef> = undefined as any;
+    // Vue template context (delegates to ComponentPublicInstance)
+    type __VizeCtx = $Vue['ComponentPublicInstance'];
+    const __ctx = undefined as unknown as __VizeCtx;
+    const $attrs = __ctx.$attrs;
+    const $slots = __ctx.$slots;
+    const $refs = __ctx.$refs;
+    const $emit = __ctx.$emit;
+    void __ctx; void $attrs; void $slots; void $refs; void $emit;
 
 
   // Reference setup bindings (used in template/CSS v-bind)

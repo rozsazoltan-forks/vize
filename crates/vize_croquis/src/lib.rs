@@ -76,9 +76,9 @@ pub use symbol::{Symbol, SymbolFlags, SymbolId, SymbolTable};
 
 // Re-export analysis types
 pub use analysis::{
-    AnalysisStats, BindingMetadata, Croquis, InvalidExport, InvalidExportKind, TemplateExpression,
-    TemplateExpressionKind, TypeExport, TypeExportKind, UndefinedRef, UnusedTemplateVar,
-    UnusedVarContext,
+    AnalysisStats, BindingMetadata, Croquis, ImportStatementInfo, InvalidExport, InvalidExportKind,
+    ReExportInfo, TemplateExpression, TemplateExpressionKind, TypeExport, TypeExportKind,
+    UndefinedRef, UnusedTemplateVar, UnusedVarContext, COMPILER_MACRO_NAMES,
 };
 pub use analyzer::{Analyzer, AnalyzerOptions};
 

@@ -35,6 +35,8 @@ declare global {
   }
 }
 
+type $Vue = import('vue');
+
 // ========== Module Scope (imports) ==========
 import { ref, computed, watch } from 'vue'
 interface Props {
@@ -58,7 +60,7 @@ function __setup() {
   function defineModel<_T = unknown>(_name?: string, _options?: any): _T { void _name; void _options; return undefined as unknown as _T; }
   function defineSlots<_T = unknown>(): _T { return undefined as unknown as _T; }
   function withDefaults<_T = unknown, _D = unknown>(_props: _T, _defaults: _D): _T & _D { void _props; void _defaults; return undefined as unknown as _T & _D; }
-  function useTemplateRef<_T extends Element | import('vue').ComponentPublicInstance = Element>(_key: string): import('vue').ShallowRef<_T | null> { void _key; return undefined as unknown as import('vue').ShallowRef<_T | null>; }
+  function useTemplateRef<_T extends Element | $Vue['ComponentPublicInstance'] = Element>(_key: string): $Vue['ShallowRef']<_T | null> { void _key; return undefined as unknown as $Vue['ShallowRef']<_T | null>; }
   // Mark compiler macros as used
   void defineProps; void defineEmits; void defineExpose; void defineModel; void defineSlots; void withDefaults; void useTemplateRef;
 
@@ -84,17 +86,30 @@ function __setup() {
   watch(count, (newVal) => {
     console.log('Count changed:', newVal)
   })
-  // @vize-map: 2707:3090 -> 0:501
+  // @vize-map: 2717:3100 -> 0:501
 
   // ========== Template Scope (inherits from setup) ==========
+  // Ref type captures (before template scope shadows them)
+  type __VizeRef_count = typeof count;
+  type __VizeRef_doubled = typeof doubled;
+  type __VizeRef_computed = typeof computed;
+  type __VizeRef_ref = typeof ref;
+  type __VizeRef_watch = typeof watch;
   (function __template() {
-    // Vue instance context (available in template)
-    const $attrs: Record<string, unknown> = {} as any;
-    const $slots: Record<string, (...args: any[]) => any> = {} as any;
-    const $refs: Record<string, any> = {} as any;
-    const $emit: (...args: any[]) => void = (() => {}) as any;
-    // Mark template context as used
-    void $attrs; void $slots; void $refs; void $emit;
+    // Auto-unwrap refs (Vue template behavior)
+    var count: $Vue['UnwrapRef']<__VizeRef_count> = undefined as any;
+    var doubled: $Vue['UnwrapRef']<__VizeRef_doubled> = undefined as any;
+    var computed: $Vue['UnwrapRef']<__VizeRef_computed> = undefined as any;
+    var ref: $Vue['UnwrapRef']<__VizeRef_ref> = undefined as any;
+    var watch: $Vue['UnwrapRef']<__VizeRef_watch> = undefined as any;
+    // Vue template context (delegates to ComponentPublicInstance)
+    type __VizeCtx = $Vue['ComponentPublicInstance'];
+    const __ctx = undefined as unknown as __VizeCtx;
+    const $attrs = __ctx.$attrs;
+    const $slots = __ctx.$slots;
+    const $refs = __ctx.$refs;
+    const $emit = __ctx.$emit;
+    void __ctx; void $attrs; void $slots; void $refs; void $emit;
 
   // Props are available in template as variables
   // Access via `propName` or `props.propName`

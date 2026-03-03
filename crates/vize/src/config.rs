@@ -1,7 +1,7 @@
 //! Configuration file loading for vize.
 //!
-//! Reads `vize.config.json` from the current working directory.
-//! Also provides JSON Schema generation for editor autocompletion.
+//! Reads `vize.config.pkl` (preferred) or `vize.config.json` from the current
+//! working directory. Also provides JSON Schema generation for editor autocompletion.
 
 #![allow(clippy::disallowed_types)]
 
@@ -28,35 +28,61 @@ pub struct VizeConfig {
 /// Configuration for the `check` command.
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct CheckConfig {
-    /// Template global variables to declare (e.g., `["$t", "$route"]`).
+    /// Path to a `.d.ts` file that augments `ComponentCustomProperties`.
     ///
-    /// Each entry is either:
-    /// - `"$t"` — declares as `any`
-    /// - `"$t:(...args: any[]) => string"` — declares with a specific type
+    /// The file should follow Vue's standard module augmentation pattern:
+    /// ```ts
+    /// declare module 'vue' {
+    ///   interface ComponentCustomProperties {
+    ///     $t: (...args: any[]) => string
+    ///   }
+    /// }
+    /// ```
     ///
-    /// When omitted or null, no plugin globals are declared (empty by default).
+    /// Resolved relative to `vize.config.json`.
+    /// When omitted or null, no plugin globals are declared.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub globals: Option<Vec<String>>,
+    pub globals: Option<String>,
 }
 
-/// Load `vize.config.json` from the given directory (or CWD if None).
+/// Load configuration from `vize.config.pkl` (preferred) or `vize.config.json`.
+///
+/// PKL takes priority when both files exist. If the PKL file exists but parsing
+/// fails (e.g. `pkl` binary not on PATH), falls back to defaults with a warning.
 pub fn load_config(dir: Option<&Path>) -> VizeConfig {
     let base = dir
         .map(|d| d.to_path_buf())
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_default());
-    let config_path = base.join("vize.config.json");
 
-    if !config_path.exists() {
+    // Try PKL first
+    let pkl_path = base.join("vize.config.pkl");
+    if pkl_path.exists() {
+        match rpkl::from_config::<VizeConfig>(&pkl_path) {
+            Ok(config) => return config,
+            Err(e) => {
+                eprintln!(
+                    "\x1b[33mWarning:\x1b[0m Failed to parse {}: {}",
+                    pkl_path.display(),
+                    e
+                );
+                return VizeConfig::default();
+            }
+        }
+    }
+
+    // Fall back to JSON
+    let json_path = base.join("vize.config.json");
+    if !json_path.exists() {
         return VizeConfig::default();
     }
 
-    match std::fs::read_to_string(&config_path) {
+    match std::fs::read_to_string(&json_path) {
         Ok(content) => match serde_json::from_str(&content) {
             Ok(config) => config,
             Err(e) => {
                 eprintln!(
                     "\x1b[33mWarning:\x1b[0m Failed to parse {}: {}",
-                    config_path.display(),
+                    json_path.display(),
                     e
                 );
                 VizeConfig::default()
@@ -65,7 +91,7 @@ pub fn load_config(dir: Option<&Path>) -> VizeConfig {
         Err(e) => {
             eprintln!(
                 "\x1b[33mWarning:\x1b[0m Failed to read {}: {}",
-                config_path.display(),
+                json_path.display(),
                 e
             );
             VizeConfig::default()
@@ -89,16 +115,9 @@ pub const VIZE_CONFIG_SCHEMA: &str = r#"{
       "description": "Type checking configuration",
       "properties": {
         "globals": {
-          "type": "array",
-          "description": "Template global variables to declare. Each entry is \"$name\" (typed as any) or \"$name:TypeAnnotation\" (with explicit type).",
-          "items": {
-            "type": "string",
-            "pattern": "^\\$?[a-zA-Z_][a-zA-Z0-9_]*(:.+)?$"
-          },
-          "examples": [
-            ["$t", "$d", "$n", "$route", "$router"],
-            ["$t:(...args: any[]) => string", "$route:any"]
-          ]
+          "type": "string",
+          "description": "Path to a .d.ts file that augments ComponentCustomProperties with template globals (e.g. $t, $route). Resolved relative to vize.config.json.",
+          "examples": ["globals.d.ts", "./types/globals.d.ts"]
         }
       },
       "additionalProperties": false
@@ -214,7 +233,7 @@ mod tests {
         std::fs::write(
             &config_path,
             r#"{
-                "check": { "globals": ["$t", "$route"] },
+                "check": { "globals": "globals.d.ts" },
                 "fmt": { "singleQuote": true, "maxAttributesPerLine": 3 }
             }"#,
         )
@@ -223,10 +242,21 @@ mod tests {
         let config = load_config(Some(dir.path()));
         // check section
         let globals = config.check.globals.unwrap();
-        assert_eq!(globals, vec!["$t", "$route"]);
+        assert_eq!(globals, "globals.d.ts");
         // fmt section
         assert!(config.fmt.single_quote);
         assert_eq!(config.fmt.max_attributes_per_line, Some(3));
+    }
+
+    #[test]
+    #[ignore = "requires pkl runtime installed"]
+    fn load_config_parses_pkl() {
+        let dir = tempfile::tempdir().unwrap();
+        let pkl_path = dir.path().join("vize.config.pkl");
+        std::fs::write(&pkl_path, "check {\n    globals = \"globals.d.ts\"\n}\n").unwrap();
+
+        let config = load_config(Some(dir.path()));
+        assert_eq!(config.check.globals.as_deref(), Some("globals.d.ts"));
     }
 }
 

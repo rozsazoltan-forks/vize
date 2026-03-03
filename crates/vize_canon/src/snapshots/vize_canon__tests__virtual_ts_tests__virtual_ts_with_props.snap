@@ -35,6 +35,8 @@ declare global {
   }
 }
 
+type $Vue = import('vue');
+
 // ========== Module Scope (imports) ==========
 interface Props {
   title: string
@@ -54,7 +56,7 @@ function __setup() {
   function defineModel<_T = unknown>(_name?: string, _options?: any): _T { void _name; void _options; return undefined as unknown as _T; }
   function defineSlots<_T = unknown>(): _T { return undefined as unknown as _T; }
   function withDefaults<_T = unknown, _D = unknown>(_props: _T, _defaults: _D): _T & _D { void _props; void _defaults; return undefined as unknown as _T & _D; }
-  function useTemplateRef<_T extends Element | import('vue').ComponentPublicInstance = Element>(_key: string): import('vue').ShallowRef<_T | null> { void _key; return undefined as unknown as import('vue').ShallowRef<_T | null>; }
+  function useTemplateRef<_T extends Element | $Vue['ComponentPublicInstance'] = Element>(_key: string): $Vue['ShallowRef']<_T | null> { void _key; return undefined as unknown as $Vue['ShallowRef']<_T | null>; }
   // Mark compiler macros as used
   void defineProps; void defineEmits; void defineExpose; void defineModel; void defineSlots; void withDefaults; void useTemplateRef;
 
@@ -62,17 +64,18 @@ function __setup() {
   
   
   const props = defineProps<Props>()
-  // @vize-map: 2600:2643 -> 0:90
+  // @vize-map: 2610:2653 -> 0:90
 
   // ========== Template Scope (inherits from setup) ==========
   (function __template() {
-    // Vue instance context (available in template)
-    const $attrs: Record<string, unknown> = {} as any;
-    const $slots: Record<string, (...args: any[]) => any> = {} as any;
-    const $refs: Record<string, any> = {} as any;
-    const $emit: (...args: any[]) => void = (() => {}) as any;
-    // Mark template context as used
-    void $attrs; void $slots; void $refs; void $emit;
+    // Vue template context (delegates to ComponentPublicInstance)
+    type __VizeCtx = $Vue['ComponentPublicInstance'];
+    const __ctx = undefined as unknown as __VizeCtx;
+    const $attrs = __ctx.$attrs;
+    const $slots = __ctx.$slots;
+    const $refs = __ctx.$refs;
+    const $emit = __ctx.$emit;
+    void __ctx; void $attrs; void $slots; void $refs; void $emit;
 
   // Props are available in template as variables
   // Access via `propName` or `props.propName`

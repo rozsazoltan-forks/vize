@@ -9,7 +9,9 @@ use vize_carton::String;
 use vize_croquis::Croquis;
 
 /// Generate Props type definition at module level.
-pub(crate) fn generate_props_type(ts: &mut String, summary: &Croquis) {
+/// When `generic_param` is present (e.g., `"T extends Foo, P extends Bar"`),
+/// the Props type is emitted with generic parameters: `export type Props<T, P> = ...;`
+pub(crate) fn generate_props_type(ts: &mut String, summary: &Croquis, generic_param: Option<&str>) {
     let props = summary.macros.props();
     let has_props = !props.is_empty();
     let define_props_type_args = summary
@@ -21,6 +23,14 @@ pub(crate) fn generate_props_type(ts: &mut String, summary: &Croquis) {
         .iter()
         .any(|te| te.name.as_str() == "Props");
 
+    // Build generic suffix for Props type declaration (with `= any` defaults)
+    let generic_decl = generic_param
+        .map(|g| {
+            let with_defaults = add_generic_defaults(g);
+            cstr!("<{with_defaults}>")
+        })
+        .unwrap_or_default();
+
     ts.push_str("// ========== Exported Types ==========\n");
 
     if props_already_defined {
@@ -30,21 +40,10 @@ pub(crate) fn generate_props_type(ts: &mut String, summary: &Croquis) {
             .strip_prefix('<')
             .and_then(|s| s.strip_suffix('>'))
             .unwrap_or(type_args.as_str());
-        let is_simple_reference = inner_type
-            .chars()
-            .all(|c: char| c.is_alphanumeric() || c == '_');
-        if is_simple_reference
-            && summary
-                .type_exports
-                .iter()
-                .any(|te| te.name.as_str() == inner_type)
-        {
-            // Type arg references existing type
-        } else {
-            append!(*ts, "export type Props = {inner_type};\n");
-        }
+        // Always emit Props alias so it's available in template and default export.
+        append!(*ts, "export type Props{generic_decl} = {inner_type};\n");
     } else if has_props {
-        ts.push_str("export type Props = {\n");
+        append!(*ts, "export type Props{generic_decl} = {{\n");
         for prop in props {
             let prop_type = prop.prop_type.as_deref().unwrap_or("unknown");
             let optional = if prop.required { "" } else { "?" };
@@ -52,17 +51,19 @@ pub(crate) fn generate_props_type(ts: &mut String, summary: &Croquis) {
         }
         ts.push_str("};\n");
     } else {
-        ts.push_str("export type Props = {};\n");
+        append!(*ts, "export type Props{generic_decl} = {{}};\n");
     }
 
     ts.push('\n');
 }
 
 /// Generate props variables inside template closure.
+/// When `generic_param` is present, uses `Props<T, P>` instead of `Props`.
 pub(crate) fn generate_props_variables(
     ts: &mut String,
     summary: &Croquis,
     script_content: Option<&str>,
+    generic_param: Option<&str>,
 ) {
     let props = summary.macros.props();
     let has_props = !props.is_empty();
@@ -71,10 +72,21 @@ pub(crate) fn generate_props_variables(
         .define_props()
         .and_then(|m| m.type_args.as_ref());
 
+    // Build Props type reference with generic names (strip constraints)
+    let props_type_ref = generic_param
+        .map(|g| {
+            let names = extract_generic_names(g);
+            cstr!("Props<{names}>")
+        })
+        .unwrap_or_else(|| "Props".into());
+
     if has_props || define_props_type_args.is_some() {
         ts.push_str("  // Props are available in template as variables\n");
         ts.push_str("  // Access via `propName` or `props.propName`\n");
-        ts.push_str("  const props: Props = {} as Props;\n");
+        append!(
+            *ts,
+            "  const props: {props_type_ref} = {{}} as {props_type_ref};\n"
+        );
         ts.push_str("  void props; // Mark as used to avoid TS6133\n");
 
         if has_props {
@@ -192,4 +204,110 @@ fn find_matching_brace(s: &str, start: usize) -> usize {
         }
     }
     s.len().saturating_sub(1)
+}
+
+/// Extract just the generic parameter names from a full generic declaration.
+/// e.g., `"T extends Foo, P extends Bar"` → `"T, P"`
+/// e.g., `"T"` → `"T"`
+/// e.g., `"T extends Record<string, any>, U"` → `"T, U"`
+fn extract_generic_names(generic_param: &str) -> String {
+    let mut names = String::default();
+    let mut depth = 0i32; // track <> nesting
+    let mut current_name = String::default();
+    let mut in_extends = false;
+
+    for ch in generic_param.chars() {
+        match ch {
+            '<' => depth += 1,
+            '>' => depth -= 1,
+            ',' if depth == 0 => {
+                let trimmed = current_name.trim();
+                if !trimmed.is_empty() {
+                    // Extract just the name (before "extends")
+                    let name = trimmed.split_whitespace().next().unwrap_or(trimmed);
+                    if !names.is_empty() {
+                        names.push_str(", ");
+                    }
+                    names.push_str(name);
+                }
+                current_name = String::default();
+                in_extends = false;
+                continue;
+            }
+            _ => {}
+        }
+        if depth == 0 {
+            current_name.push(ch);
+        }
+    }
+
+    // Handle the last parameter
+    let trimmed = current_name.trim();
+    if !trimmed.is_empty() {
+        let name = trimmed.split_whitespace().next().unwrap_or(trimmed);
+        if !names.is_empty() {
+            names.push_str(", ");
+        }
+        names.push_str(name);
+    }
+
+    let _ = in_extends;
+    names
+}
+
+/// Add `= any` defaults to each generic parameter that doesn't already have a default.
+/// e.g., `"T extends Foo, P"` → `"T extends Foo = any, P = any"`
+/// e.g., `"T = string"` → `"T = string"` (unchanged, already has default)
+fn add_generic_defaults(generic_param: &str) -> String {
+    let mut result = String::default();
+    let mut depth = 0i32;
+    let mut current_param = String::default();
+
+    for ch in generic_param.chars() {
+        match ch {
+            '<' => {
+                depth += 1;
+                current_param.push(ch);
+            }
+            '>' => {
+                depth -= 1;
+                current_param.push(ch);
+            }
+            ',' if depth == 0 => {
+                append_param_with_default(&mut result, current_param.trim());
+                result.push_str(", ");
+                current_param = String::default();
+            }
+            _ => {
+                current_param.push(ch);
+            }
+        }
+    }
+
+    // Handle the last parameter
+    let trimmed = current_param.trim();
+    if !trimmed.is_empty() {
+        append_param_with_default(&mut result, trimmed);
+    }
+
+    result
+}
+
+/// Append a single generic parameter with `= any` default if it doesn't have one.
+fn append_param_with_default(result: &mut String, param: &str) {
+    result.push_str(param);
+    // Check if this param already has a default (contains `=` at depth 0)
+    let mut depth = 0i32;
+    let has_default = param.chars().any(|ch| {
+        match ch {
+            '<' => depth += 1,
+            '>' => depth -= 1,
+            '=' if depth == 0 => return true,
+            _ => {}
+        }
+        false
+    });
+    if !has_default {
+        result.push_str(" = any");
+    }
 }

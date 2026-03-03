@@ -30,6 +30,8 @@
 
 use memchr::memmem;
 
+use vize_croquis::COMPILER_MACRO_NAMES;
+
 use crate::diagnostic::{LintDiagnostic, Severity};
 
 use super::{ScriptLintResult, ScriptRule, ScriptRuleMeta};
@@ -39,17 +41,6 @@ static META: ScriptRuleMeta = ScriptRuleMeta {
     description: "Disallow importing Vue compiler macros that are auto-imported",
     default_severity: Severity::Error,
 };
-
-/// Compiler macros that should not be imported
-const COMPILER_MACROS: &[&str] = &[
-    "defineProps",
-    "defineEmits",
-    "defineExpose",
-    "defineOptions",
-    "defineSlots",
-    "defineModel",
-    "withDefaults",
-];
 
 /// No import compiler macros rule
 pub struct NoImportCompilerMacros;
@@ -88,7 +79,7 @@ impl ScriptRule for NoImportCompilerMacros {
             }
 
             // Check for compiler macros in this import
-            for macro_name in COMPILER_MACROS {
+            for macro_name in COMPILER_MACRO_NAMES {
                 if import_line.contains(macro_name) {
                     // Find the position of the macro name in the import
                     if let Some(macro_pos) = import_line.find(macro_name) {

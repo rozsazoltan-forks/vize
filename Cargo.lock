@@ -695,6 +695,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dunce"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
+
+[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2324,6 +2330,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "rmp"
+version = "0.8.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ba8be72d372b2c9b35542551678538b562e7cf86c3315773cae48dfbfe7790c"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "rmp-serde"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72f81bee8c8ef9b577d1681a70ebbc962c232461e397b22c208c43c04b67a155"
+dependencies = [
+ "rmp",
+ "serde",
+]
+
+[[package]]
+name = "rmpv"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a4e1d4b9b938a26d2996af33229f0ca0956c652c1375067f0b45291c1df8417"
+dependencies = [
+ "rmp",
+]
+
+[[package]]
 name = "ropey"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2331,6 +2365,18 @@ checksum = "93411e420bcd1a75ddd1dc3caf18c23155eda2c090631a85af21ba19e97093b5"
 dependencies = [
  "smallvec",
  "str_indices",
+]
+
+[[package]]
+name = "rpkl"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c58732d31abf3a100d8f2cf0bb30ae66e009b7ddeb01888cff0607b6a02aac4"
+dependencies = [
+ "dunce",
+ "rmp-serde",
+ "rmpv",
+ "serde",
 ]
 
 [[package]]
@@ -3156,7 +3202,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vize"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "clap",
  "dirs",
@@ -3171,6 +3217,7 @@ dependencies = [
  "oxc_transformer",
  "rayon",
  "regex-lite",
+ "rpkl",
  "serde",
  "serde_json",
  "tempfile",
@@ -3192,7 +3239,7 @@ dependencies = [
 
 [[package]]
 name = "vize_armature"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "compact_str 0.8.1",
  "serde",
@@ -3203,7 +3250,7 @@ dependencies = [
 
 [[package]]
 name = "vize_atelier_core"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "bumpalo",
  "compact_str 0.8.1",
@@ -3230,7 +3277,7 @@ dependencies = [
 
 [[package]]
 name = "vize_atelier_dom"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "insta",
  "phf 0.11.3",
@@ -3243,7 +3290,7 @@ dependencies = [
 
 [[package]]
 name = "vize_atelier_sfc"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "criterion",
  "insta",
@@ -3272,7 +3319,7 @@ dependencies = [
 
 [[package]]
 name = "vize_atelier_ssr"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "insta",
  "serde",
@@ -3284,7 +3331,7 @@ dependencies = [
 
 [[package]]
 name = "vize_atelier_vapor"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "insta",
  "serde",
@@ -3295,7 +3342,7 @@ dependencies = [
 
 [[package]]
 name = "vize_canon"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "dashmap 6.1.0",
  "dirs",
@@ -3324,7 +3371,7 @@ dependencies = [
 
 [[package]]
 name = "vize_carton"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "bitflags 2.11.0",
  "bumpalo",
@@ -3340,7 +3387,7 @@ dependencies = [
 
 [[package]]
 name = "vize_croquis"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "dashmap 6.1.0",
  "insta",
@@ -3362,7 +3409,7 @@ dependencies = [
 
 [[package]]
 name = "vize_fresco"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "compact_str 0.8.1",
  "criterion",
@@ -3384,7 +3431,7 @@ dependencies = [
 
 [[package]]
 name = "vize_glyph"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "criterion",
  "lightningcss",
@@ -3402,7 +3449,7 @@ dependencies = [
 
 [[package]]
 name = "vize_maestro"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "async-trait",
  "dashmap 6.1.0",
@@ -3429,7 +3476,7 @@ dependencies = [
 
 [[package]]
 name = "vize_musea"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "criterion",
  "insta",
@@ -3444,7 +3491,7 @@ dependencies = [
 
 [[package]]
 name = "vize_patina"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "criterion",
  "insta",
@@ -3467,7 +3514,7 @@ dependencies = [
 
 [[package]]
 name = "vize_relief"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -3477,7 +3524,7 @@ dependencies = [
 
 [[package]]
 name = "vize_test_runner"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "serde",
  "toml",
@@ -3489,7 +3536,7 @@ dependencies = [
 
 [[package]]
 name = "vize_vitrine"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "getrandom 0.3.4",
  "glob",
