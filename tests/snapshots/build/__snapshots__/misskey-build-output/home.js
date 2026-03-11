@@ -360,7 +360,7 @@ return (_ctx: any,_cache: any) => {
                       class: "roles"
                     }, [
                       (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(user.value.roles, (role) => {
-                        return (_openBlock(), _createElementBlock("span", {
+                        return _withDirectives((_openBlock(), _createElementBlock("span", {
                           key: role.id,
                           class: "role",
                           style: _normalizeStyle({ '--color': role.color ?? '' })
@@ -379,7 +379,9 @@ return (_ctx: any,_cache: any) => {
                             ]),
                             _: 2 /* DYNAMIC */
                           }, 8 /* PROPS */, ["to"])
-                        ], 4 /* STYLE */))
+                        ], 4 /* STYLE */)), [
+                          [_directive_tooltip, role.description]
+                        ])
                       }), 128 /* KEYED_FRAGMENT */))
                     ]))
                     : _createCommentVNode("v-if", true),
@@ -517,10 +519,12 @@ return (_ctx: any,_cache: any) => {
                               class: "_selectable"
                             }, null, 8 /* PROPS */, ["text", "author", "colored"]),
                             (user.value.verifiedLinks.includes(field.value))
-                              ? (_openBlock(), _createElementBlock("i", {
+                              ? _withDirectives((_openBlock(), _createElementBlock("i", {
                                 key: 0,
                                 class: _normalizeClass(["ti ti-circle-check", _ctx.$style.verifiedLink])
-                              }))
+                              })), [
+                                [_directive_tooltip, _unref(i18n).ts.verifiedLink, "dialog"]
+                              ])
                               : _createCommentVNode("v-if", true)
                           ])
                         ]))

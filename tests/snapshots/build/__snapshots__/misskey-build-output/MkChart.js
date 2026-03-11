@@ -55,7 +55,7 @@ export default /*@__PURE__*/_defineComponent({
     stacked: { type: Boolean, required: false, default: false },
     bar: { type: Boolean, required: false, default: false },
     aspectRatio: { type: Number, required: false, default: null },
-    nowForChromatic: { type: Number, required: false }
+    nowForChromatic: { type: Number, required: false, default: undefined }
   },
   setup(__props: any) {
 

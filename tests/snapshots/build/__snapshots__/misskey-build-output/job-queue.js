@@ -478,7 +478,7 @@ return (_ctx: any,_cache: any) => {
                               job: job,
                               queueType: tab.value,
                               style: "margin: 4px 0;",
-                              onNeedRefresh: _cache[5] || (_cache[5] = ($event: any) => (refreshJob(_ctx.job.id)))
+                              onNeedRefresh: _cache[5] || (_cache[5] = ($event: any) => (refreshJob(job.id)))
                             }, null, 8 /* PROPS */, ["job", "queueType"])
                           ]),
                           _: 1 /* STABLE */

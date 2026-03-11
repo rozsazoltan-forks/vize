@@ -11,9 +11,13 @@ use vize_carton::ToCompactString;
 
 use super::{
     super::{
-        children::{generate_children, is_directive_comment},
+        children::{generate_children_force_array, is_directive_comment},
         context::CodegenContext,
         element::is_whitespace_or_comment,
+        element::{
+            generate_custom_directives_closing, generate_vmodel_closing, generate_vshow_closing,
+            has_custom_directives, has_vmodel_directive, has_vshow_directive,
+        },
         expression::generate_expression,
         helpers::{escape_js_string, is_builtin_component},
         node::generate_node,
@@ -47,6 +51,8 @@ pub(super) fn generate_if_branch(
                             // Check if inner element is a component
                             if inner.tag_type == ElementType::Component {
                                 generate_if_branch_component(ctx, inner, branch, branch_index);
+                            } else if inner.tag_type == ElementType::Slot {
+                                generate_if_branch_slot(ctx, inner, branch, branch_index);
                             } else {
                                 generate_if_branch_element(ctx, inner, branch, branch_index);
                             }
@@ -58,6 +64,8 @@ pub(super) fn generate_if_branch(
                 } else if el.tag_type == ElementType::Component {
                     // Component
                     generate_if_branch_component(ctx, el, branch, branch_index);
+                } else if el.tag_type == ElementType::Slot {
+                    generate_if_branch_slot(ctx, el, branch, branch_index);
                 } else {
                     // Regular element
                     generate_if_branch_element(ctx, el, branch, branch_index);
@@ -74,6 +82,57 @@ pub(super) fn generate_if_branch(
     }
 }
 
+/// Generate slot outlet for if branch.
+fn generate_if_branch_slot(
+    ctx: &mut CodegenContext,
+    el: &ElementNode<'_>,
+    branch: &IfBranchNode<'_>,
+    branch_index: usize,
+) {
+    ctx.use_helper(RuntimeHelper::RenderSlot);
+    ctx.push(ctx.helper(RuntimeHelper::RenderSlot));
+    ctx.push("(_ctx.$slots, ");
+
+    let slot_name = el
+        .props
+        .iter()
+        .find_map(|p| match p {
+            PropNode::Attribute(attr) if attr.name == "name" => {
+                attr.value.as_ref().map(|v| v.content.as_str())
+            }
+            _ => None,
+        })
+        .unwrap_or("default");
+    ctx.push("\"");
+    ctx.push(slot_name);
+    ctx.push("\"");
+    ctx.push(", { key: ");
+    generate_if_branch_key(ctx, branch, branch_index);
+    ctx.push(" }");
+
+    if !el.children.is_empty() {
+        ctx.push(", () => [");
+        ctx.indent();
+        let filtered: Vec<_> = el
+            .children
+            .iter()
+            .filter(|c| !is_directive_comment(c))
+            .collect();
+        for (i, child) in filtered.iter().enumerate() {
+            if i > 0 {
+                ctx.push(",");
+            }
+            ctx.newline();
+            generate_node(ctx, child);
+        }
+        ctx.deindent();
+        ctx.newline();
+        ctx.push("])");
+    } else {
+        ctx.push(")");
+    }
+}
+
 /// Generate component for if branch.
 fn generate_if_branch_component(
     ctx: &mut CodegenContext,
@@ -82,6 +141,20 @@ fn generate_if_branch_component(
     branch_index: usize,
 ) {
     let is_dynamic_component = el.tag == "component" || el.tag == "Component";
+    let has_custom_dirs = has_custom_directives(el);
+    if has_custom_dirs {
+        ctx.use_helper(RuntimeHelper::WithDirectives);
+        ctx.use_helper(RuntimeHelper::ResolveDirective);
+        ctx.push(ctx.helper(RuntimeHelper::WithDirectives));
+        ctx.push("(");
+    }
+    let has_vshow = has_vshow_directive(el) && !has_custom_dirs;
+    if has_vshow {
+        ctx.use_helper(RuntimeHelper::WithDirectives);
+        ctx.use_helper(RuntimeHelper::VShow);
+        ctx.push(ctx.helper(RuntimeHelper::WithDirectives));
+        ctx.push("(");
+    }
 
     // Components: skip scope_id in props -- Vue runtime applies it via __scopeId
     let prev_skip_scope_id = ctx.skip_scope_id;
@@ -149,13 +222,13 @@ fn generate_if_branch_component(
         calculate_element_patch_info_skip_is(
             el,
             ctx.options.binding_metadata.as_ref(),
-            ctx.options.cache_handlers,
+            ctx.cache_handlers_in_current_scope(),
         )
     } else {
         calculate_element_patch_info(
             el,
             ctx.options.binding_metadata.as_ref(),
-            ctx.options.cache_handlers,
+            ctx.cache_handlers_in_current_scope(),
         )
     };
 
@@ -296,7 +369,14 @@ fn generate_if_branch_component(
         ctx.push("]");
     }
 
-    ctx.push("))")
+    ctx.push("))");
+
+    if has_custom_dirs {
+        generate_custom_directives_closing(ctx, el);
+    }
+    if has_vshow {
+        generate_vshow_closing(ctx, el);
+    }
 }
 
 /// Generate element for if branch.
@@ -306,6 +386,27 @@ fn generate_if_branch_element(
     branch: &IfBranchNode<'_>,
     branch_index: usize,
 ) {
+    let has_custom_dirs = has_custom_directives(el);
+    if has_custom_dirs {
+        ctx.use_helper(RuntimeHelper::WithDirectives);
+        ctx.use_helper(RuntimeHelper::ResolveDirective);
+        ctx.push(ctx.helper(RuntimeHelper::WithDirectives));
+        ctx.push("(");
+    }
+    let has_vmodel = has_vmodel_directive(el) && !has_custom_dirs;
+    if has_vmodel {
+        ctx.use_helper(RuntimeHelper::WithDirectives);
+        ctx.push(ctx.helper(RuntimeHelper::WithDirectives));
+        ctx.push("(");
+    }
+    let has_vshow = has_vshow_directive(el) && !has_vmodel && !has_custom_dirs;
+    if has_vshow {
+        ctx.use_helper(RuntimeHelper::WithDirectives);
+        ctx.use_helper(RuntimeHelper::VShow);
+        ctx.push(ctx.helper(RuntimeHelper::WithDirectives));
+        ctx.push("(");
+    }
+
     ctx.use_helper(RuntimeHelper::CreateElementBlock);
     ctx.push("(");
     ctx.push(ctx.helper(RuntimeHelper::OpenBlock));
@@ -409,6 +510,16 @@ fn generate_if_branch_element(
     }
 
     ctx.push("))");
+
+    if has_custom_dirs {
+        generate_custom_directives_closing(ctx, el);
+    }
+    if has_vmodel {
+        generate_vmodel_closing(ctx, el);
+    }
+    if has_vshow {
+        generate_vshow_closing(ctx, el);
+    }
 }
 
 /// Generate template fragment for if branch (multiple children from template).
@@ -420,7 +531,6 @@ fn generate_if_branch_template_fragment(
 ) {
     ctx.use_helper(RuntimeHelper::CreateElementBlock);
     ctx.use_helper(RuntimeHelper::Fragment);
-    ctx.use_helper(RuntimeHelper::CreateElementVNode);
     ctx.push("(");
     ctx.push(ctx.helper(RuntimeHelper::OpenBlock));
     ctx.push("(), ");
@@ -429,22 +539,9 @@ fn generate_if_branch_template_fragment(
     ctx.push(ctx.helper(RuntimeHelper::Fragment));
     ctx.push(", { key: ");
     generate_if_branch_key(ctx, branch, branch_index);
-    ctx.push(" }, [");
-    ctx.indent();
-    let filtered: Vec<_> = children
-        .iter()
-        .filter(|c| !is_directive_comment(c))
-        .collect();
-    for (i, child) in filtered.iter().enumerate() {
-        if i > 0 {
-            ctx.push(",");
-        }
-        ctx.newline();
-        generate_node(ctx, child);
-    }
-    ctx.deindent();
-    ctx.newline();
-    ctx.push("], 64 /* STABLE_FRAGMENT */))");
+    ctx.push(" }, ");
+    generate_children_force_array(ctx, children);
+    ctx.push(", 64 /* STABLE_FRAGMENT */))");
 }
 
 /// Generate fragment wrapper for if branch with multiple children.
@@ -464,7 +561,7 @@ fn generate_if_branch_fragment(
     ctx.push(", { key: ");
     generate_if_branch_key(ctx, branch, branch_index);
     ctx.push(" }, ");
-    generate_children(ctx, &branch.children);
+    generate_children_force_array(ctx, &branch.children);
     ctx.push(", 64 /* STABLE_FRAGMENT */))");
 }
 
@@ -513,22 +610,8 @@ fn generate_if_branch_children(ctx: &mut CodegenContext, children: &[TemplateChi
             ctx.push(", 1 /* TEXT */");
         }
     } else {
-        // Complex children - use array (filter directive comments)
-        let filtered: Vec<_> = children
-            .iter()
-            .filter(|c| !is_directive_comment(c))
-            .collect();
-        ctx.push("[");
-        ctx.indent();
-        for (i, child) in filtered.iter().enumerate() {
-            if i > 0 {
-                ctx.push(",");
-            }
-            ctx.newline();
-            generate_node(ctx, child);
-        }
-        ctx.deindent();
-        ctx.newline();
-        ctx.push("]");
+        // Complex branch children need the same text/interpolation grouping as
+        // regular element children to avoid raw string array entries.
+        generate_children_force_array(ctx, children);
     }
 }

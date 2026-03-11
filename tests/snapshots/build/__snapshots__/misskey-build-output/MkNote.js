@@ -472,7 +472,7 @@ return (_ctx: any,_cache: any) => {
   const _directive_user_preview = _resolveDirective("user-preview")
 
   return (!hardMuted.value && !hideByPlugin.value && muted.value === false)
-      ? (_openBlock(), _createElementBlock("div", {
+      ? _withDirectives((_openBlock(), _createElementBlock("div", {
         key: 0,
         ref: "rootEl",
         class: _normalizeClass([_ctx.$style.root, { [_ctx.$style.showActionsOnlyHover]: _unref(prefer).s.showNoteActionsOnlyHover, [_ctx.$style.skipRender]: _unref(prefer).s.skipNoteRender }]),
@@ -764,7 +764,7 @@ return (_ctx: any,_cache: any) => {
                   ref_key: "menuButton", ref: menuButton,
                   class: _normalizeClass(["_button", _ctx.$style.footerButton]),
                   onMousedown: _cache[9] || (_cache[9] = _withModifiers(($event: any) => (showMenu()), ["prevent"]))
-                }, [ _hoisted_11 ], 32 /* NEED_HYDRATION */) ]) ]) ])) ]))
+                }, [ _hoisted_11 ], 32 /* NEED_HYDRATION */) ]) ]) ])) ])), [ [_directive_hotkey, _unref(keymap)] ])
       : (!hardMuted.value && !hideByPlugin.value)
         ? (_openBlock(), _createElementBlock("div", {
           key: 1,

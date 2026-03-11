@@ -6,6 +6,7 @@
 use crate::ast::{RootNode, RuntimeHelper, TemplateChildNode};
 
 use super::context::CodegenContext;
+use super::element::helpers::is_dynamic_component_tag;
 use vize_carton::String;
 
 /// Check if a root-level text node is ignorable whitespace.
@@ -106,7 +107,7 @@ pub(super) fn generate_assets(ctx: &mut CodegenContext, root: &RootNode<'_>) {
 
         // Skip dynamic component (<component :is="...">) -
         // it uses resolveDynamicComponent
-        if component == "component" {
+        if is_dynamic_component_tag(component) {
             continue;
         }
 

@@ -37,83 +37,83 @@ function getRgb(hex: string | number): ImageEffectorRGB | null {
 
 return (_ctx: any,_cache: any) => {
   return (_openBlock(), _createElementBlock("div", { class: "_gaps" }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(__props.paramDefs, (v, k) => {
-        return (_openBlock(), _createElementBlock("div", { key: _ctx.k }, [
-          (_ctx.v.type === 'boolean')
+        return (_openBlock(), _createElementBlock("div", { key: k }, [
+          (v.type === 'boolean')
             ? (_openBlock(), _createBlock(MkSwitch, {
               key: 0,
-              modelValue: params.value[_ctx.k],
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event: any) => ((params.value[_ctx.k]) = $event))
+              modelValue: params.value[k],
+              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event: any) => ((params.value[k]) = $event))
             }, _createSlots({ _: 2 /* DYNAMIC */ }, [
               {
                 name: "label",
                 fn: _withCtx(() => [
-                  _createTextVNode(_toDisplayString(_ctx.v.label ?? _ctx.k), 1 /* TEXT */)
+                  _createTextVNode(_toDisplayString(v.label ?? k), 1 /* TEXT */)
                 ])
               },
-              (_ctx.v.caption != null)
+              (v.caption != null)
                 ? {
                   name: "caption",
                   fn: _withCtx(() => [
-                    _createTextVNode(_toDisplayString(_ctx.v.caption), 1 /* TEXT */)
+                    _createTextVNode(_toDisplayString(v.caption), 1 /* TEXT */)
                   ]),
                   key: "0"
                 }
               : undefined
             ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["modelValue"]))
-            : (_ctx.v.type === 'number')
+            : (v.type === 'number')
               ? (_openBlock(), _createBlock(MkRange, {
                 key: 1,
                 continuousUpdate: "",
-                min: _ctx.v.min,
-                max: _ctx.v.max,
-                step: _ctx.v.step,
-                textConverter: _ctx.v.toViewValue,
+                min: v.min,
+                max: v.max,
+                step: v.step,
+                textConverter: v.toViewValue,
                 onThumbDoubleClicked: _cache[1] || (_cache[1] = () => {
-  				params.value[_ctx.k] = _ctx.v.default;
+  				params.value[k] = v.default;
   			}),
-                modelValue: params.value[_ctx.k],
-                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event: any) => ((params.value[_ctx.k]) = $event))
+                modelValue: params.value[k],
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event: any) => ((params.value[k]) = $event))
               }, _createSlots({ _: 2 /* DYNAMIC */ }, [
                 {
                   name: "label",
                   fn: _withCtx(() => [
-                    _createTextVNode(_toDisplayString(_ctx.v.label ?? _ctx.k), 1 /* TEXT */)
+                    _createTextVNode(_toDisplayString(v.label ?? k), 1 /* TEXT */)
                   ])
                 },
-                (_ctx.v.caption != null)
+                (v.caption != null)
                   ? {
                     name: "caption",
                     fn: _withCtx(() => [
-                      _createTextVNode(_toDisplayString(_ctx.v.caption), 1 /* TEXT */)
+                      _createTextVNode(_toDisplayString(v.caption), 1 /* TEXT */)
                     ]),
                     key: "0"
                   }
                 : undefined
               ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["min", "max", "step", "textConverter", "modelValue"]))
-            : (_ctx.v.type === 'number:enum')
+            : (v.type === 'number:enum')
               ? (_openBlock(), _createBlock(MkRadios, {
                 key: 2,
-                options: _ctx.v.enum,
-                modelValue: params.value[_ctx.k],
-                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event: any) => ((params.value[_ctx.k]) = $event))
+                options: v.enum,
+                modelValue: params.value[k],
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event: any) => ((params.value[k]) = $event))
               }, _createSlots({ _: 2 /* DYNAMIC */ }, [
                 {
                   name: "label",
                   fn: _withCtx(() => [
-                    _createTextVNode(_toDisplayString(_ctx.v.label ?? _ctx.k), 1 /* TEXT */)
+                    _createTextVNode(_toDisplayString(v.label ?? k), 1 /* TEXT */)
                   ])
                 },
-                (_ctx.v.caption != null)
+                (v.caption != null)
                   ? {
                     name: "caption",
                     fn: _withCtx(() => [
-                      _createTextVNode(_toDisplayString(_ctx.v.caption), 1 /* TEXT */)
+                      _createTextVNode(_toDisplayString(v.caption), 1 /* TEXT */)
                     ]),
                     key: "0"
                   }
                 : undefined
               ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["options", "modelValue"]))
-            : (_ctx.v.type === 'seed')
+            : (v.type === 'seed')
               ? (_openBlock(), _createElementBlock("div", { key: 3 }, [
                 _createVNode(MkRange, {
                   continuousUpdate: "",
@@ -121,44 +121,44 @@ return (_ctx: any,_cache: any) => {
                   min: 0,
                   max: 10000,
                   step: 1,
-                  modelValue: params.value[_ctx.k],
-                  "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event: any) => ((params.value[_ctx.k]) = $event))
+                  modelValue: params.value[k],
+                  "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event: any) => ((params.value[k]) = $event))
                 }, _createSlots({ _: 2 /* DYNAMIC */ }, [
                   {
                     name: "label",
                     fn: _withCtx(() => [
-                      _createTextVNode(_toDisplayString(_ctx.v.label ?? _ctx.k), 1 /* TEXT */)
+                      _createTextVNode(_toDisplayString(v.label ?? k), 1 /* TEXT */)
                     ])
                   },
-                  (_ctx.v.caption != null)
+                  (v.caption != null)
                     ? {
                       name: "caption",
                       fn: _withCtx(() => [
-                        _createTextVNode(_toDisplayString(_ctx.v.caption), 1 /* TEXT */)
+                        _createTextVNode(_toDisplayString(v.caption), 1 /* TEXT */)
                       ]),
                       key: "0"
                     }
                   : undefined
                 ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["min", "max", "step", "modelValue"])
               ]))
-            : (_ctx.v.type === 'color')
+            : (v.type === 'color')
               ? (_openBlock(), _createBlock(MkInput, {
                 key: 4,
-                modelValue: getHex(params.value[_ctx.k]),
+                modelValue: getHex(params.value[k]),
                 type: "color",
-                "onUpdate:modelValue": _cache[5] || (_cache[5] = v => { const c = getRgb(v); if (_ctx.c != null) params.value[_ctx.k] = _ctx.c; })
+                "onUpdate:modelValue": _cache[5] || (_cache[5] = v => { const c = getRgb(v); if (_ctx.c != null) params.value[k] = _ctx.c; })
               }, _createSlots({ _: 2 /* DYNAMIC */ }, [
                 {
                   name: "label",
                   fn: _withCtx(() => [
-                    _createTextVNode(_toDisplayString(_ctx.v.label ?? _ctx.k), 1 /* TEXT */)
+                    _createTextVNode(_toDisplayString(v.label ?? k), 1 /* TEXT */)
                   ])
                 },
-                (_ctx.v.caption != null)
+                (v.caption != null)
                   ? {
                     name: "caption",
                     fn: _withCtx(() => [
-                      _createTextVNode(_toDisplayString(_ctx.v.caption), 1 /* TEXT */)
+                      _createTextVNode(_toDisplayString(v.caption), 1 /* TEXT */)
                     ]),
                     key: "0"
                   }

@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, normalizeStyle as _normalizeStyle, withCtx as _withCtx, unref as _unref, withModifiers as _withModifiers } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, normalizeStyle as _normalizeStyle, withCtx as _withCtx, unref as _unref, withModifiers as _withModifiers } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-dots" })
@@ -38,7 +38,7 @@ return (_ctx: any,_cache: any) => {
   return (_openBlock(), _createElementBlock("div", {
       class: _normalizeClass(["_gaps_s", _ctx.$style.root])
     }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(props.items, (item) => {
-        return (_openBlock(), _createElementBlock("div", {
+        return _withDirectives((_openBlock(), _createElementBlock("div", {
           key: item.id,
           class: _normalizeClass([_ctx.$style.item, { [_ctx.$style.itemWaiting]: item.preprocessing, [_ctx.$style.itemCompleted]: item.uploaded, [_ctx.$style.itemFailed]: item.uploadFailed }]),
           style: _normalizeStyle({
@@ -131,7 +131,9 @@ return (_ctx: any,_cache: any) => {
                 : _createCommentVNode("v-if", true)
             ])
           ])
-        ], 38 /* CLASS, STYLE, NEED_HYDRATION */))
+        ], 38 /* CLASS, STYLE, NEED_HYDRATION */)), [
+          [_directive_panel]
+        ])
       }), 128 /* KEYED_FRAGMENT */)) ]))
 }
 }

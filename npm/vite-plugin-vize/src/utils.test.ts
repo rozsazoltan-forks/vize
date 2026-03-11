@@ -7,7 +7,11 @@
  */
 
 import assert from "node:assert";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { generateOutput } from "./utils/index.js";
+import { resolveCssImports } from "./utils/css.js";
 
 // =============================================================================
 // Test: Non-script-setup SFC _sfc_main duplication fix
@@ -325,6 +329,27 @@ function resolveCssTransforms(css: string): string {
   const css = `.foo { color: red; }\n@media (max-width: 768px) { .foo { font-size: 12px; } }`;
   const result = resolveCssTransforms(css);
   assert.strictEqual(result, css, "CSS without @custom-media should pass through unchanged");
+}
+
+// Test 20: dev asset URLs honor configured base path
+{
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "vize-css-"));
+  const assetPath = path.join(tempDir, "assets", "noise.png");
+  fs.mkdirSync(path.dirname(assetPath), { recursive: true });
+  fs.writeFileSync(assetPath, "");
+
+  const result = resolveCssImports(
+    `.hero { background-image: url("~/assets/noise.png"); }`,
+    path.join(tempDir, "Component.vue"),
+    [{ find: "~/", replacement: `${tempDir}/` }],
+    true,
+    "/_nuxt/",
+  );
+
+  assert.ok(
+    result.includes(`url("/_nuxt/@fs${assetPath.replace(/\\/g, "/")}")`),
+    "dev CSS asset URLs should be prefixed with the configured base path",
+  );
 }
 
 // =============================================================================

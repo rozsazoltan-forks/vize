@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { openBlock as _openBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode, normalizeClass as _normalizeClass } from "vue"
+import { openBlock as _openBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode, renderSlot as _renderSlot, normalizeClass as _normalizeClass } from "vue"
 
 import { nextTick, onMounted, onActivated, onBeforeUnmount, ref, useTemplateRef } from 'vue'
 
@@ -37,7 +37,7 @@ return (_ctx: any,_cache: any) => {
     }, [ (!showing.value) ? (_openBlock(), _createElementBlock("div", {
           key: 0,
           class: _normalizeClass(_ctx.$style.placeholder)
-        })) : (_openBlock(), _createElementBlock("slot", { key: 1 })) ], 512 /* NEED_PATCH */))
+        })) : _renderSlot(_ctx.$slots, "default", { key: 1 }) ], 512 /* NEED_PATCH */))
 }
 }
 

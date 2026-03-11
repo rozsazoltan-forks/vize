@@ -374,12 +374,12 @@ return (_ctx: any,_cache: any) => {
       class: _normalizeClass(["_popup _shadow", _ctx.$style.root]),
       style: _normalizeStyle({ zIndex: _unref(zIndex) }),
       onContextmenu: _cache[0] || (_cache[0] = _withModifiers(() => {}, ["prevent"]))
-    }, [ (_ctx.type === 'user') ? (_openBlock(), _createElementBlock("ol", {
+    }, [ (__props.type === 'user') ? (_openBlock(), _createElementBlock("ol", {
           key: 0,
           ref: "suggests",
           class: _normalizeClass(_ctx.$style.list)
         }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(users.value, (user) => {
-            return (_openBlock(), _createElementBlock("li", { tabindex: "-1", class: _normalizeClass(_ctx.$style.item), onClick: _cache[1] || (_cache[1] = ($event: any) => (complete(_ctx.type, user))), onKeydown: onKeydown }, [
+            return (_openBlock(), _createElementBlock("li", { tabindex: "-1", class: _normalizeClass(_ctx.$style.item), onClick: _cache[1] || (_cache[1] = ($event: any) => (complete(__props.type, user))), onKeydown: onKeydown }, [
               _createElementVNode("img", {
                 class: _normalizeClass(_ctx.$style.avatar),
                 src: user.avatarUrl
@@ -399,15 +399,15 @@ return (_ctx: any,_cache: any) => {
             class: _normalizeClass(_ctx.$style.item),
             onClick: _cache[2] || (_cache[2] = ($event: any) => (chooseUser())),
             onKeydown: onKeydown
-          }, _toDisplayString(i18n.ts.selectUser), 33 /* TEXT, NEED_HYDRATION */) ])) : (_ctx.type === 'hashtag' && hashtags.value.length > 0) ? (_openBlock(), _createElementBlock("ol", {
+          }, _toDisplayString(i18n.ts.selectUser), 33 /* TEXT, NEED_HYDRATION */) ])) : (__props.type === 'hashtag' && hashtags.value.length > 0) ? (_openBlock(), _createElementBlock("ol", {
             key: 1,
             ref: "suggests",
             class: _normalizeClass(_ctx.$style.list)
           }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(hashtags.value, (hashtag) => {
-              return (_openBlock(), _createElementBlock("li", { tabindex: "-1", class: _normalizeClass(_ctx.$style.item), onClick: _cache[3] || (_cache[3] = ($event: any) => (complete(_ctx.type, hashtag))), onKeydown: onKeydown }, [
+              return (_openBlock(), _createElementBlock("li", { tabindex: "-1", class: _normalizeClass(_ctx.$style.item), onClick: _cache[3] || (_cache[3] = ($event: any) => (complete(__props.type, hashtag))), onKeydown: onKeydown }, [
                 _createElementVNode("span", _hoisted_1, _toDisplayString(hashtag), 1 /* TEXT */)
               ], 32 /* NEED_HYDRATION */))
-            }), 256 /* UNKEYED_FRAGMENT */)) ])) : (_ctx.type === 'emoji' || _ctx.type === 'emojiComplete' && emojis.value.length > 0) ? (_openBlock(), _createElementBlock("ol", {
+            }), 256 /* UNKEYED_FRAGMENT */)) ])) : (__props.type === 'emoji' || __props.type === 'emojiComplete' && emojis.value.length > 0) ? (_openBlock(), _createElementBlock("ol", {
             key: 2,
             ref: "suggests",
             class: _normalizeClass(_ctx.$style.list)
@@ -416,7 +416,7 @@ return (_ctx: any,_cache: any) => {
                 key: emoji.emoji,
                 class: _normalizeClass(_ctx.$style.item),
                 tabindex: "-1",
-                onClick: _cache[4] || (_cache[4] = ($event: any) => (complete(_ctx.type, emoji.emoji))),
+                onClick: _cache[4] || (_cache[4] = ($event: any) => (complete(__props.type, emoji.emoji))),
                 onKeydown: onKeydown
               }, [
                 ('isCustomEmoji' in emoji && emoji.isCustomEmoji)
@@ -432,11 +432,11 @@ return (_ctx: any,_cache: any) => {
                     class: _normalizeClass(_ctx.$style.emoji)
                   }, null, 8 /* PROPS */, ["emoji"])),
                 _createTextVNode("\n\t\t\t" + "\n\t\t\t"),
-                (_ctx.q != null && typeof _ctx.q === 'string')
+                (__props.q != null && typeof __props.q === 'string')
                   ? (_openBlock(), _createElementBlock("span", {
                     key: 0,
                     class: _normalizeClass(_ctx.$style.emojiName),
-                    innerHTML: sanitizeHtml(emoji.name.replace(_ctx.q, `<b>${_ctx.q}</b>`))
+                    innerHTML: sanitizeHtml(emoji.name.replace(__props.q, `<b>${__props.q}</b>`))
                   }))
                   : (_openBlock(), _createElementBlock("span", {
                     key: 1,
@@ -449,15 +449,15 @@ return (_ctx: any,_cache: any) => {
                   }, "(" + _toDisplayString(emoji.aliasOf) + ")", 1 /* TEXT */))
                   : _createCommentVNode("v-if", true)
               ], 32 /* NEED_HYDRATION */))
-            }), 128 /* KEYED_FRAGMENT */)) ])) : (_ctx.type === 'mfmTag' && mfmTags.value.length > 0) ? (_openBlock(), _createElementBlock("ol", {
+            }), 128 /* KEYED_FRAGMENT */)) ])) : (__props.type === 'mfmTag' && mfmTags.value.length > 0) ? (_openBlock(), _createElementBlock("ol", {
             key: 3,
             ref: "suggests",
             class: _normalizeClass(_ctx.$style.list)
           }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(mfmTags.value, (tag) => {
-              return (_openBlock(), _createElementBlock("li", { tabindex: "-1", class: _normalizeClass(_ctx.$style.item), onClick: _cache[5] || (_cache[5] = ($event: any) => (complete(_ctx.type, tag))), onKeydown: onKeydown }, [
+              return (_openBlock(), _createElementBlock("li", { tabindex: "-1", class: _normalizeClass(_ctx.$style.item), onClick: _cache[5] || (_cache[5] = ($event: any) => (complete(__props.type, tag))), onKeydown: onKeydown }, [
                 _createElementVNode("span", null, _toDisplayString(tag), 1 /* TEXT */)
               ], 32 /* NEED_HYDRATION */))
-            }), 256 /* UNKEYED_FRAGMENT */)) ])) : (_ctx.type === 'mfmParam' && mfmParams.value.length > 0) ? (_openBlock(), _createElementBlock("ol", {
+            }), 256 /* UNKEYED_FRAGMENT */)) ])) : (__props.type === 'mfmParam' && mfmParams.value.length > 0) ? (_openBlock(), _createElementBlock("ol", {
             key: 4,
             ref: "suggests",
             class: _normalizeClass(_ctx.$style.list)

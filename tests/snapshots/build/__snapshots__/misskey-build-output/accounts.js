@@ -22,7 +22,12 @@ export default /*@__PURE__*/_defineComponent({
 
 let __temp: any, __restore: any
 
-const accounts = await getAccounts();
+const accounts =  (
+  ([__temp,__restore] = _withAsyncContext(() => getAccounts())),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 function refreshAllAccounts() {
 	// TODO
 }

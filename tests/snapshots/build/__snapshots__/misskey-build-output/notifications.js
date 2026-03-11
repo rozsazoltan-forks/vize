@@ -31,20 +31,17 @@ const onlyOnOrOffNotificationTypes = ['app', 'achievementEarned', 'login', 'crea
 const allowButton = useTemplateRef('allowButton');
 const pushRegistrationInServer = computed(() => allowButton.value?.pushRegistrationInServer);
 const sendReadMessage = computed(() => pushRegistrationInServer.value?.sendReadMessage || false);
-const userLists = await misskeyApi('users/lists/list');
+const userLists =  (
+  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('users/lists/list'))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 async function readAllNotifications() {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('notifications/mark-all-as-read', {}))),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('notifications/mark-all-as-read', {});
 }
 async function updateReceiveConfig(type: typeof notificationTypes[number], value: NotificationConfig) {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('i/update', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('i/update', {
 		notificationRecieveConfig: {
 			...$i.notificationRecieveConfig,
 			[type]: value,

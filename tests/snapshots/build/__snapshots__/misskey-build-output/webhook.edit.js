@@ -35,9 +35,14 @@ let __temp: any, __restore: any
 
 const props = __props
 const router = useRouter();
-const webhook = await misskeyApi('i/webhooks/show', {
+const webhook =  (
+  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('i/webhooks/show', {
 	webhookId: props.webhookId,
-});
+}))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const name = ref(webhook.name);
 const url = ref(webhook.url);
 const secret = ref(webhook.secret);
@@ -73,21 +78,13 @@ async function del(): Promise<void> {
 		text: i18n.tsx.deleteAreYouSure({ x: webhook.name }),
 	});
 	if (canceled) return;
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('i/webhooks/delete', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('i/webhooks/delete', {
 		webhookId: props.webhookId,
 	});
 	router.push('/settings/connect');
 }
 async function test(type: Misskey.entities.UserWebhook['on'][number]): Promise<void> {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('i/webhooks/test', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('i/webhooks/test', {
 		webhookId: props.webhookId,
 		type,
 		override: {

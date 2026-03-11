@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-pencil ti-fw" })
@@ -331,7 +331,7 @@ return (_ctx: any,_cache: any) => {
                             class: _normalizeClass(_ctx.$style.pageBannerTitleSubActions)
                           }, [
                             (page.value.userId === _unref($i)?.id)
-                              ? (_openBlock(), _createBlock(_component_MkA, {
+                              ? _withDirectives((_openBlock(), _createBlock(_component_MkA, {
                                 key: 0,
                                 to: `/pages/edit/${page.value.id}`,
                                 class: _normalizeClass(["_button", _ctx.$style.generalActionButton])
@@ -340,7 +340,9 @@ return (_ctx: any,_cache: any) => {
                                   _hoisted_1
                                 ]),
                                 _: 1 /* STABLE */
-                              }, 8 /* PROPS */, ["to"]))
+                              }, 8 /* PROPS */, ["to"])), [
+                                [_directive_tooltip, _unref(i18n).ts._pages.editThisPage]
+                              ])
                               : _createCommentVNode("v-if", true),
                             _createElementVNode("button", {
                               class: _normalizeClass(["_button", _ctx.$style.generalActionButton]),
@@ -362,7 +364,7 @@ return (_ctx: any,_cache: any) => {
                     }, [
                       _createElementVNode("div", null, [
                         (page.value.isLiked)
-                          ? (_openBlock(), _createBlock(MkButton, {
+                          ? _withDirectives((_openBlock(), _createBlock(MkButton, {
                             key: 0,
                             class: "button",
                             asLike: "",
@@ -379,8 +381,10 @@ return (_ctx: any,_cache: any) => {
                                 : _createCommentVNode("v-if", true)
                             ]),
                             _: 1 /* STABLE */
-                          }))
-                          : (_openBlock(), _createBlock(MkButton, {
+                          })), [
+                            [_directive_tooltip, _unref(i18n).ts._pages.unlike]
+                          ])
+                          : _withDirectives((_openBlock(), _createBlock(MkButton, {
                             key: 1,
                             class: "button",
                             asLike: "",
@@ -396,13 +400,15 @@ return (_ctx: any,_cache: any) => {
                                 : _createCommentVNode("v-if", true)
                             ]),
                             _: 1 /* STABLE */
-                          }))
+                          })), [
+                            [_directive_tooltip, _unref(i18n).ts._pages.like]
+                          ])
                       ]),
                       _createElementVNode("div", {
                         class: _normalizeClass(_ctx.$style.other)
                       }, [
                         (page.value.userId === _unref($i)?.id)
-                          ? (_openBlock(), _createBlock(_component_MkA, {
+                          ? _withDirectives((_openBlock(), _createBlock(_component_MkA, {
                             key: 0,
                             to: `/pages/edit/${page.value.id}`,
                             class: _normalizeClass(["_button", _ctx.$style.generalActionButton])
@@ -411,7 +417,9 @@ return (_ctx: any,_cache: any) => {
                               _hoisted_5
                             ]),
                             _: 1 /* STABLE */
-                          }, 8 /* PROPS */, ["to"]))
+                          }, 8 /* PROPS */, ["to"])), [
+                            [_directive_tooltip, _unref(i18n).ts._pages.editThisPage]
+                          ])
                           : _createCommentVNode("v-if", true),
                         _createElementVNode("button", {
                           class: _normalizeClass(["_button", _ctx.$style.generalActionButton]),
@@ -426,13 +434,15 @@ return (_ctx: any,_cache: any) => {
                           _hoisted_7
                         ]),
                         (_unref($i))
-                          ? (_openBlock(), _createElementBlock("button", {
+                          ? _withDirectives((_openBlock(), _createElementBlock("button", {
                             key: 0,
                             class: _normalizeClass(["_button", _ctx.$style.generalActionButton]),
                             onClick: showMenu
                           }, [
                             _hoisted_8
-                          ]))
+                          ])), [
+                            [_directive_click_anime]
+                          ])
                           : _createCommentVNode("v-if", true)
                       ])
                     ]),

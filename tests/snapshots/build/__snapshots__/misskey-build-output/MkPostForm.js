@@ -1263,7 +1263,7 @@ return (_ctx: any,_cache: any) => {
         class: _normalizeClass(_ctx.$style.header)
       }, [ _createElementVNode("div", {
           class: _normalizeClass(_ctx.$style.headerLeft)
-        }, [ (!_ctx.fixed) ? (_openBlock(), _createElementBlock("button", {
+        }, [ (!__props.fixed) ? (_openBlock(), _createElementBlock("button", {
               key: 0,
               class: _normalizeClass(["_button", _ctx.$style.cancel]),
               onClick: cancel
@@ -1277,25 +1277,25 @@ return (_ctx: any,_cache: any) => {
               style: "border-radius: 100%;"
             }, null, 8 /* PROPS */, ["src"]) ], 512 /* NEED_PATCH */) ]), _createElementVNode("div", {
           class: _normalizeClass(_ctx.$style.headerRight)
-        }, [ (!(targetChannel.value != null && _ctx.fixed)) ? (_openBlock(), _createElementBlock(_Fragment, { key: 0 }, [ (targetChannel.value == null) ? (_openBlock(), _createElementBlock("button", {
+        }, [ (!(targetChannel.value != null && __props.fixed)) ? (_openBlock(), _createElementBlock(_Fragment, { key: 0 }, [ (targetChannel.value == null) ? _withDirectives((_openBlock(), _createElementBlock("button", {
                   key: 0,
                   ref: "visibilityButton",
                   class: _normalizeClass(['_button', _ctx.$style.headerRightItem, _ctx.$style.visibility]),
                   onClick: setVisibility
                 }, [ (visibility.value === 'public') ? (_openBlock(), _createElementBlock("span", { key: 0 }, [ _hoisted_2 ])) : _createCommentVNode("v-if", true), (visibility.value === 'home') ? (_openBlock(), _createElementBlock("span", { key: 0 }, [ _hoisted_3 ])) : _createCommentVNode("v-if", true), (visibility.value === 'followers') ? (_openBlock(), _createElementBlock("span", { key: 0 }, [ _hoisted_4 ])) : _createCommentVNode("v-if", true), (visibility.value === 'specified') ? (_openBlock(), _createElementBlock("span", { key: 0 }, [ _hoisted_5 ])) : _createCommentVNode("v-if", true), _createElementVNode("span", {
                     class: _normalizeClass(_ctx.$style.headerRightButtonText)
-                  }, _toDisplayString(_unref(i18n).ts._visibility[visibility.value]), 1 /* TEXT */) ])) : (_openBlock(), _createElementBlock("button", {
+                  }, _toDisplayString(_unref(i18n).ts._visibility[visibility.value]), 1 /* TEXT */) ])), [ [_directive_tooltip, _unref(i18n).ts.visibility] ]) : (_openBlock(), _createElementBlock("button", {
                   key: 1,
                   class: _normalizeClass(["_button", [_ctx.$style.headerRightItem, _ctx.$style.visibility]]),
                   disabled: ""
                 }, [ _createElementVNode("span", null, [ _hoisted_6 ]), _createElementVNode("span", {
                     class: _normalizeClass(_ctx.$style.headerRightButtonText)
-                  }, _toDisplayString(targetChannel.value.name), 1 /* TEXT */) ])) ], 64 /* STABLE_FRAGMENT */)) : _createCommentVNode("v-if", true), (visibility.value !== 'specified') ? (_openBlock(), _createElementBlock("button", {
+                  }, _toDisplayString(targetChannel.value.name), 1 /* TEXT */) ])) ], 64 /* STABLE_FRAGMENT */)) : _createCommentVNode("v-if", true), (visibility.value !== 'specified') ? _withDirectives((_openBlock(), _createElementBlock("button", {
               key: 0,
               class: _normalizeClass(["_button", [_ctx.$style.headerRightItem, { [_ctx.$style.danger]: localOnly.value }]]),
               disabled: targetChannel.value != null,
               onClick: toggleLocalOnly
-            }, [ (!localOnly.value) ? (_openBlock(), _createElementBlock("span", { key: 0 }, [ _hoisted_7 ])) : (_openBlock(), _createElementBlock("span", { key: 1 }, [ _hoisted_8 ])) ])) : _createCommentVNode("v-if", true), _createElementVNode("button", {
+            }, [ (!localOnly.value) ? (_openBlock(), _createElementBlock("span", { key: 0 }, [ _hoisted_7 ])) : (_openBlock(), _createElementBlock("span", { key: 1 }, [ _hoisted_8 ])) ])), [ [_directive_tooltip, _unref(i18n).ts._visibility.disableFederation] ]) : _createCommentVNode("v-if", true), _createElementVNode("button", {
             ref_key: "otherSettingsButton", ref: otherSettingsButton,
             class: _normalizeClass(["_button", _ctx.$style.headerRightItem]),
             onClick: showOtherSettings
@@ -1497,15 +1497,15 @@ return (_ctx: any,_cache: any) => {
           }, [ _hoisted_19 ], 2 /* CLASS */), _createElementVNode("button", {
             class: _normalizeClass(["_button", _ctx.$style.footerButton]),
             onClick: insertMention
-          }, [ _hoisted_20 ]), (showAddMfmFunction.value) ? (_openBlock(), _createElementBlock("button", {
+          }, [ _hoisted_20 ]), (showAddMfmFunction.value) ? _withDirectives((_openBlock(), _createElementBlock("button", {
               key: 0,
               class: _normalizeClass(['_button', _ctx.$style.footerButton]),
               onClick: insertMfmFunction
-            }, [ _hoisted_21 ])) : _createCommentVNode("v-if", true), (_unref(postFormActions).length > 0) ? (_openBlock(), _createElementBlock("button", {
+            }, [ _hoisted_21 ])), [ [_directive_tooltip, _unref(i18n).ts.addMfmFunction] ]) : _createCommentVNode("v-if", true), (_unref(postFormActions).length > 0) ? _withDirectives((_openBlock(), _createElementBlock("button", {
               key: 0,
               class: _normalizeClass(["_button", _ctx.$style.footerButton]),
               onClick: showActions
-            }, [ _hoisted_22 ])) : _createCommentVNode("v-if", true) ]), _createElementVNode("div", {
+            }, [ _hoisted_22 ])), [ [_directive_tooltip, _unref(i18n).ts.plugins] ]) : _createCommentVNode("v-if", true) ]), _createElementVNode("div", {
           class: _normalizeClass(_ctx.$style.footerRight)
         }, [ _createElementVNode("button", {
             class: _normalizeClass(['_button', _ctx.$style.footerButton]),

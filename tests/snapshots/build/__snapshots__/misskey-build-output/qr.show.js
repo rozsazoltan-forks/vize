@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { openBlock as _openBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, normalizeStyle as _normalizeStyle, withCtx as _withCtx, unref as _unref } from "vue"
+import { openBlock as _openBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, normalizeStyle as _normalizeStyle, withCtx as _withCtx, unref as _unref } from "vue"
 
 import tinycolor from 'tinycolor2'
 import QRCodeStyling from 'qr-code-styling'
@@ -152,18 +152,18 @@ return (_ctx: any,_cache: any) => {
                   _createTextVNode(_toDisplayString(acct.value), 1 /* TEXT */)
                 ]),
                 _: 1 /* STABLE */
-              }, 8 /* PROPS */, ["minScale"]) ]) ]) ]), (_unref(deviceMotionPermissionNeeded)) ? (_openBlock(), _createElementBlock("img", {
+              }, 8 /* PROPS */, ["minScale"]) ]) ]) ]), (_unref(deviceMotionPermissionNeeded)) ? _withDirectives((_openBlock(), _createElementBlock("img", {
             key: 0,
             class: _normalizeClass(_ctx.$style.logo),
             src: misskeysvg,
             alt: "Misskey Logo",
             onClick: requestDeviceMotion
-          })) : (_openBlock(), _createElementBlock("img", {
+          })), [ [_directive_flip] ]) : _withDirectives((_openBlock(), _createElementBlock("img", {
             key: 1,
             class: _normalizeClass(_ctx.$style.logo),
             src: misskeysvg,
             alt: "Misskey Logo"
-          })) ]) ]))
+          })), [ [_directive_flip] ]) ]) ]))
 }
 }
 

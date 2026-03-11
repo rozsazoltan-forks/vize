@@ -43,8 +43,18 @@ export default /*@__PURE__*/_defineComponent({
 
 let __temp: any, __restore: any
 
-const meta = await misskeyApi('admin/meta');
-const proxyAccount = await misskeyApi('users/show', { userId: meta.proxyAccountId });
+const meta =  (
+  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/meta'))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
+const proxyAccount =  (
+  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('users/show', { userId: meta.proxyAccountId }))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const infoForm = useForm({
 	name: meta.name ?? '',
 	shortName: meta.shortName ?? '',
@@ -57,11 +67,7 @@ const infoForm = useForm({
 	repositoryUrl: meta.repositoryUrl ?? '',
 	impressumUrl: meta.impressumUrl ?? '',
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		name: state.name,
 		shortName: state.shortName === '' ? null : state.shortName,
 		description: state.description,
@@ -78,11 +84,7 @@ const infoForm = useForm({
 const pinnedUsersForm = useForm({
 	pinnedUsers: meta.pinnedUsers.join('\n'),
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		pinnedUsers: state.pinnedUsers.split('\n'),
 	});
 	fetchInstance(true);
@@ -92,11 +94,7 @@ const serviceWorkerForm = useForm({
 	swPublicKey: meta.swPublickey ?? '',
 	swPrivateKey: meta.swPrivateKey ?? '',
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		enableServiceWorker: state.enableServiceWorker,
 		swPublicKey: state.swPublicKey,
 		swPrivateKey: state.swPrivateKey,
@@ -106,11 +104,7 @@ const serviceWorkerForm = useForm({
 const adForm = useForm({
 	notesPerOneAd: meta.notesPerOneAd,
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		notesPerOneAd: state.notesPerOneAd,
 	});
 	fetchInstance(true);
@@ -124,11 +118,7 @@ const urlPreviewForm = useForm({
 	urlPreviewUserAgent: meta.urlPreviewUserAgent ?? '',
 	urlPreviewSummaryProxyUrl: meta.urlPreviewSummaryProxyUrl ?? '',
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		urlPreviewEnabled: state.urlPreviewEnabled,
 		urlPreviewAllowRedirect: state.urlPreviewAllowRedirect,
 		urlPreviewTimeout: state.urlPreviewTimeout,
@@ -149,11 +139,7 @@ const federationForm = useForm({
 	cacheRemoteFiles: meta.cacheRemoteFiles,
 	cacheRemoteSensitiveFiles: meta.cacheRemoteSensitiveFiles,
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		federation: state.federation,
 		federationHosts: state.federationHosts.split('\n'),
 		deliverSuspendedSoftware: state.deliverSuspendedSoftware,
@@ -168,11 +154,7 @@ const federationForm = useForm({
 const proxyAccountForm = useForm({
 	description: proxyAccount.description,
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-proxy-account', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-proxy-account', {
 		description: state.description,
 	});
 	fetchInstance(true);

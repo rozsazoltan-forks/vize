@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { openBlock as _openBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveDirective as _resolveDirective, renderSlot as _renderSlot, normalizeClass as _normalizeClass, unref as _unref } from "vue"
+import { openBlock as _openBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderSlot as _renderSlot, normalizeClass as _normalizeClass, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-copy" })
@@ -29,12 +29,12 @@ return (_ctx: any,_cache: any) => {
         class: _normalizeClass(_ctx.$style.key)
       }, [ _renderSlot(_ctx.$slots, "key") ]), _createElementVNode("div", {
         class: _normalizeClass(["_selectable", _ctx.$style.value])
-      }, [ _renderSlot(_ctx.$slots, "value"), (__props.copy) ? (_openBlock(), _createElementBlock("button", {
+      }, [ _renderSlot(_ctx.$slots, "value"), (__props.copy) ? _withDirectives((_openBlock(), _createElementBlock("button", {
             key: 0,
             class: "_textButton",
             style: "margin-left: 0.5em;",
             onClick: copy_
-          }, [ _hoisted_1 ])) : _createCommentVNode("v-if", true) ]) ], 2 /* CLASS */))
+          }, [ _hoisted_1 ])), [ [_directive_tooltip, _unref(i18n).ts.copy] ]) : _createCommentVNode("v-if", true) ]) ], 2 /* CLASS */))
 }
 }
 

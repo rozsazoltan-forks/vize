@@ -86,18 +86,18 @@ return (_ctx: any,_cache: any) => {
           }, [ _createElementVNode("div", { class: "item _panel sub" }, [ _createElementVNode("div", { class: "icon" }, [ _hoisted_5 ]), _createElementVNode("div", { class: "body" }, [ (federationSubActive.value != null) ? (_openBlock(), _createElementBlock("div", {
                     key: 0,
                     class: "value"
-                  }, [ _toDisplayString(number(federationSubActive.value)), _createTextVNode("\n\t\t\t\t\t\t"), (federationSubActiveDiff.value != null) ? (_openBlock(), _createBlock(MkNumberDiff, {
+                  }, [ _toDisplayString(number(federationSubActive.value)), _createTextVNode("\n\t\t\t\t\t\t"), (federationSubActiveDiff.value != null) ? _withDirectives((_openBlock(), _createBlock(MkNumberDiff, {
                         key: 0,
                         class: "diff",
                         value: federationSubActiveDiff.value
-                      }, null, 8 /* PROPS */, ["value"])) : _createCommentVNode("v-if", true) ])) : _createCommentVNode("v-if", true), _hoisted_6 ]) ]), _createElementVNode("div", { class: "item _panel pub" }, [ _createElementVNode("div", { class: "icon" }, [ _hoisted_7 ]), _createElementVNode("div", { class: "body" }, [ (federationPubActive.value != null) ? (_openBlock(), _createElementBlock("div", {
+                      }, null, 8 /* PROPS */, ["value"])), [ [_directive_tooltip, _unref(i18n).ts.dayOverDayChanges] ]) : _createCommentVNode("v-if", true) ])) : _createCommentVNode("v-if", true), _hoisted_6 ]) ]), _createElementVNode("div", { class: "item _panel pub" }, [ _createElementVNode("div", { class: "icon" }, [ _hoisted_7 ]), _createElementVNode("div", { class: "body" }, [ (federationPubActive.value != null) ? (_openBlock(), _createElementBlock("div", {
                     key: 0,
                     class: "value"
-                  }, [ _toDisplayString(number(federationPubActive.value)), _createTextVNode("\n\t\t\t\t\t\t"), (federationPubActiveDiff.value != null) ? (_openBlock(), _createBlock(MkNumberDiff, {
+                  }, [ _toDisplayString(number(federationPubActive.value)), _createTextVNode("\n\t\t\t\t\t\t"), (federationPubActiveDiff.value != null) ? _withDirectives((_openBlock(), _createBlock(MkNumberDiff, {
                         key: 0,
                         class: "diff",
                         value: federationPubActiveDiff.value
-                      }, null, 8 /* PROPS */, ["value"])) : _createCommentVNode("v-if", true) ])) : _createCommentVNode("v-if", true), _hoisted_8 ]) ]) ])) : _createCommentVNode("v-if", true) ], 512 /* NEED_PATCH */), [ [_vShow, !fetching.value] ]) ]))
+                      }, null, 8 /* PROPS */, ["value"])), [ [_directive_tooltip, _unref(i18n).ts.dayOverDayChanges] ]) : _createCommentVNode("v-if", true) ])) : _createCommentVNode("v-if", true), _hoisted_8 ]) ]) ])) : _createCommentVNode("v-if", true) ], 512 /* NEED_PATCH */), [ [_vShow, !fetching.value] ]) ]))
 }
 }
 

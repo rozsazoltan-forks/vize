@@ -24,7 +24,12 @@ export default /*@__PURE__*/_defineComponent({
 
 let __temp: any, __restore: any
 
-const meta = await misskeyApi('admin/meta');
+const meta =  (
+  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/meta'))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const enableServerMachineStats = ref(meta.enableServerMachineStats);
 const enableIdenticonGeneration = ref(meta.enableIdenticonGeneration);
 const enableChartsForRemoteUser = ref(meta.enableChartsForRemoteUser);
@@ -81,11 +86,7 @@ const fttForm = useForm({
 	perUserHomeTimelineCacheMax: meta.perUserHomeTimelineCacheMax,
 	perUserListTimelineCacheMax: meta.perUserListTimelineCacheMax,
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		enableFanoutTimeline: state.enableFanoutTimeline,
 		enableFanoutTimelineDbFallback: state.enableFanoutTimelineDbFallback,
 		perLocalUserUserTimelineCacheMax: state.perLocalUserUserTimelineCacheMax,
@@ -98,11 +99,7 @@ const fttForm = useForm({
 const rbtForm = useForm({
 	enableReactionsBuffering: meta.enableReactionsBuffering,
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		enableReactionsBuffering: state.enableReactionsBuffering,
 	});
 	fetchInstance(true);
@@ -112,11 +109,7 @@ const remoteNotesCleaningForm = useForm({
 	remoteNotesCleaningExpiryDaysForEachNotes: meta.remoteNotesCleaningExpiryDaysForEachNotes,
 	remoteNotesCleaningMaxProcessingDurationInMinutes: meta.remoteNotesCleaningMaxProcessingDurationInMinutes,
 }, async (state) => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/update-meta', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/update-meta', {
 		enableRemoteNotesCleaning: state.enableRemoteNotesCleaning,
 		remoteNotesCleaningExpiryDaysForEachNotes: state.remoteNotesCleaningExpiryDaysForEachNotes,
 		remoteNotesCleaningMaxProcessingDurationInMinutes: state.remoteNotesCleaningMaxProcessingDurationInMinutes,
@@ -361,8 +354,7 @@ return (_ctx: any,_cache: any) => {
                           _createTextVNode("Disabled")
                         ]),
                         key: "1"
-                      }
-                      : undefined,
+                      },
                       (_unref(fttForm).modified.value)
                         ? {
                           name: "footer",
@@ -415,8 +407,7 @@ return (_ctx: any,_cache: any) => {
                           _createTextVNode("Disabled")
                         ]),
                         key: "1"
-                      }
-                      : undefined,
+                      },
                       (_unref(rbtForm).modified.value)
                         ? {
                           name: "footer",
@@ -469,8 +460,7 @@ return (_ctx: any,_cache: any) => {
                           _createTextVNode("Disabled")
                         ]),
                         key: "1"
-                      }
-                      : undefined,
+                      },
                       (_unref(remoteNotesCleaningForm).modified.value)
                         ? {
                           name: "footer",

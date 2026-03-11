@@ -14,7 +14,12 @@ export default /*@__PURE__*/_defineComponent({
 
 let __temp: any, __restore: any
 
-const backups = await listCloudBackups();
+const backups =  (
+  ([__temp,__restore] = _withAsyncContext(() => listCloudBackups())),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 function del(backup: { name: string }): void {
 	deleteCloudBackup(backup.name);
 }

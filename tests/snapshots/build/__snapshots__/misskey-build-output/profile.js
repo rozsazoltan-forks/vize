@@ -511,7 +511,7 @@ return (_ctx: any,_cache: any) => {
                                   class: _normalizeClass(["_button", _ctx.$style.dragItemHandle]),
                                   tabindex: "-1",
                                   draggable: true,
-                                  onDragstart: _cache[8] || (_cache[8] = _withModifiers((...args) => (_ctx.dragStart && _ctx.dragStart(...args)), ["stop"]))
+                                  onDragstart: _cache[8] || (_cache[8] = _withModifiers((...args) => (dragStart && dragStart(...args)), ["stop"]))
                                 }, [
                                   _hoisted_9
                                 ]))
@@ -521,7 +521,7 @@ return (_ctx: any,_cache: any) => {
                                   key: 0,
                                   disabled: fields.value.length <= 1,
                                   class: _normalizeClass(["_button", _ctx.$style.dragItemRemove]),
-                                  onClick: _cache[9] || (_cache[9] = ($event: any) => (deleteField(_ctx.item.id)))
+                                  onClick: _cache[9] || (_cache[9] = ($event: any) => (deleteField(item.id)))
                                 }, [
                                   _hoisted_10
                                 ]))
@@ -535,13 +535,13 @@ return (_ctx: any,_cache: any) => {
                                       small: "",
                                       placeholder: _unref(i18n).ts._profile.metadataLabel,
                                       modelValue: item.name,
-                                      "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event: any) => ((_ctx.item.name) = $event))
+                                      "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event: any) => ((item.name) = $event))
                                     }, null, 8 /* PROPS */, ["placeholder", "modelValue"]),
                                     _createVNode(MkInput, {
                                       small: "",
                                       placeholder: _unref(i18n).ts._profile.metadataContent,
                                       modelValue: item.value,
-                                      "onUpdate:modelValue": _cache[11] || (_cache[11] = ($event: any) => ((_ctx.item.value) = $event))
+                                      "onUpdate:modelValue": _cache[11] || (_cache[11] = ($event: any) => ((item.value) = $event))
                                     }, null, 8 /* PROPS */, ["placeholder", "modelValue"])
                                   ]),
                                   _: 1 /* STABLE */

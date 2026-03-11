@@ -392,11 +392,7 @@ async function del() {
 		text: i18n.tsx.deleteAreYouSure({ x: flash.value.title }),
 	});
 	if (canceled) return;
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('flash/delete', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('flash/delete', {
 		flashId: flash.value.id,
 	});
 	router.push('/play');

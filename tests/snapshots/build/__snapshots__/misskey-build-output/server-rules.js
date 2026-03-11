@@ -92,20 +92,20 @@ return (_ctx: any,_cache: any) => {
                       _createElementVNode("span", {
                         class: _normalizeClass(_ctx.$style.itemHandle),
                         draggable: true,
-                        onDragstart: _cache[1] || (_cache[1] = _withModifiers((...args) => (_ctx.dragStart && _ctx.dragStart(...args)), ["stop"]))
+                        onDragstart: _cache[1] || (_cache[1] = _withModifiers((...args) => (dragStart && dragStart(...args)), ["stop"]))
                       }, [
                         _hoisted_2
                       ], 40 /* PROPS, NEED_HYDRATION */, ["draggable"]),
                       _createElementVNode("button", {
                         class: _normalizeClass(["_button", _ctx.$style.itemRemove]),
-                        onClick: _cache[2] || (_cache[2] = ($event: any) => (remove(_ctx.item.id)))
+                        onClick: _cache[2] || (_cache[2] = ($event: any) => (remove(item.id)))
                       }, [
                         _hoisted_3
                       ])
                     ]),
                     _createVNode(MkInput, {
                       modelValue: item.text,
-                      "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event: any) => (serverRules.value[_ctx.index].text = $event))
+                      "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event: any) => (serverRules.value[index].text = $event))
                     }, null, 8 /* PROPS */, ["modelValue"])
                   ])
                 ]),

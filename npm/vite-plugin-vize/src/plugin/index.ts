@@ -103,10 +103,14 @@ export function vize(options: VizeOptions = {}): Plugin[] {
       state.isProduction = options.isProduction ?? resolvedConfig.isProduction;
 
       const isSsrBuild = !!resolvedConfig.build?.ssr;
+      const currentBase =
+        resolvedConfig.command === "serve"
+          ? (options.devUrlBase ?? resolvedConfig.base ?? "/")
+          : (resolvedConfig.base ?? "/");
       if (isSsrBuild) {
-        state.serverViteBase = resolvedConfig.base ?? "/";
+        state.serverViteBase = currentBase;
       } else {
-        state.clientViteBase = resolvedConfig.base ?? "/";
+        state.clientViteBase = currentBase;
       }
       state.extractCss = state.isProduction;
 

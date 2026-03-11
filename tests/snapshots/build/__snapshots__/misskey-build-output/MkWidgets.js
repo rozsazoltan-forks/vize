@@ -139,14 +139,14 @@ return (_ctx: any,_cache: any) => {
               }, [
                 _createElementVNode("button", {
                   class: _normalizeClass(["_button", _ctx.$style.customizeContainerConfig]),
-                  onClick: _cache[3] || (_cache[3] = _withModifiers(($event: any) => (configWidget(_ctx.item.id)), ["prevent","stop"]))
+                  onClick: _cache[3] || (_cache[3] = _withModifiers(($event: any) => (configWidget(item.id)), ["prevent","stop"]))
                 }, [
                   _hoisted_2
                 ]),
                 _createElementVNode("button", {
                   class: _normalizeClass(["_button", _ctx.$style.customizeContainerRemove]),
                   "data-cy-customize-container-remove": "",
-                  onClick: _cache[4] || (_cache[4] = _withModifiers(($event: any) => (removeWidget(_ctx.item)), ["prevent","stop"]))
+                  onClick: _cache[4] || (_cache[4] = _withModifiers(($event: any) => (removeWidget(item)), ["prevent","stop"]))
                 }, [
                   _hoisted_3
                 ]),
@@ -154,7 +154,7 @@ return (_ctx: any,_cache: any) => {
                   ref: (el) => _unref(widgetRefs)[item.id] = el,
                   class: _normalizeClass(_ctx.$style.customizeContainerHandleWidget),
                   widget: item,
-                  onUpdateProps: _cache[5] || (_cache[5] = ($event: any) => (updateWidget(_ctx.item.id, $event)))
+                  onUpdateProps: _cache[5] || (_cache[5] = ($event: any) => (updateWidget(item.id, $event)))
                 }, null, 520 /* PROPS, NEED_PATCH */, ["widget"])
               ])
             ]),

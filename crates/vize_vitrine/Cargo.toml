@@ -1,11 +1,14 @@
 [package]
 name = "vize_vitrine"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "0.26.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/ubugeeei/vize"
 description = "Vitrine - The display case for Vize (Node.js/WASM bindings)"
 publish = false
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
 
 [lib]
 name = "vize_vitrine"

@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = { class: "text" }
@@ -64,7 +64,7 @@ return (_ctx: any,_cache: any) => {
             (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(_unref(items), (item) => {
               return (_openBlock(), _createElementBlock(_Fragment, { key: item.text }, [
                 (item.action != null)
-                  ? (_openBlock(), _createElementBlock("button", {
+                  ? _withDirectives((_openBlock(), _createElementBlock("button", {
                     key: 0,
                     class: "_button item",
                     onClick: _cache[3] || (_cache[3] = ($event) => {
@@ -89,9 +89,11 @@ return (_ctx: any,_cache: any) => {
                           _hoisted_2
                         ]))
                       : _createCommentVNode("v-if", true)
-                  ]))
+                  ])), [
+                    [_directive_click_anime]
+                  ])
                   : (item.to != null)
-                    ? (_openBlock(), _createBlock(_component_MkA, {
+                    ? _withDirectives((_openBlock(), _createBlock(_component_MkA, {
                       key: 1,
                       to: item.to,
                       class: "item",
@@ -117,7 +119,9 @@ return (_ctx: any,_cache: any) => {
                           : _createCommentVNode("v-if", true)
                       ]),
                       _: 2 /* DYNAMIC */
-                    }, 8 /* PROPS */, ["to"]))
+                    }, 8 /* PROPS */, ["to"])), [
+                      [_directive_click_anime]
+                    ])
                   : _createCommentVNode("v-if", true)
               ], 64 /* STABLE_FRAGMENT */))
             }), 128 /* KEYED_FRAGMENT */))

@@ -1,5 +1,5 @@
 import { withAsyncContext as _withAsyncContext, defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = { class: "acct _monospace" }
@@ -58,7 +58,12 @@ let __temp: any, __restore: any
 
 const props = __props
 const $i = ensureSignin();
-const result = await _fetch_();
+const result =  (
+  ([__temp,__restore] = _withAsyncContext(() => _fetch_())),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const tab = ref(props.initialTab);
 const {
 	model: chartSrc,
@@ -116,16 +121,8 @@ function _fetch_() {
 	}));
 }
 watch(moderationNote, async () => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/update-user-note', { userId: user.value.id, text: moderationNote.value }))),
-  await __temp,
-  __restore()
-)
-;(
-  ([__temp,__restore] = _withAsyncContext(() => refreshUser())),
-  await __temp,
-  __restore()
-)
+	await misskeyApi('admin/update-user-note', { userId: user.value.id, text: moderationNote.value });
+	await refreshUser();
 });
 async function refreshUser() {
 	const result = await _fetch_();
@@ -139,11 +136,7 @@ async function refreshUser() {
 	moderationNote.value = info.value.moderationNote;
 }
 async function updateRemoteUser() {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('federation/update-remote-user', { userId: user.value.id }))),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('federation/update-remote-user', { userId: user.value.id });
 	refreshUser();
 }
 async function resetPassword() {
@@ -171,16 +164,8 @@ async function toggleSuspend(v: boolean) {
 	if (confirm.canceled) {
 		suspended.value = !v;
 	} else {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => misskeyApi(v ? 'admin/suspend-user' : 'admin/unsuspend-user', { userId: user.value.id }))),
-  await __temp,
-  __restore()
-)
-;(
-  ([__temp,__restore] = _withAsyncContext(() => refreshUser())),
-  await __temp,
-  __restore()
-)
+		await misskeyApi(v ? 'admin/suspend-user' : 'admin/unsuspend-user', { userId: user.value.id });
+		await refreshUser();
 	}
 }
 async function unsetUserAvatar() {
@@ -190,18 +175,10 @@ async function unsetUserAvatar() {
 	});
 	if (confirm.canceled) return;
 	const process = async () => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/unset-user-avatar', { userId: user.value.id }))),
-  await __temp,
-  __restore()
-)
+		await misskeyApi('admin/unset-user-avatar', { userId: user.value.id });
 		os.success();
 	};
-;(
-  ([__temp,__restore] = _withAsyncContext(() => process().catch(err => {)),
-  await __temp,
-  __restore()
-)
+	await process().catch(err => {
 		os.alert({
 			type: 'error',
 			text: err.toString(),
@@ -216,18 +193,10 @@ async function unsetUserBanner() {
 	});
 	if (confirm.canceled) return;
 	const process = async () => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/unset-user-banner', { userId: user.value.id }))),
-  await __temp,
-  __restore()
-)
+		await misskeyApi('admin/unset-user-banner', { userId: user.value.id });
 		os.success();
 	};
-;(
-  ([__temp,__restore] = _withAsyncContext(() => process().catch(err => {)),
-  await __temp,
-  __restore()
-)
+	await process().catch(err => {
 		os.alert({
 			type: 'error',
 			text: err.toString(),
@@ -242,28 +211,16 @@ async function deleteAllFiles() {
 	});
 	if (confirm.canceled) return;
 	const process = async () => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/delete-all-files-of-a-user', { userId: user.value.id }))),
-  await __temp,
-  __restore()
-)
+		await misskeyApi('admin/delete-all-files-of-a-user', { userId: user.value.id });
 		os.success();
 	};
-;(
-  ([__temp,__restore] = _withAsyncContext(() => process().catch(err => {)),
-  await __temp,
-  __restore()
-)
+	await process().catch(err => {
 		os.alert({
 			type: 'error',
 			text: err.toString(),
 		});
 	});
-;(
-  ([__temp,__restore] = _withAsyncContext(() => refreshUser())),
-  await __temp,
-  __restore()
-)
+	await refreshUser();
 }
 async function deleteAccount() {
 	const confirm = await os.confirm({
@@ -276,11 +233,7 @@ async function deleteAccount() {
 	});
 	if (typed.canceled) return;
 	if (typed.result === user.value?.username) {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/delete-account', {)),
-  await __temp,
-  __restore()
-)
+		await os.apiWithDialog('admin/delete-account', {
 			userId: user.value.id,
 		});
 	} else {
@@ -319,11 +272,7 @@ async function assignRole() {
 		: period === 'oneWeek' ? Date.now() + (1000 * 60 * 60 * 24 * 7)
 		: period === 'oneMonth' ? Date.now() + (1000 * 60 * 60 * 24 * 30)
 		: null;
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/roles/assign', { roleId, userId: user.value.id, expiresAt }))),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/roles/assign', { roleId, userId: user.value.id, expiresAt });
 	refreshUser();
 }
 async function unassignRole(role: typeof info.value.roles[number], ev: PointerEvent) {
@@ -332,11 +281,7 @@ async function unassignRole(role: typeof info.value.roles[number], ev: PointerEv
 		icon: 'ti ti-x',
 		danger: true,
 		action: async () => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/roles/unassign', { roleId: role.id, userId: user.value.id }))),
-  await __temp,
-  __restore()
-)
+			await os.apiWithDialog('admin/roles/unassign', { roleId: role.id, userId: user.value.id });
 			refreshUser();
 		},
 	}], ev.currentTarget ?? ev.target);
@@ -817,7 +762,7 @@ return (_ctx: any,_cache: any) => {
                   default: _withCtx(({ items }) => [
                     _createElementVNode("div", { class: "_gaps_s" }, [
                       (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (announcement) => {
-                        return (_openBlock(), _createElementBlock("div", {
+                        return _withDirectives((_openBlock(), _createElementBlock("div", {
                           key: announcement.id,
                           class: _normalizeClass(_ctx.$style.announcementItem),
                           onClick: _cache[5] || (_cache[5] = ($event: any) => (editAnnouncement(announcement)))
@@ -860,7 +805,9 @@ return (_ctx: any,_cache: any) => {
                               style: "margin-left: auto; opacity: 0.7;"
                             }, _toDisplayString(_unref(i18n).ts.messageRead), 1 /* TEXT */))
                             : _createCommentVNode("v-if", true)
-                        ]))
+                        ])), [
+                          [_directive_panel]
+                        ])
                       }), 128 /* KEYED_FRAGMENT */))
                     ])
                   ]),

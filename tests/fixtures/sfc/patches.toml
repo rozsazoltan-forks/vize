@@ -183,6 +183,36 @@ const value = ref('')
 </template>
 """
 
+[[cases]]
+name = "v-if slot outlet with v-else"
+input = """
+<template>
+  <div>
+    <slot v-if="showing" />
+    <slot v-else name="fallback" />
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+const showing = ref(false)
+</script>
+"""
+
+[[cases]]
+name = "v-if with custom directive on element"
+input = """
+<script setup>
+import { ref } from 'vue'
+const showHelp = ref(true)
+const helpText = ref('Help')
+</script>
+
+<template>
+  <button v-if="showHelp" v-tooltip.noDelay="helpText">Help</button>
+</template>
+"""
+
 # =============================================================================
 # v-if component props (v_if.rs)
 # Issue: Extra brace emitted in component branch output for v-if

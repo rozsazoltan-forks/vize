@@ -88,7 +88,7 @@ pub fn generate_v_once_element(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
         let (patch_flag, _) = calculate_element_patch_info(
             el,
             ctx.options.binding_metadata.as_ref(),
-            ctx.options.cache_handlers,
+            ctx.cache_handlers_in_current_scope(),
         );
         if let Some(flag) = patch_flag {
             // Only emit CLASS/STYLE flags for v-once, ignore PROPS

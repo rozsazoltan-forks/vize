@@ -137,15 +137,15 @@ return (_ctx: any,_cache: any) => {
                       }, _toDisplayString(pageMetadata.value.subtitle), 1 /* TEXT */)) : _createCommentVNode("v-if", true) ]) ])) : _createCommentVNode("v-if", true), (!narrow.value || hideTitle.value) ? (_openBlock(), _createBlock(XTabs, {
                   key: 0,
                   class: _normalizeClass(_ctx.$style.tabs),
-                  tab: _ctx.tab,
-                  tabs: _ctx.tabs,
+                  tab: __props.tab,
+                  tabs: __props.tabs,
                   rootEl: _unref(el),
                   "onUpdate:tab": _cache[0] || (_cache[0] = (key) => emit("update:tab", key)),
                   onTabClick: onTabClick
-                }, null, 8 /* PROPS */, ["tab", "tabs", "rootEl"])) : _createCommentVNode("v-if", true) ], 64 /* STABLE_FRAGMENT */)) : _createCommentVNode("v-if", true), ((!_unref(thin_) && narrow.value && !hideTitle.value) || (_ctx.actions && _ctx.actions.length > 0)) ? (_openBlock(), _createElementBlock("div", {
+                }, null, 8 /* PROPS */, ["tab", "tabs", "rootEl"])) : _createCommentVNode("v-if", true) ], 64 /* STABLE_FRAGMENT */)) : _createCommentVNode("v-if", true), ((!_unref(thin_) && narrow.value && !hideTitle.value) || (__props.actions && __props.actions.length > 0)) ? (_openBlock(), _createElementBlock("div", {
               key: 0,
               class: _normalizeClass(_ctx.$style.buttons)
-            }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(_ctx.actions, (action) => {
+            }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(__props.actions, (action) => {
                 return (_openBlock(), _createElementBlock("button", { class: _normalizeClass(["_button", [_ctx.$style.button, { [_ctx.$style.highlighted]: action.highlighted }]]), onClick: _cache[1] || (_cache[1] = _withModifiers(($event: any) => (action.handler), ["stop"])), onTouchstart: preventDrag }, [
                   _createElementVNode("i", {
                     class: _normalizeClass(action.icon)
@@ -156,8 +156,8 @@ return (_ctx: any,_cache: any) => {
             class: _normalizeClass([_ctx.$style.lower, { [_ctx.$style.slim]: narrow.value, [_ctx.$style.thin]: _unref(thin_) }])
           }, [ _createVNode(XTabs, {
               class: _normalizeClass(_ctx.$style.tabs),
-              tab: _ctx.tab,
-              tabs: _ctx.tabs,
+              tab: __props.tab,
+              tabs: __props.tabs,
               rootEl: _unref(el),
               "onUpdate:tab": _cache[2] || (_cache[2] = (key) => emit("update:tab", key)),
               onTabClick: onTabClick

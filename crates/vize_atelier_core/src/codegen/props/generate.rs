@@ -290,7 +290,7 @@ fn generate_props_object_inner(
             if dir.name == "on" {
                 // When cache_handlers is enabled, handlers produce long expressions
                 // that need multiline formatting (except setup-const which aren't cached)
-                if ctx.options.cache_handlers && dir.exp.is_some() {
+                if ctx.cache_handlers_in_current_scope() && dir.exp.is_some() {
                     let is_const = dir.exp.as_ref().is_some_and(|exp| {
                         if let ExpressionNode::Simple(simple) = exp {
                             if !simple.is_static {

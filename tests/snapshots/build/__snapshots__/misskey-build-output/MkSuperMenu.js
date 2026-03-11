@@ -258,29 +258,29 @@ return (_ctx: any,_cache: any) => {
           }), 256 /* UNKEYED_FRAGMENT */)) ], 64 /* STABLE_FRAGMENT */)) : (_openBlock(), _createElementBlock(_Fragment, { key: 1 }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(searchResult.value, (item, index) => {
             return (_openBlock(), _createElementBlock("div", null, [
               _createVNode(_component_MkA, {
-                to: _ctx.item.path + '#' + _ctx.item.id,
-                class: _normalizeClass(["_button searchResultItem", { selected: searchSelectedIndex.value !== null && searchSelectedIndex.value === _ctx.index }])
+                to: item.path + '#' + item.id,
+                class: _normalizeClass(["_button searchResultItem", { selected: searchSelectedIndex.value !== null && searchSelectedIndex.value === index }])
               }, {
                 default: _withCtx(() => [
-                  (_ctx.item.icon)
+                  (item.icon)
                     ? (_openBlock(), _createElementBlock("span", {
                       key: 0,
                       class: "icon"
                     }, [
                       _createElementVNode("i", {
-                        class: _normalizeClass(["ti-fw", _ctx.item.icon])
-                      })
+                        class: _normalizeClass(["ti-fw", item.icon])
+                      }, null, 2 /* CLASS */)
                     ]))
                     : _createCommentVNode("v-if", true),
                   _createElementVNode("span", { class: "text" }, [
-                    (_ctx.item.isRoot)
+                    (item.isRoot)
                       ? (_openBlock(), _createElementBlock(_Fragment, { key: 0 }, [
-                        _toDisplayString(_ctx.item.label)
+                        _toDisplayString(item.label)
                       ], 64 /* STABLE_FRAGMENT */))
                       : (_openBlock(), _createElementBlock(_Fragment, { key: 1 }, [
-                        _createElementVNode("span", _hoisted_5, _toDisplayString(_ctx.item.parentLabels.join(' > ')), 1 /* TEXT */),
+                        _createElementVNode("span", _hoisted_5, _toDisplayString(item.parentLabels.join(' > ')), 1 /* TEXT */),
                         _hoisted_6,
-                        _createElementVNode("span", _hoisted_7, _toDisplayString(_ctx.item.label), 1 /* TEXT */)
+                        _createElementVNode("span", _hoisted_7, _toDisplayString(item.label), 1 /* TEXT */)
                       ], 64 /* STABLE_FRAGMENT */))
                   ])
                 ]),

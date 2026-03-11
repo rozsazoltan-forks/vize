@@ -83,201 +83,201 @@ return (_ctx: any,_cache: any) => {
         class: "_gaps_m"
       }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(__props.form, (v, k) => {
           return (_openBlock(), _createElementBlock(_Fragment, null, [
-            (typeof _ctx.v.hidden == 'function' ? _ctx.v.hidden(values.value) : _ctx.v.hidden)
+            (typeof v.hidden == 'function' ? v.hidden(values.value) : v.hidden)
               ? (_openBlock(), _createElementBlock(_Fragment, { key: 0 }, [
               ], 64 /* STABLE_FRAGMENT */))
-              : (_ctx.v.type === 'number')
+              : (v.type === 'number')
                 ? (_openBlock(), _createBlock(MkInput, {
                   key: 1,
                   type: "number",
-                  step: _ctx.v.step || 1,
-                  manualSave: _ctx.v.manualSave,
-                  onSavingStateChange: _cache[0] || (_cache[0] = (changed, invalid) => onSavingStateChange(_ctx.k, changed, invalid)),
-                  modelValue: values.value[_ctx.k],
-                  "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event: any) => ((values.value[_ctx.k]) = $event))
+                  step: v.step || 1,
+                  manualSave: v.manualSave,
+                  onSavingStateChange: _cache[0] || (_cache[0] = (changed, invalid) => onSavingStateChange(k, changed, invalid)),
+                  modelValue: values.value[k],
+                  "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event: any) => ((values.value[k]) = $event))
                 }, _createSlots({ _: 2 /* DYNAMIC */ }, [
                   {
                     name: "label",
                     fn: _withCtx(() => [
                       _createElementVNode("span", {
-                        textContent: _toDisplayString(_ctx.v.label || _ctx.k)
+                        textContent: _toDisplayString(v.label || k)
                       }, null, 8 /* PROPS */, ["textContent"]),
-                      (_ctx.v.required === false)
+                      (v.required === false)
                         ? (_openBlock(), _createElementBlock("span", { key: 0 }, " (" + _toDisplayString(_unref(i18n).ts.optional) + ")", 1 /* TEXT */))
                         : _createCommentVNode("v-if", true)
                     ])
                   },
-                  (_ctx.v.description)
+                  (v.description)
                     ? {
                       name: "caption",
                       fn: _withCtx(() => [
-                        _createTextVNode(_toDisplayString(_ctx.v.description), 1 /* TEXT */)
+                        _createTextVNode(_toDisplayString(v.description), 1 /* TEXT */)
                       ]),
                       key: "0"
                     }
                   : undefined
                 ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["step", "manualSave", "modelValue"]))
-              : (_ctx.v.type === 'string' && !_ctx.v.multiline)
+              : (v.type === 'string' && !v.multiline)
                 ? (_openBlock(), _createBlock(MkInput, {
                   key: 2,
                   type: "text",
-                  mfmAutocomplete: _ctx.v.treatAsMfm,
-                  manualSave: _ctx.v.manualSave,
-                  onSavingStateChange: _cache[2] || (_cache[2] = (changed, invalid) => onSavingStateChange(_ctx.k, changed, invalid)),
-                  modelValue: values.value[_ctx.k],
-                  "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event: any) => ((values.value[_ctx.k]) = $event))
+                  mfmAutocomplete: v.treatAsMfm,
+                  manualSave: v.manualSave,
+                  onSavingStateChange: _cache[2] || (_cache[2] = (changed, invalid) => onSavingStateChange(k, changed, invalid)),
+                  modelValue: values.value[k],
+                  "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event: any) => ((values.value[k]) = $event))
                 }, _createSlots({ _: 2 /* DYNAMIC */ }, [
                   {
                     name: "label",
                     fn: _withCtx(() => [
                       _createElementVNode("span", {
-                        textContent: _toDisplayString(_ctx.v.label || _ctx.k)
+                        textContent: _toDisplayString(v.label || k)
                       }, null, 8 /* PROPS */, ["textContent"]),
-                      (_ctx.v.required === false)
+                      (v.required === false)
                         ? (_openBlock(), _createElementBlock("span", { key: 0 }, " (" + _toDisplayString(_unref(i18n).ts.optional) + ")", 1 /* TEXT */))
                         : _createCommentVNode("v-if", true)
                     ])
                   },
-                  (_ctx.v.description)
+                  (v.description)
                     ? {
                       name: "caption",
                       fn: _withCtx(() => [
-                        _createTextVNode(_toDisplayString(_ctx.v.description), 1 /* TEXT */)
+                        _createTextVNode(_toDisplayString(v.description), 1 /* TEXT */)
                       ]),
                       key: "0"
                     }
                   : undefined
                 ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["mfmAutocomplete", "manualSave", "modelValue"]))
-              : (_ctx.v.type === 'string' && _ctx.v.multiline)
+              : (v.type === 'string' && v.multiline)
                 ? (_openBlock(), _createBlock(MkTextarea, {
                   key: 3,
-                  mfmAutocomplete: _ctx.v.treatAsMfm,
-                  mfmPreview: _ctx.v.treatAsMfm,
-                  manualSave: _ctx.v.manualSave,
-                  onSavingStateChange: _cache[4] || (_cache[4] = (changed, invalid) => onSavingStateChange(_ctx.k, changed, invalid)),
-                  modelValue: values.value[_ctx.k],
-                  "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event: any) => ((values.value[_ctx.k]) = $event))
+                  mfmAutocomplete: v.treatAsMfm,
+                  mfmPreview: v.treatAsMfm,
+                  manualSave: v.manualSave,
+                  onSavingStateChange: _cache[4] || (_cache[4] = (changed, invalid) => onSavingStateChange(k, changed, invalid)),
+                  modelValue: values.value[k],
+                  "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event: any) => ((values.value[k]) = $event))
                 }, _createSlots({ _: 2 /* DYNAMIC */ }, [
                   {
                     name: "label",
                     fn: _withCtx(() => [
                       _createElementVNode("span", {
-                        textContent: _toDisplayString(_ctx.v.label || _ctx.k)
+                        textContent: _toDisplayString(v.label || k)
                       }, null, 8 /* PROPS */, ["textContent"]),
-                      (_ctx.v.required === false)
+                      (v.required === false)
                         ? (_openBlock(), _createElementBlock("span", { key: 0 }, " (" + _toDisplayString(_unref(i18n).ts.optional) + ")", 1 /* TEXT */))
                         : _createCommentVNode("v-if", true)
                     ])
                   },
-                  (_ctx.v.description)
+                  (v.description)
                     ? {
                       name: "caption",
                       fn: _withCtx(() => [
-                        _createTextVNode(_toDisplayString(_ctx.v.description), 1 /* TEXT */)
+                        _createTextVNode(_toDisplayString(v.description), 1 /* TEXT */)
                       ]),
                       key: "0"
                     }
                   : undefined
                 ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["mfmAutocomplete", "mfmPreview", "manualSave", "modelValue"]))
-              : (_ctx.v.type === 'boolean')
+              : (v.type === 'boolean')
                 ? (_openBlock(), _createBlock(MkSwitch, {
                   key: 4,
-                  modelValue: values.value[_ctx.k],
-                  "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event: any) => ((values.value[_ctx.k]) = $event))
+                  modelValue: values.value[k],
+                  "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event: any) => ((values.value[k]) = $event))
                 }, _createSlots({ _: 2 /* DYNAMIC */ }, [
-                  (_ctx.v.description)
+                  (v.description)
                     ? {
                       name: "caption",
                       fn: _withCtx(() => [
-                        _createTextVNode(_toDisplayString(_ctx.v.description), 1 /* TEXT */)
+                        _createTextVNode(_toDisplayString(v.description), 1 /* TEXT */)
                       ]),
                       key: "0"
                     }
                   : undefined
                 ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["modelValue"]))
-              : (_ctx.v.type === 'enum')
+              : (v.type === 'enum')
                 ? (_openBlock(), _createBlock(MkSelect, {
                   key: 5,
-                  items: getMkSelectDef(_ctx.v),
-                  modelValue: values.value[_ctx.k],
-                  "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event: any) => ((values.value[_ctx.k]) = $event))
+                  items: getMkSelectDef(v),
+                  modelValue: values.value[k],
+                  "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event: any) => ((values.value[k]) = $event))
                 }, {
                   label: _withCtx(() => [
                     _createElementVNode("span", {
-                      textContent: _toDisplayString(_ctx.v.label || _ctx.k)
+                      textContent: _toDisplayString(v.label || k)
                     }, null, 8 /* PROPS */, ["textContent"]),
-                    (_ctx.v.required === false)
+                    (v.required === false)
                       ? (_openBlock(), _createElementBlock("span", { key: 0 }, " (" + _toDisplayString(_unref(i18n).ts.optional) + ")", 1 /* TEXT */))
                       : _createCommentVNode("v-if", true)
                   ]),
                   _: 2 /* DYNAMIC */
                 }, 8 /* PROPS */, ["items", "modelValue"]))
-              : (_ctx.v.type === 'radio')
+              : (v.type === 'radio')
                 ? (_openBlock(), _createBlock(MkRadios, {
                   key: 6,
-                  options: getRadioOptionsDef(_ctx.v),
-                  modelValue: values.value[_ctx.k],
-                  "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event: any) => ((values.value[_ctx.k]) = $event))
+                  options: getRadioOptionsDef(v),
+                  modelValue: values.value[k],
+                  "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event: any) => ((values.value[k]) = $event))
                 }, {
                   label: _withCtx(() => [
                     _createElementVNode("span", {
-                      textContent: _toDisplayString(_ctx.v.label || _ctx.k)
+                      textContent: _toDisplayString(v.label || k)
                     }, null, 8 /* PROPS */, ["textContent"]),
-                    (_ctx.v.required === false)
+                    (v.required === false)
                       ? (_openBlock(), _createElementBlock("span", { key: 0 }, " (" + _toDisplayString(_unref(i18n).ts.optional) + ")", 1 /* TEXT */))
                       : _createCommentVNode("v-if", true)
                   ]),
                   _: 2 /* DYNAMIC */
                 }, 8 /* PROPS */, ["options", "modelValue"]))
-              : (_ctx.v.type === 'range')
+              : (v.type === 'range')
                 ? (_openBlock(), _createBlock(MkRange, {
                   key: 7,
-                  min: _ctx.v.min,
-                  max: _ctx.v.max,
-                  step: _ctx.v.step,
-                  textConverter: _ctx.v.textConverter,
-                  modelValue: values.value[_ctx.k],
-                  "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event: any) => ((values.value[_ctx.k]) = $event))
+                  min: v.min,
+                  max: v.max,
+                  step: v.step,
+                  textConverter: v.textConverter,
+                  modelValue: values.value[k],
+                  "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event: any) => ((values.value[k]) = $event))
                 }, _createSlots({ _: 2 /* DYNAMIC */ }, [
                   {
                     name: "label",
                     fn: _withCtx(() => [
                       _createElementVNode("span", {
-                        textContent: _toDisplayString(_ctx.v.label || _ctx.k)
+                        textContent: _toDisplayString(v.label || k)
                       }, null, 8 /* PROPS */, ["textContent"]),
-                      (_ctx.v.required === false)
+                      (v.required === false)
                         ? (_openBlock(), _createElementBlock("span", { key: 0 }, " (" + _toDisplayString(_unref(i18n).ts.optional) + ")", 1 /* TEXT */))
                         : _createCommentVNode("v-if", true)
                     ])
                   },
-                  (_ctx.v.description)
+                  (v.description)
                     ? {
                       name: "caption",
                       fn: _withCtx(() => [
-                        _createTextVNode(_toDisplayString(_ctx.v.description), 1 /* TEXT */)
+                        _createTextVNode(_toDisplayString(v.description), 1 /* TEXT */)
                       ]),
                       key: "0"
                     }
                   : undefined
                 ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["min", "max", "step", "textConverter", "modelValue"]))
-              : (_ctx.v.type === 'button')
+              : (v.type === 'button')
                 ? (_openBlock(), _createBlock(MkButton, {
                   key: 8,
-                  onClick: _cache[10] || (_cache[10] = ($event: any) => (_ctx.v.action($event, values.value)))
+                  onClick: _cache[10] || (_cache[10] = ($event: any) => (v.action($event, values.value)))
                 }, {
                   default: _withCtx(() => [
                     _createElementVNode("span", {
-                      textContent: _toDisplayString(_ctx.v.content || _ctx.k)
+                      textContent: _toDisplayString(v.content || k)
                     }, null, 8 /* PROPS */, ["textContent"])
                   ]),
                   _: 2 /* DYNAMIC */
                 }))
-              : (_ctx.v.type === 'drive-file')
+              : (v.type === 'drive-file')
                 ? (_openBlock(), _createBlock(XFile, {
                   key: 9,
-                  fileId: _ctx.v.defaultFileId,
-                  validate: async f => !_ctx.v.validate || await _ctx.v.validate(f),
-                  onUpdate: _cache[11] || (_cache[11] = f => values.value[_ctx.k] = f)
+                  fileId: v.defaultFileId,
+                  validate: async f => !v.validate || await v.validate(f),
+                  onUpdate: _cache[11] || (_cache[11] = f => values.value[k] = f)
                 }, null, 8 /* PROPS */, ["fileId", "validate"]))
               : _createCommentVNode("v-if", true)
           ], 64 /* STABLE_FRAGMENT */))

@@ -33,7 +33,12 @@ let __temp: any, __restore: any
 
 const router = useRouter();
 const baseRoleQ = ref('');
-const roles = await misskeyApi('admin/roles/list');
+const roles =  (
+  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/roles/list'))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const policies = reactive(deepClone(instance.policies));
 const avatarDecorationLimit = computed({
 	get: () => Math.min(16, Math.max(0, policies.avatarDecorationLimit)),
@@ -49,11 +54,7 @@ function matchQuery(keywords: string[]): boolean {
 	return keywords.some(keyword => keyword.toLowerCase().includes(baseRoleQ.value.toLowerCase()));
 }
 async function updateBaseRole() {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/roles/update-default-policies', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/roles/update-default-policies', {
 		//@ts-expect-error misskey-js側の型定義が不十分
 		policies,
 	});

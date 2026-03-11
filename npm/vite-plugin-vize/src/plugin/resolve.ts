@@ -1,5 +1,6 @@
 import path from "node:path";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 
 import type { VizePluginState } from "./state.js";
 import {
@@ -45,6 +46,51 @@ interface ResolveContext {
     importer?: string,
     options?: { skipSelf: boolean },
   ): Promise<{ id: string } | null>;
+}
+
+function normalizeRequireBase(importer?: string): string | null {
+  if (!importer) {
+    return null;
+  }
+
+  let normalized = importer;
+  if (isVizeVirtual(normalized)) {
+    normalized = fromVirtualId(normalized);
+  } else if (normalized.startsWith("\0") && normalized.endsWith("?macro=true")) {
+    normalized = normalized.slice(1).replace("?macro=true", "");
+  }
+
+  return normalized.split("?")[0] ?? null;
+}
+
+function resolveBareImportWithNode(
+  state: Pick<VizePluginState, "root">,
+  id: string,
+  importer?: string,
+): string | null {
+  const [request, queryPart] = id.split("?");
+  const querySuffix = queryPart ? `?${queryPart}` : "";
+  const candidates = [normalizeRequireBase(importer), path.join(state.root, "package.json")].filter(
+    (candidate): candidate is string => candidate != null,
+  );
+
+  const seen = new Set<string>();
+  for (const candidate of candidates) {
+    if (seen.has(candidate)) {
+      continue;
+    }
+    seen.add(candidate);
+
+    try {
+      const requireFromBase = createRequire(candidate);
+      const resolved = requireFromBase.resolve(request);
+      return `${resolved}${querySuffix}`;
+    } catch {
+      // Continue to the next base candidate.
+    }
+  }
+
+  return null;
 }
 
 export async function resolveIdHook(
@@ -180,6 +226,12 @@ export async function resolveIdHook(
             }
           } catch {
             // Fall through
+          }
+
+          const nodeResolved = resolveBareImportWithNode(state, id, cleanImporter);
+          if (nodeResolved) {
+            state.logger.log(`resolveId: resolved bare ${id} to ${nodeResolved} via Node fallback`);
+            return nodeResolved;
           }
         }
         return null;

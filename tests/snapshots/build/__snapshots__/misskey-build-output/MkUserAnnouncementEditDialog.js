@@ -100,7 +100,7 @@ return (_ctx: any,_cache: any) => {
           _createTextVNode("New announcement")
         ]),
         key: "1"
-      } : undefined ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["width"]))
+      } ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["width"]))
 }
 }
 

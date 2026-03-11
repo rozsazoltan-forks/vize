@@ -120,7 +120,7 @@ return (_ctx: any,_cache: any) => {
           _createTextVNode("New decoration")
         ]),
         key: "1"
-      } : undefined ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["initialWidth", "initialHeight", "canResize"]))
+      } ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["initialWidth", "initialHeight", "canResize"]))
 }
 }
 

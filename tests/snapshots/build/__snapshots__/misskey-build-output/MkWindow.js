@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveDirective as _resolveDirective, renderList as _renderList, renderSlot as _renderSlot, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref, withModifiers as _withModifiers } from "vue"
+import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, renderSlot as _renderSlot, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref, withModifiers as _withModifiers } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-maximize" })
@@ -412,11 +412,13 @@ return (_ctx: any,_cache: any) => {
                   (!minimized.value)
                     ? (_openBlock(), _createElementBlock(_Fragment, { key: 0 }, [
                       (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(__props.buttonsLeft, (button) => {
-                        return (_openBlock(), _createElementBlock("button", { class: _normalizeClass(["_button", [_ctx.$style.headerButton, { [_ctx.$style.highlighted]: button.highlighted }]]), onClick: _cache[1] || (_cache[1] = ($event: any) => (button.onClick)) }, [
+                        return _withDirectives((_openBlock(), _createElementBlock("button", { class: _normalizeClass(["_button", [_ctx.$style.headerButton, { [_ctx.$style.highlighted]: button.highlighted }]]), onClick: _cache[1] || (_cache[1] = ($event: any) => (button.onClick)) }, [
                           _createElementVNode("i", {
                             class: _normalizeClass(button.icon)
                           }, null, 2 /* CLASS */)
-                        ], 2 /* CLASS */))
+                        ], 2 /* CLASS */)), [
+                          [_directive_tooltip, button.title]
+                        ])
                       }), 256 /* UNKEYED_FRAGMENT */))
                     ], 64 /* STABLE_FRAGMENT */))
                     : _createCommentVNode("v-if", true)
@@ -433,56 +435,68 @@ return (_ctx: any,_cache: any) => {
                   (!minimized.value)
                     ? (_openBlock(), _createElementBlock(_Fragment, { key: 0 }, [
                       (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(__props.buttonsRight, (button) => {
-                        return (_openBlock(), _createElementBlock("button", { class: _normalizeClass(["_button", [_ctx.$style.headerButton, { [_ctx.$style.highlighted]: button.highlighted }]]), onClick: _cache[2] || (_cache[2] = ($event: any) => (button.onClick)) }, [
+                        return _withDirectives((_openBlock(), _createElementBlock("button", { class: _normalizeClass(["_button", [_ctx.$style.headerButton, { [_ctx.$style.highlighted]: button.highlighted }]]), onClick: _cache[2] || (_cache[2] = ($event: any) => (button.onClick)) }, [
                           _createElementVNode("i", {
                             class: _normalizeClass(button.icon)
                           }, null, 2 /* CLASS */)
-                        ], 2 /* CLASS */))
+                        ], 2 /* CLASS */)), [
+                          [_directive_tooltip, button.title]
+                        ])
                       }), 256 /* UNKEYED_FRAGMENT */))
                     ], 64 /* STABLE_FRAGMENT */))
                     : _createCommentVNode("v-if", true),
                   (__props.canResize && minimized.value)
-                    ? (_openBlock(), _createElementBlock("button", {
+                    ? _withDirectives((_openBlock(), _createElementBlock("button", {
                       key: 0,
                       class: _normalizeClass(["_button", _ctx.$style.headerButton]),
                       onClick: _cache[3] || (_cache[3] = ($event: any) => (unMinimize()))
                     }, [
                       _hoisted_1
-                    ]))
+                    ])), [
+                      [_directive_tooltip, _unref(i18n).ts.windowRestore]
+                    ])
                     : (__props.canResize && !maximized.value)
-                      ? (_openBlock(), _createElementBlock("button", {
+                      ? _withDirectives((_openBlock(), _createElementBlock("button", {
                         key: 1,
                         class: _normalizeClass(["_button", _ctx.$style.headerButton]),
                         onClick: _cache[4] || (_cache[4] = ($event: any) => (minimize()))
                       }, [
                         _hoisted_2
-                      ]))
+                      ])), [
+                        [_directive_tooltip, _unref(i18n).ts.windowMinimize]
+                      ])
                     : _createCommentVNode("v-if", true),
                   (__props.canResize && maximized.value)
-                    ? (_openBlock(), _createElementBlock("button", {
+                    ? _withDirectives((_openBlock(), _createElementBlock("button", {
                       key: 0,
                       class: _normalizeClass(["_button", _ctx.$style.headerButton]),
                       onClick: _cache[5] || (_cache[5] = ($event: any) => (unMaximize()))
                     }, [
                       _hoisted_3
-                    ]))
+                    ])), [
+                      [_directive_tooltip, _unref(i18n).ts.windowRestore]
+                    ])
                     : (__props.canResize && !maximized.value && !minimized.value)
-                      ? (_openBlock(), _createElementBlock("button", {
+                      ? _withDirectives((_openBlock(), _createElementBlock("button", {
                         key: 1,
                         class: _normalizeClass(["_button", _ctx.$style.headerButton]),
                         onClick: _cache[6] || (_cache[6] = ($event: any) => (maximize()))
                       }, [
                         _hoisted_4
-                      ]))
+                      ])), [
+                        [_directive_tooltip, _unref(i18n).ts.windowMaximize]
+                      ])
                     : _createCommentVNode("v-if", true),
                   (__props.closeButton)
-                    ? (_openBlock(), _createElementBlock("button", {
+                    ? _withDirectives((_openBlock(), _createElementBlock("button", {
                       key: 0,
                       class: _normalizeClass(["_button", _ctx.$style.headerButton]),
                       onClick: _cache[7] || (_cache[7] = ($event: any) => (close()))
                     }, [
                       _hoisted_5
-                    ]))
+                    ])), [
+                      [_directive_tooltip, _unref(i18n).ts.close]
+                    ])
                     : _createCommentVNode("v-if", true)
                 ])
               ], 34 /* CLASS, NEED_HYDRATION */),

@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-pencil" })
@@ -170,15 +170,15 @@ return (_ctx: any,_cache: any) => {
               }, [ _createElementVNode("button", {
                   class: _normalizeClass(["_button", _ctx.$style.fileQuickActionsOthersButton]),
                   onClick: _cache[1] || (_cache[1] = ($event: any) => (postThis()))
-                }, [ _hoisted_1 ]), (file.value.isSensitive) ? (_openBlock(), _createElementBlock("button", {
+                }, [ _hoisted_1 ]), (file.value.isSensitive) ? _withDirectives((_openBlock(), _createElementBlock("button", {
                     key: 0,
                     class: _normalizeClass(["_button", _ctx.$style.fileQuickActionsOthersButton]),
                     onClick: _cache[2] || (_cache[2] = ($event: any) => (toggleSensitive()))
-                  }, [ _hoisted_2 ])) : (_openBlock(), _createElementBlock("button", {
+                  }, [ _hoisted_2 ])), [ [_directive_tooltip, _unref(i18n).ts.unmarkAsSensitive] ]) : _withDirectives((_openBlock(), _createElementBlock("button", {
                     key: 1,
                     class: _normalizeClass(["_button", _ctx.$style.fileQuickActionsOthersButton]),
                     onClick: _cache[3] || (_cache[3] = ($event: any) => (toggleSensitive()))
-                  }, [ _hoisted_3 ])), _createElementVNode("a", {
+                  }, [ _hoisted_3 ])), [ [_directive_tooltip, _unref(i18n).ts.markAsSensitive] ]), _createElementVNode("a", {
                   href: file.value.url,
                   download: file.value.name,
                   class: _normalizeClass(["_button", _ctx.$style.fileQuickActionsOthersButton])

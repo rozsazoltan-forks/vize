@@ -1,6 +1,6 @@
 import { useSlots as _useSlots } from 'vue'
 import { defineComponent as _defineComponent } from 'vue'
-import { Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDynamicComponent as _resolveDynamicComponent, resolveDirective as _resolveDirective, renderSlot as _renderSlot, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref, withModifiers as _withModifiers } from "vue"
+import { Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDynamicComponent as _resolveDynamicComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderSlot as _renderSlot, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref, vShow as _vShow, withModifiers as _withModifiers } from "vue"
 
 import { isLink } from '@@/js/is-link.js'
 import { onMounted, computed, watch, unref } from 'vue'
@@ -103,8 +103,8 @@ return (_ctx: any,_cache: any) => {
   const _component_MkResult = _resolveComponent("MkResult")
   const _directive_appear = _resolveDirective("appear")
 
-  return (_openBlock(), _createBlock(_resolveDynamicComponent(_unref(prefer).s.enablePullToRefresh && _ctx.pullToRefresh ? MkPullToRefresh : 'div'), {
-      refresher: () => _ctx.paginator.reload(),
+  return (_openBlock(), _createBlock(_resolveDynamicComponent(_unref(prefer).s.enablePullToRefresh && __props.pullToRefresh ? MkPullToRefresh : 'div'), {
+      refresher: () => __props.paginator.reload(),
       onContextmenu: _withModifiers(onContextmenu, ["prevent","stop"])
     }, {
       default: _withCtx(() => [
@@ -112,7 +112,7 @@ return (_ctx: any,_cache: any) => {
           (props.withControl)
             ? (_openBlock(), _createBlock(MkPaginationControl, {
               key: 0,
-              paginator: _ctx.paginator,
+              paginator: __props.paginator,
               style: "margin-bottom: 10px"
             }, null, 8 /* PROPS */, ["paginator"]))
             : _createCommentVNode("v-if", true),
@@ -125,14 +125,14 @@ return (_ctx: any,_cache: any) => {
             mode: _unref(prefer).s.animation ? 'out-in' : undefined
           }, {
             default: _withCtx(() => [
-              (_ctx.paginator.fetching.value)
+              (__props.paginator.fetching.value)
                 ? (_openBlock(), _createBlock(_component_MkLoading, { key: 0 }))
-                : (_ctx.paginator.error.value)
+                : (__props.paginator.error.value)
                   ? (_openBlock(), _createBlock(_component_MkError, {
                     key: 1,
-                    onRetry: _cache[0] || (_cache[0] = ($event: any) => (_ctx.paginator.init()))
+                    onRetry: _cache[0] || (_cache[0] = ($event: any) => (__props.paginator.init()))
                   }))
-                : (_ctx.paginator.items.value.length === 0)
+                : (__props.paginator.items.value.length === 0)
                   ? (_openBlock(), _createElementBlock("div", { key: "_empty_" }, [
                     _renderSlot(_ctx.$slots, "empty", {}, () => [
                       _createVNode(_component_MkResult, { type: "empty" })
@@ -142,10 +142,10 @@ return (_ctx: any,_cache: any) => {
                   key: "_root_",
                   class: "_gaps"
                 }, [
-                  (_ctx.direction === 'up' || _ctx.direction === 'both')
-                    ? (_openBlock(), _createElementBlock("div", { key: 0 }, [
+                  (__props.direction === 'up' || __props.direction === 'both')
+                    ? _withDirectives((_openBlock(), _createElementBlock("div", { key: 0 }, [
                       (!upButtonLoading.value)
-                        ? (_openBlock(), _createBlock(MkButton, {
+                        ? _withDirectives((_openBlock(), _createBlock(MkButton, {
                           key: 0,
                           class: _normalizeClass(_ctx.$style.more),
                           primary: "",
@@ -156,18 +156,22 @@ return (_ctx: any,_cache: any) => {
                             _createTextVNode(_toDisplayString(_unref(i18n).ts.loadMore), 1 /* TEXT */)
                           ]),
                           _: 1 /* STABLE */
-                        }))
+                        })), [
+                          [_directive_appear, shouldEnableInfiniteScroll.value ? upButtonClick : null]
+                        ])
                         : (_openBlock(), _createBlock(_component_MkLoading, { key: 1 }))
-                    ]))
+                    ])), [
+                      [_vShow, upButtonVisible.value]
+                    ])
                     : _createCommentVNode("v-if", true),
                   _renderSlot(_ctx.$slots, "default", {
-                    items: getValue(_ctx.paginator.items),
-                    fetching: _ctx.paginator.fetching.value || _ctx.paginator.fetchingOlder.value
+                    items: getValue(__props.paginator.items),
+                    fetching: __props.paginator.fetching.value || __props.paginator.fetchingOlder.value
                   }),
-                  (_ctx.direction === 'down' || _ctx.direction === 'both')
-                    ? (_openBlock(), _createElementBlock("div", { key: 0 }, [
+                  (__props.direction === 'down' || __props.direction === 'both')
+                    ? _withDirectives((_openBlock(), _createElementBlock("div", { key: 0 }, [
                       (!downButtonLoading.value)
-                        ? (_openBlock(), _createBlock(MkButton, {
+                        ? _withDirectives((_openBlock(), _createBlock(MkButton, {
                           key: 0,
                           class: _normalizeClass(_ctx.$style.more),
                           primary: "",
@@ -178,9 +182,13 @@ return (_ctx: any,_cache: any) => {
                             _createTextVNode(_toDisplayString(_unref(i18n).ts.loadMore), 1 /* TEXT */)
                           ]),
                           _: 1 /* STABLE */
-                        }))
+                        })), [
+                          [_directive_appear, shouldEnableInfiniteScroll.value ? downButtonClick : null]
+                        ])
                         : (_openBlock(), _createBlock(_component_MkLoading, { key: 1 }))
-                    ]))
+                    ])), [
+                      [_vShow, downButtonVisible.value]
+                    ])
                     : _createCommentVNode("v-if", true)
                 ]))
             ]),

@@ -239,9 +239,41 @@ run = "cargo bench -p vize_atelier_sfc"
 
 [tasks.dev]
 alias = "d"
-description = "Start playground dev server (using Vize compiler)"
-depends = ["build:native", "build:vite-plugin", "build:wasm-web"]
-run = "CI=true pnpm -C playground dev"
+description = "Start a development target (playground, misskey, npmx, elk, vuefes)"
+usage = """
+arg "[target]" help="Development target" {
+  choices "playground" "misskey" "npmx" "elk" "vuefes"
+}
+
+flag "--skip-setup" help="Skip fixture install/setup steps"
+flag "--skip-build" help="Skip Vize package builds"
+"""
+run = "node --experimental-strip-types scripts/dev-app.ts"
+
+[tasks."dev:playground"]
+alias = "dp"
+description = "Start playground dev server"
+run = "usage_target=playground node --experimental-strip-types scripts/dev-app.ts"
+
+[tasks."dev:misskey"]
+alias = "dm"
+description = "Start misskey full dev app (backend proxy + frontend)"
+run = "usage_target=misskey node --experimental-strip-types scripts/dev-app.ts"
+
+[tasks."dev:npmx"]
+alias = "dn"
+description = "Start npmx.dev fixture app"
+run = "usage_target=npmx node --experimental-strip-types scripts/dev-app.ts"
+
+[tasks."dev:elk"]
+alias = "de"
+description = "Start elk fixture app"
+run = "usage_target=elk node --experimental-strip-types scripts/dev-app.ts"
+
+[tasks."dev:vuefes"]
+alias = "dv"
+description = "Start vuefes-2025 fixture app"
+run = "usage_target=vuefes node --experimental-strip-types scripts/dev-app.ts"
 
 [tasks.example]
 alias = "e"

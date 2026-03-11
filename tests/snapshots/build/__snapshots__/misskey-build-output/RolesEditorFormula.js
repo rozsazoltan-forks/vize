@@ -37,7 +37,12 @@ let __temp: any, __restore: any
 const emit = __emit
 const props = __props
 const v = ref(deepClone(props.modelValue));
-const roles = await rolesCache.fetch();
+const roles =  (
+  ([__temp,__restore] = _withAsyncContext(() => rolesCache.fetch())),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 watch(() => props.modelValue, () => {
 	if (JSON.stringify(props.modelValue) === JSON.stringify(v.value)) return;
 	v.value = deepClone(props.modelValue);
@@ -146,7 +151,7 @@ return (_ctx: any,_cache: any) => {
                   dragStartCallback: dragStart,
                   draggable: "",
                   "onUpdate:modelValue": _cache[3] || (_cache[3] = updated => childValuesItemUpdated(updated)),
-                  onRemove: _cache[4] || (_cache[4] = ($event: any) => (removeChildItem(_ctx.item.id)))
+                  onRemove: _cache[4] || (_cache[4] = ($event: any) => (removeChildItem(item.id)))
                 }, null, 8 /* PROPS */, ["modelValue", "dragStartCallback"])
               ])
             ]),

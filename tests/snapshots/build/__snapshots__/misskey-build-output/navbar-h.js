@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDynamicComponent as _resolveDynamicComponent, resolveDirective as _resolveDirective, renderList as _renderList, mergeProps as _mergeProps, normalizeClass as _normalizeClass, toHandlers as _toHandlers, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDynamicComponent as _resolveDynamicComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, mergeProps as _mergeProps, normalizeClass as _normalizeClass, toHandlers as _toHandlers, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "_indicatorCircle" })
@@ -96,7 +96,7 @@ return (_ctx: any,_cache: any) => {
                   class: _normalizeClass(_ctx.$style.divider)
                 }))
                 : (_unref(navbarItemDef)[item] && (_unref(navbarItemDef)[item].show == null || _unref(navbarItemDef)[item].show.value !== false))
-                  ? (_openBlock(), _createBlock(_resolveDynamicComponent(_unref(navbarItemDef)[item].to ? 'MkA' : 'button'), _mergeProps(_toHandlers(_unref(navbarItemDef)[item].action ? { click: _unref(navbarItemDef)[item].action } : {}, true), {
+                  ? _withDirectives((_openBlock(), _createBlock(_resolveDynamicComponent(_unref(navbarItemDef)[item].to ? 'MkA' : 'button'), _mergeProps(_toHandlers(_unref(navbarItemDef)[item].action ? { click: _unref(navbarItemDef)[item].action } : {}, true), {
                     key: 1,
                     is: _unref(navbarItemDef)[item].to ? 'MkA' : 'button',
                     class: _normalizeClass(["_button", _ctx.$style.item]),
@@ -117,12 +117,15 @@ return (_ctx: any,_cache: any) => {
                         : _createCommentVNode("v-if", true)
                     ]),
                     _: 2 /* DYNAMIC */
-                  }, 16 /* FULL_PROPS */, ["activeClass", "to"]))
+                  }, 16 /* FULL_PROPS */, ["activeClass", "to"])), [
+                    [_directive_click_anime],
+                    [_directive_tooltip, _unref(navbarItemDef)[item].title]
+                  ])
                 : _createCommentVNode("v-if", true)
             ], 64 /* STABLE_FRAGMENT */))
           }), 256 /* UNKEYED_FRAGMENT */)), _createElementVNode("div", {
             class: _normalizeClass(_ctx.$style.divider)
-          }), (_unref($i) && (_unref($i).isAdmin || _unref($i).isModerator)) ? (_openBlock(), _createBlock(_component_MkA, {
+          }), (_unref($i) && (_unref($i).isAdmin || _unref($i).isModerator)) ? _withDirectives((_openBlock(), _createBlock(_component_MkA, {
               key: 0,
               class: "item",
               activeClass: _ctx.$style.active,
@@ -135,7 +138,7 @@ return (_ctx: any,_cache: any) => {
                 })
               ]),
               _: 1 /* STABLE */
-            }, 8 /* PROPS */, ["activeClass", "behavior"])) : _createCommentVNode("v-if", true), _createElementVNode("button", {
+            }, 8 /* PROPS */, ["activeClass", "behavior"])), [ [_directive_click_anime], [_directive_tooltip, _unref(i18n).ts.controlPanel] ]) : _createCommentVNode("v-if", true), _createElementVNode("button", {
             class: _normalizeClass(["_button", _ctx.$style.item]),
             onClick: more
           }, [ _createElementVNode("i", {
@@ -157,7 +160,7 @@ return (_ctx: any,_cache: any) => {
               })
             ]),
             _: 1 /* STABLE */
-          }, 8 /* PROPS */, ["activeClass", "behavior"]), (_unref($i)) ? (_openBlock(), _createElementBlock("button", {
+          }, 8 /* PROPS */, ["activeClass", "behavior"]), (_unref($i)) ? _withDirectives((_openBlock(), _createElementBlock("button", {
               key: 0,
               class: _normalizeClass(["_button", [_ctx.$style.item, _ctx.$style.account]]),
               onClick: openAccountMenu
@@ -167,7 +170,7 @@ return (_ctx: any,_cache: any) => {
               }, null, 8 /* PROPS */, ["user"]), _createVNode(_component_MkAcct, {
                 class: _normalizeClass(_ctx.$style.acct),
                 user: _unref($i)
-              }, null, 8 /* PROPS */, ["user"]) ])) : _createCommentVNode("v-if", true), _createElementVNode("div", {
+              }, null, 8 /* PROPS */, ["user"]) ])), [ [_directive_click_anime] ]) : _createCommentVNode("v-if", true), _createElementVNode("div", {
             class: _normalizeClass(_ctx.$style.post),
             onClick: _cache[1] || (_cache[1] = ($event: any) => (os.post()))
           }, [ _createVNode(MkButton, {

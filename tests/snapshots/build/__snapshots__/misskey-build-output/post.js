@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = { class: "title" }
@@ -219,7 +219,7 @@ return (_ctx: any,_cache: any) => {
                       _createElementVNode("div", { class: "actions" }, [
                         _createElementVNode("div", { class: "like" }, [
                           (post.value.isLiked)
-                            ? (_openBlock(), _createBlock(MkButton, {
+                            ? _withDirectives((_openBlock(), _createBlock(MkButton, {
                               key: 0,
                               class: "button",
                               primary: "",
@@ -235,8 +235,10 @@ return (_ctx: any,_cache: any) => {
                                   : _createCommentVNode("v-if", true)
                               ]),
                               _: 1 /* STABLE */
-                            }))
-                            : (_openBlock(), _createBlock(MkButton, {
+                            })), [
+                              [_directive_tooltip, _unref(i18n).ts._gallery.unlike]
+                            ])
+                            : _withDirectives((_openBlock(), _createBlock(MkButton, {
                               key: 1,
                               class: "button",
                               onClick: _cache[1] || (_cache[1] = ($event: any) => (like()))
@@ -251,17 +253,22 @@ return (_ctx: any,_cache: any) => {
                                   : _createCommentVNode("v-if", true)
                               ]),
                               _: 1 /* STABLE */
-                            }))
+                            })), [
+                              [_directive_tooltip, _unref(i18n).ts._gallery.like]
+                            ])
                         ]),
                         _createElementVNode("div", { class: "other" }, [
                           (_unref($i) && _unref($i).id === post.value.user.id)
-                            ? (_openBlock(), _createElementBlock("button", {
+                            ? _withDirectives((_openBlock(), _createElementBlock("button", {
                               key: 0,
                               class: "_button",
                               onClick: edit
                             }, [
                               _hoisted_5
-                            ]))
+                            ])), [
+                              [_directive_tooltip, _unref(i18n).ts.edit],
+                              [_directive_click_anime]
+                            ])
                             : _createCommentVNode("v-if", true),
                           _createElementVNode("button", {
                             class: "_button",
@@ -276,22 +283,27 @@ return (_ctx: any,_cache: any) => {
                             _hoisted_7
                           ]),
                           (_unref(isSupportShare)())
-                            ? (_openBlock(), _createElementBlock("button", {
+                            ? _withDirectives((_openBlock(), _createElementBlock("button", {
                               key: 0,
                               class: "_button",
                               onClick: share
                             }, [
                               _hoisted_8
-                            ]))
+                            ])), [
+                              [_directive_tooltip, _unref(i18n).ts.share],
+                              [_directive_click_anime]
+                            ])
                             : _createCommentVNode("v-if", true),
                           (_unref($i) && _unref($i).id !== post.value.user.id)
-                            ? (_openBlock(), _createElementBlock("button", {
+                            ? _withDirectives((_openBlock(), _createElementBlock("button", {
                               key: 0,
                               class: "_button",
                               onClick: showMenu
                             }, [
                               _hoisted_9
-                            ]))
+                            ])), [
+                              [_directive_click_anime]
+                            ])
                             : _createCommentVNode("v-if", true)
                         ])
                       ]),

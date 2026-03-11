@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = { style: "opacity: 0.7;" }
@@ -37,7 +37,7 @@ return (_ctx: any,_cache: any) => {
   			})
           }, [
             (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (file) => {
-              return (_openBlock(), _createBlock(_component_MkA, {
+              return _withDirectives((_openBlock(), _createBlock(_component_MkA, {
                 key: file.id,
                 to: `/admin/file/${file.id}`,
                 class: _normalizeClass([_ctx.$style.file, '_button'])
@@ -88,7 +88,9 @@ return (_ctx: any,_cache: any) => {
                     : _createCommentVNode("v-if", true)
                 ]),
                 _: 2 /* DYNAMIC */
-              }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["to"]))
+              }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["to"])), [
+                [_directive_tooltip, `${file.type}\n${bytes(file.size)}\n${_unref(dateString)(file.createdAt)}\nby ${file.user ? '@' + Misskey.acct.toString(file.user) : 'system'}`, void 0, { mfm: true }]
+              ])
             }), 128 /* KEYED_FRAGMENT */))
           ], 2 /* CLASS */)
         ]),

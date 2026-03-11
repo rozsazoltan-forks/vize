@@ -381,7 +381,7 @@ return (_ctx: any,_cache: any) => {
   const _directive_tooltip = _resolveDirective("tooltip")
 
   return (!muted.value && !hideByPlugin.value && !isDeleted.value)
-      ? (_openBlock(), _createElementBlock("div", {
+      ? _withDirectives((_openBlock(), _createElementBlock("div", {
         key: 0,
         ref: "rootEl",
         class: _normalizeClass(_ctx.$style.root),
@@ -521,11 +521,13 @@ return (_ctx: any,_cache: any) => {
                         key: 0,
                         class: _normalizeClass(_ctx.$style.noteHeaderBadgeRoles)
                       }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(_unref(appearNote).user.badgeRoles, (role, i) => {
-                          return (_openBlock(), _createElementBlock("img", {
+                          return _withDirectives((_openBlock(), _createElementBlock("img", {
                             key: i,
                             class: _normalizeClass(_ctx.$style.noteHeaderBadgeRole),
                             src: role.iconUrl
-                          }, 8 /* PROPS */, ["src"]))
+                          }, 8 /* PROPS */, ["src"])), [
+                            [_directive_tooltip, role.name]
+                          ])
                         }), 128 /* KEYED_FRAGMENT */)) ])) : _createCommentVNode("v-if", true) ]), (_unref(showTicker)) ? (_openBlock(), _createBlock(MkInstanceTicker, {
                       key: 0,
                       host: _unref(appearNote).user.host,
@@ -784,7 +786,7 @@ return (_ctx: any,_cache: any) => {
                           ])
                         ]),
                         _: 1 /* STABLE */
-                      }, 8 /* PROPS */, ["paginator", "forceDisableInfiniteScroll"])) : _createCommentVNode("v-if", true) ])) : _createCommentVNode("v-if", true) ]) ], 64 /* STABLE_FRAGMENT */)) ]))
+                      }, 8 /* PROPS */, ["paginator", "forceDisableInfiniteScroll"])) : _createCommentVNode("v-if", true) ])) : _createCommentVNode("v-if", true) ]) ], 64 /* STABLE_FRAGMENT */)) ])), [ [_directive_hotkey, _unref(keymap)] ])
       : (muted.value)
         ? (_openBlock(), _createElementBlock("div", {
           key: 1,

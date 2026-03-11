@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-photo-plus" })
@@ -286,7 +286,7 @@ return (_ctx: any,_cache: any) => {
                 _: 1 /* STABLE */
               }),
               (qrStarted.value)
-                ? (_openBlock(), _createBlock(MkButton, {
+                ? _withDirectives((_openBlock(), _createBlock(MkButton, {
                   key: 0,
                   iconOnly: "",
                   onClick: stopQr
@@ -295,8 +295,10 @@ return (_ctx: any,_cache: any) => {
                     _hoisted_2
                   ]),
                   _: 1 /* STABLE */
-                }))
-                : (_openBlock(), _createBlock(MkButton, {
+                })), [
+                  [_directive_tooltip, _unref(i18n).ts._qr.stopQr]
+                ])
+                : _withDirectives((_openBlock(), _createBlock(MkButton, {
                   key: 1,
                   iconOnly: "",
                   danger: "",
@@ -306,7 +308,9 @@ return (_ctx: any,_cache: any) => {
                     _hoisted_3
                   ]),
                   _: 1 /* STABLE */
-                })),
+                })), [
+                  [_directive_tooltip, _unref(i18n).ts._qr.startQr]
+                ]),
               _createVNode(MkButton, {
                 iconOnly: "",
                 onClick: chooseCamera
@@ -317,7 +321,7 @@ return (_ctx: any,_cache: any) => {
                 _: 1 /* STABLE */
               }),
               (!flashCanToggle.value)
-                ? (_openBlock(), _createBlock(MkButton, {
+                ? _withDirectives((_openBlock(), _createBlock(MkButton, {
                   key: 0,
                   iconOnly: "",
                   disabled: ""
@@ -326,9 +330,11 @@ return (_ctx: any,_cache: any) => {
                     _hoisted_5
                   ]),
                   _: 1 /* STABLE */
-                }))
+                })), [
+                  [_directive_tooltip, _unref(i18n).ts._qr.cannotToggleFlash]
+                ])
                 : (!flash.value)
-                  ? (_openBlock(), _createBlock(MkButton, {
+                  ? _withDirectives((_openBlock(), _createBlock(MkButton, {
                     key: 1,
                     iconOnly: "",
                     onClick: _cache[0] || (_cache[0] = ($event: any) => (toggleFlash(true)))
@@ -337,8 +343,10 @@ return (_ctx: any,_cache: any) => {
                       _hoisted_6
                     ]),
                     _: 1 /* STABLE */
-                  }))
-                : (_openBlock(), _createBlock(MkButton, {
+                  })), [
+                    [_directive_tooltip, _unref(i18n).ts._qr.turnOnFlash]
+                  ])
+                : _withDirectives((_openBlock(), _createBlock(MkButton, {
                   key: 2,
                   iconOnly: "",
                   onClick: _cache[1] || (_cache[1] = ($event: any) => (toggleFlash(false)))
@@ -347,7 +355,9 @@ return (_ctx: any,_cache: any) => {
                     _hoisted_7
                   ]),
                   _: 1 /* STABLE */
-                }))
+                })), [
+                  [_directive_tooltip, _unref(i18n).ts._qr.turnOffFlash]
+                ])
             ])
           ])
         ]),

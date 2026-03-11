@@ -125,7 +125,7 @@ return (_ctx: any,_cache: any) => {
     }, [ _createElementVNode("div", {
         class: _normalizeClass(_ctx.$style.tabsInner)
       }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(__props.tabs, (t) => {
-          return (_openBlock(), _createElementBlock("button", { ref: (el) => tabRefs[t.key] = el, class: _normalizeClass(["_button", [_ctx.$style.tab, {
+          return _withDirectives((_openBlock(), _createElementBlock("button", { ref: (el) => tabRefs[t.key] = el, class: _normalizeClass(["_button", [_ctx.$style.tab, {
   				[_ctx.$style.active]: t.key != null && t.key === tab.value,
   				[_ctx.$style.animate]: _unref(prefer).s.animation,
   			}]]), style: _normalizeStyle(getTabStyle(t)), onMousedown: _cache[0] || (_cache[0] = (ev) => onTabMousedown(t, ev)), onClick: _cache[1] || (_cache[1] = (ev) => onTabClick(t, ev)) }, [
@@ -161,7 +161,9 @@ return (_ctx: any,_cache: any) => {
                   _: 2 /* DYNAMIC */
                 }))
             ])
-          ], 550 /* CLASS, STYLE, NEED_HYDRATION, NEED_PATCH */))
+          ], 550 /* CLASS, STYLE, NEED_HYDRATION, NEED_PATCH */)), [
+            [_directive_tooltip, t.title, void 0, { noDelay: true }]
+          ])
         }), 256 /* UNKEYED_FRAGMENT */)) ]), _createElementVNode("div", {
         ref_key: "tabHighlightEl", ref: tabHighlightEl,
         class: _normalizeClass([_ctx.$style.tabHighlight, { [_ctx.$style.animate]: _unref(prefer).s.animation, [_ctx.$style.tabHighlightUpper]: __props.tabHighlightUpper }])

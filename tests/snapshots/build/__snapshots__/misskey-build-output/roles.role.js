@@ -57,11 +57,7 @@ async function del() {
 		text: i18n.tsx.deleteAreYouSure({ x: role.name }),
 	});
 	if (canceled) return;
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/roles/delete', {)),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/roles/delete', {
 		roleId: role.id,
 	});
 	router.push('/admin/roles');
@@ -90,11 +86,7 @@ async function assign() {
 		: period === 'oneWeek' ? Date.now() + (1000 * 60 * 60 * 24 * 7)
 		: period === 'oneMonth' ? Date.now() + (1000 * 60 * 60 * 24 * 30)
 		: null;
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/roles/assign', { roleId: role.id, userId: user.id, expiresAt }))),
-  await __temp,
-  __restore()
-)
+	await os.apiWithDialog('admin/roles/assign', { roleId: role.id, userId: user.id, expiresAt });
 	//role.users.push(user);
 }
 async function unassign(userId: Misskey.entities.User['id'], ev: PointerEvent) {
@@ -103,11 +95,7 @@ async function unassign(userId: Misskey.entities.User['id'], ev: PointerEvent) {
 		icon: 'ti ti-x',
 		danger: true,
 		action: async () => {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog('admin/roles/unassign', { roleId: role.id, userId: userId }))),
-  await __temp,
-  __restore()
-)
+			await os.apiWithDialog('admin/roles/unassign', { roleId: role.id, userId: userId });
 			//role.users = role.users.filter(u => u.id !== userId);
 		},
 	}], ev.currentTarget ?? ev.target);

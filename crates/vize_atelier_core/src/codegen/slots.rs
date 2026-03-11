@@ -127,8 +127,48 @@ pub fn has_dynamic_slots_flag(el: &ElementNode<'_>) -> bool {
     if collected_slots.iter().any(|s| s.is_dynamic) {
         return true;
     }
+    if has_forwarded_slot_outlet(el) {
+        return true;
+    }
+    if has_dynamic_default_slot_children(el) {
+        return true;
+    }
     // Also check for v-if/v-for on slot templates (they become IfNode/ForNode children)
     has_conditional_or_loop_slots(el)
+}
+
+/// Check if the implicit default slot contains structural nodes that depend on
+/// parent state and therefore must force slot updates.
+fn has_dynamic_default_slot_children(el: &ElementNode<'_>) -> bool {
+    el.children
+        .iter()
+        .any(|child| matches!(child, TemplateChildNode::If(_) | TemplateChildNode::For(_)))
+}
+
+/// Check whether this component forwards an incoming slot to another component,
+/// e.g. `<Inner><slot /></Inner>`.
+fn has_forwarded_slot_outlet(el: &ElementNode<'_>) -> bool {
+    el.children.iter().any(child_contains_slot_outlet)
+}
+
+fn child_contains_slot_outlet(child: &TemplateChildNode<'_>) -> bool {
+    match child {
+        TemplateChildNode::Element(el) => {
+            if el.tag_type == ElementType::Slot || el.tag.as_str() == "slot" {
+                return true;
+            }
+            el.children.iter().any(child_contains_slot_outlet)
+        }
+        TemplateChildNode::If(if_node) => if_node
+            .branches
+            .iter()
+            .flat_map(|branch| branch.children.iter())
+            .any(child_contains_slot_outlet),
+        TemplateChildNode::For(for_node) => {
+            for_node.children.iter().any(child_contains_slot_outlet)
+        }
+        _ => false,
+    }
 }
 
 /// Check if children have conditional (v-if) or looped (v-for) slot templates.
@@ -171,7 +211,11 @@ pub fn generate_slots(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
     });
 
     let collected_slots = collect_slots(el);
-    let has_dynamic_slots = ctx.in_v_for || collected_slots.iter().any(|s| s.is_dynamic);
+    let has_forwarded_slots = has_forwarded_slot_outlet(el);
+    let has_dynamic_slots = ctx.in_v_for
+        || collected_slots.iter().any(|s| s.is_dynamic)
+        || has_forwarded_slots
+        || has_dynamic_default_slot_children(el);
     let has_conditional_slots = has_conditional_or_loop_slots(el);
 
     // If there are conditional (v-if) or looped (v-for) slots, use createSlots
@@ -347,7 +391,9 @@ pub fn generate_slots(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
     // Add slot stability flag
     ctx.push(",");
     ctx.newline();
-    if has_dynamic_slots {
+    if has_forwarded_slots {
+        ctx.push("_: 3 /* FORWARDED */");
+    } else if has_dynamic_slots {
         ctx.push("_: 2 /* DYNAMIC */");
     } else {
         ctx.push("_: 1 /* STABLE */");

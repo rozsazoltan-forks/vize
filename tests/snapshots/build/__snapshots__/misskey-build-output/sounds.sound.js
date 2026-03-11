@@ -46,11 +46,7 @@ const driveFileError = ref(false);
 const hasChanged = ref(false);
 const volume = ref(props.def.volume);
 if (type.value === '_driveFile_' && fileId.value) {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('drive/files/show', {)),
-  await __temp,
-  __restore()
-)
+	await misskeyApi('drive/files/show', {
 		fileId: fileId.value,
 	}).then((res) => {
 		fileName.value = res.name;

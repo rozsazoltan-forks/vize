@@ -1,10 +1,11 @@
 //! Tests for the Vue template parser.
 
-use super::parse;
+use super::{parse, parse_with_options};
 use vize_carton::Bump;
 use vize_relief::{
     ast::{ElementType, ExpressionNode, PropNode, TemplateChildNode},
     errors::ErrorCode,
+    options::ParserOptions,
 };
 
 #[test]
@@ -319,6 +320,52 @@ fn test_parse_whitespace_condense() {
     if let TemplateChildNode::Element(el) = &root.children[0] {
         // Whitespace-only text nodes between elements with no newline are condensed to space
         assert!(el.children.len() <= 3);
+    }
+}
+
+#[test]
+fn test_parse_whitespace_condense_skips_comment_gaps_when_comments_disabled() {
+    let allocator = Bump::new();
+    let (root, errors) = parse_with_options(
+        &allocator,
+        "<div><Foo />\n<!-- gap -->\n<div /></div>",
+        ParserOptions {
+            comments: false,
+            ..ParserOptions::default()
+        },
+    );
+    assert!(errors.is_empty());
+    if let TemplateChildNode::Element(el) = &root.children[0] {
+        assert_eq!(
+            el.children.len(),
+            2,
+            "whitespace-only runs left behind after stripping comments should be removed",
+        );
+        assert!(matches!(&el.children[0], TemplateChildNode::Element(_)));
+        assert!(matches!(&el.children[1], TemplateChildNode::Element(_)));
+    }
+}
+
+#[test]
+fn test_parse_whitespace_condense_preserves_pre_children() {
+    let allocator = Bump::new();
+    let (root, errors) = parse_with_options(
+        &allocator,
+        "<pre>\n  hello\n  world\n</pre>",
+        ParserOptions {
+            is_pre_tag: |tag| tag == "pre",
+            ..ParserOptions::default()
+        },
+    );
+    assert!(errors.is_empty());
+    if let TemplateChildNode::Element(el) = &root.children[0] {
+        assert_eq!(el.children.len(), 1);
+        match &el.children[0] {
+            TemplateChildNode::Text(text) => {
+                assert_eq!(text.content.as_str(), "\n  hello\n  world\n");
+            }
+            _ => panic!("expected preserved text node"),
+        }
     }
 }
 

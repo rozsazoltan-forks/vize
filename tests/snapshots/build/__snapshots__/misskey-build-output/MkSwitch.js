@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { openBlock as _openBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveDirective as _resolveDirective, renderSlot as _renderSlot, normalizeClass as _normalizeClass, unref as _unref } from "vue"
+import { openBlock as _openBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderSlot as _renderSlot, normalizeClass as _normalizeClass, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-help-circle" })
@@ -51,10 +51,10 @@ return (_ctx: any,_cache: any) => {
           class: _normalizeClass(_ctx.$style.body)
         }, [ _createElementVNode("span", {
             class: _normalizeClass(_ctx.$style.label)
-          }, [ _createElementVNode("span", { onClick: toggle }, [ _renderSlot(_ctx.$slots, "label"), _renderSlot(_ctx.$slots, "default") ]), (__props.helpText) ? (_openBlock(), _createElementBlock("span", {
+          }, [ _createElementVNode("span", { onClick: toggle }, [ _renderSlot(_ctx.$slots, "label"), _renderSlot(_ctx.$slots, "default") ]), (__props.helpText) ? _withDirectives((_openBlock(), _createElementBlock("span", {
                 key: 0,
                 class: _normalizeClass(["_button _help", _ctx.$style.help])
-              }, [ _hoisted_1 ])) : _createCommentVNode("v-if", true) ]), _createElementVNode("p", {
+              }, [ _hoisted_1 ])), [ [_directive_tooltip, __props.helpText, "dialog"] ]) : _createCommentVNode("v-if", true) ]), _createElementVNode("p", {
             class: _normalizeClass(_ctx.$style.caption)
           }, [ _renderSlot(_ctx.$slots, "caption") ]) ])) : _createCommentVNode("v-if", true) ], 2 /* CLASS */))
 }

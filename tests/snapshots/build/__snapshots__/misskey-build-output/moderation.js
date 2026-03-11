@@ -38,7 +38,12 @@ export default /*@__PURE__*/_defineComponent({
 
 let __temp: any, __restore: any
 
-const meta = await misskeyApi('admin/meta');
+const meta =  (
+  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/meta'))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const enableRegistration = ref(!meta.disableRegistration);
 const emailRequiredForSignup = ref(meta.emailRequiredForSignup);
 const {

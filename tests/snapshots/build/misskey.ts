@@ -67,4 +67,70 @@ describe(`${app.name} build (compiler)`, () => {
       console.log(`Valid: ${file}`);
     }
   });
+
+  it("preserves misskey slot outlets, directives, and built-ins", () => {
+    const outDir = path.join(__dirname, "__snapshots__", `${app.name}-build-output`);
+    if (!fs.existsSync(outDir)) {
+      assert.fail("output directory does not exist - run build test first");
+    }
+
+    const readOutput = (file: string) => {
+      const filePath = path.join(outDir, file);
+      assert.ok(fs.existsSync(filePath), `missing compiled file: ${file}`);
+      return fs.readFileSync(filePath, "utf-8");
+    };
+
+    const assertRenderSlot = (file: string, slotName: string) => {
+      const content = readOutput(file);
+      assert.ok(
+        content.includes(`_renderSlot(_ctx.$slots, "${slotName}"`),
+        `${file} should render slot "${slotName}"`,
+      );
+      assert.ok(
+        !content.includes(`_createElementBlock("slot"`),
+        `${file} should not emit literal <slot> elements`,
+      );
+      assert.ok(
+        !content.includes(`_createElementVNode("slot"`),
+        `${file} should not emit literal <slot> vnodes`,
+      );
+    };
+
+    const assertTooltipDirective = (file: string) => {
+      const content = readOutput(file);
+      assert.ok(
+        content.includes(`const _directive_tooltip = _resolveDirective("tooltip")`),
+        `${file} should resolve the tooltip directive`,
+      );
+      assert.ok(
+        content.includes("_withDirectives("),
+        `${file} should apply tooltip with withDirectives`,
+      );
+      assert.ok(
+        content.includes("[_directive_tooltip"),
+        `${file} should pass tooltip directive bindings`,
+      );
+    };
+
+    assertRenderSlot("MkLazy.js", "default");
+    assertRenderSlot("MkPaginationControl.js", "default");
+    assertRenderSlot("MkTl.js", "left");
+    assertRenderSlot("PageWithHeader.js", "default");
+
+    assertTooltipDirective("MkSwitch.js");
+    assertTooltipDirective("MkPageHeader.tabs.js");
+
+    const routerView = readOutput("RouterView.js");
+    assert.ok(
+      routerView.includes("_createVNode(_KeepAlive") &&
+        routerView.includes("_createVNode(_Suspense"),
+      "RouterView.js should preserve KeepAlive and Suspense built-ins",
+    );
+
+    const streaming = readOutput("MkStreamingNotesTimeline.js");
+    assert.ok(
+      streaming.includes(`_renderSlot(_ctx.$slots, "empty"`),
+      "MkStreamingNotesTimeline.js should preserve the empty slot fallback",
+    );
+  });
 });

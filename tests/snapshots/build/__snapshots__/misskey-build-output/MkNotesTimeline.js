@@ -38,7 +38,7 @@ return (_ctx: any,_cache: any) => {
   const _component_MkAd = _resolveComponent("MkAd")
 
   return (_openBlock(), _createBlock(MkPagination, {
-      paginator: _ctx.paginator,
+      paginator: __props.paginator,
       direction: _ctx.direction,
       autoLoad: _ctx.autoLoad,
       pullToRefresh: _ctx.pullToRefresh,
@@ -53,29 +53,29 @@ return (_ctx: any,_cache: any) => {
       ]),
       default: _withCtx(({ items: notes }) => [
         _createElementVNode("div", {
-          class: _normalizeClass([_ctx.$style.root, { [_ctx.$style.noGap]: _ctx.noGap, '_gaps': !_ctx.noGap }])
+          class: _normalizeClass([_ctx.$style.root, { [_ctx.$style.noGap]: __props.noGap, '_gaps': !__props.noGap }])
         }, [
           (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(notes, (note, i) => {
             return (_openBlock(), _createElementBlock(_Fragment, { key: note.id }, [
-              (i > 0 && _unref(isSeparatorNeeded)(_ctx.paginator.items.value[i - 1].createdAt, note.createdAt))
+              (i > 0 && _unref(isSeparatorNeeded)(__props.paginator.items.value[i - 1].createdAt, note.createdAt))
                 ? (_openBlock(), _createElementBlock("div", {
                   key: 0,
                   "data-scroll-anchor": note.id,
-                  class: _normalizeClass({ '_gaps': !_ctx.noGap })
+                  class: _normalizeClass({ '_gaps': !__props.noGap })
                 }, [
                   _createElementVNode("div", {
-                    class: _normalizeClass([_ctx.$style.date, { [_ctx.$style.noGap]: _ctx.noGap }])
+                    class: _normalizeClass([_ctx.$style.date, { [_ctx.$style.noGap]: __props.noGap }])
                   }, [
                     _createElementVNode("span", null, [
                       _hoisted_1,
-                      _createTextVNode(" " + _toDisplayString(_unref(getSeparatorInfo)(_ctx.paginator.items.value[i - 1].createdAt, note.createdAt)?.prevText), 1 /* TEXT */)
+                      _createTextVNode(" " + _toDisplayString(_unref(getSeparatorInfo)(__props.paginator.items.value[i - 1].createdAt, note.createdAt)?.prevText), 1 /* TEXT */)
                     ]),
                     _hoisted_2,
                     _createElementVNode("span", null, [
-                      _createTextVNode(_toDisplayString(_unref(getSeparatorInfo)(_ctx.paginator.items.value[i - 1].createdAt, note.createdAt)?.nextText) + " ", 1 /* TEXT */),
+                      _createTextVNode(_toDisplayString(_unref(getSeparatorInfo)(__props.paginator.items.value[i - 1].createdAt, note.createdAt)?.nextText) + " ", 1 /* TEXT */),
                       _hoisted_3
                     ])
-                  ]),
+                  ], 2 /* CLASS */),
                   _createVNode(MkNote, {
                     class: _normalizeClass(_ctx.$style.note),
                     note: note,
@@ -93,7 +93,7 @@ return (_ctx: any,_cache: any) => {
                 : (note._shouldInsertAd_)
                   ? (_openBlock(), _createElementBlock("div", {
                     key: 1,
-                    class: _normalizeClass({ '_gaps': !_ctx.noGap }),
+                    class: _normalizeClass({ '_gaps': !__props.noGap }),
                     "data-scroll-anchor": note.id
                   }, [
                     _createVNode(MkNote, {
@@ -116,7 +116,7 @@ return (_ctx: any,_cache: any) => {
                 }, null, 8 /* PROPS */, ["note", "withHardMute", "data-scroll-anchor"]))
             ], 64 /* STABLE_FRAGMENT */))
           }), 128 /* KEYED_FRAGMENT */))
-        ])
+        ], 2 /* CLASS */)
       ]),
       _: 1 /* STABLE */
     }, 8 /* PROPS */, ["paginator", "direction", "autoLoad", "pullToRefresh", "withControl", "forceDisableInfiniteScroll"]))

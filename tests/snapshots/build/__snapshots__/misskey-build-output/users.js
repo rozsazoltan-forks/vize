@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 import { computed, markRaw, ref, watchEffect } from 'vue'
 import * as Misskey from 'misskey-js'
@@ -247,7 +247,7 @@ return (_ctx: any,_cache: any) => {
                   class: _normalizeClass(_ctx.$style.users)
                 }, [
                   (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (user) => {
-                    return (_openBlock(), _createBlock(_component_MkA, {
+                    return _withDirectives((_openBlock(), _createBlock(_component_MkA, {
                       key: user.id,
                       class: _normalizeClass(_ctx.$style.user),
                       to: `/admin/user/${user.id}`
@@ -256,7 +256,9 @@ return (_ctx: any,_cache: any) => {
                         _createVNode(MkUserCardMini, { user: user }, null, 8 /* PROPS */, ["user"])
                       ]),
                       _: 2 /* DYNAMIC */
-                    }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["to"]))
+                    }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["to"])), [
+                      [_directive_tooltip, `Last posted: ${user.updatedAt ? _unref(dateString)(user.updatedAt) : 'Unknown'}`, void 0, { mfm: true }]
+                    ])
                   }), 128 /* KEYED_FRAGMENT */))
                 ])
               ]),

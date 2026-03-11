@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 import { ref } from 'vue'
 import * as Misskey from 'misskey-js'
@@ -44,7 +44,7 @@ return (_ctx: any,_cache: any) => {
               class: _normalizeClass(_ctx.$style.instances)
             }, [
               (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(instances.value, (instance, i) => {
-                return (_openBlock(), _createBlock(_component_MkA, {
+                return _withDirectives((_openBlock(), _createBlock(_component_MkA, {
                   key: instance.id,
                   to: `/instance-info/${instance.host}`,
                   class: _normalizeClass(_ctx.$style.instance)
@@ -53,7 +53,9 @@ return (_ctx: any,_cache: any) => {
                     _createVNode(MkInstanceCardMini, { instance: instance }, null, 8 /* PROPS */, ["instance"])
                   ]),
                   _: 2 /* DYNAMIC */
-                }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["to"]))
+                }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["to"])), [
+                  [_directive_tooltip, `${instance.name}\n${instance.host}\n${instance.softwareName} ${instance.softwareVersion}`, void 0, { mfm: true, noDelay: true }]
+                ])
               }), 128 /* KEYED_FRAGMENT */))
             ]))
         ]),

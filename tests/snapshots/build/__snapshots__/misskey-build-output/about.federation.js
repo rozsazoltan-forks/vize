@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-search" })
@@ -131,7 +131,7 @@ return (_ctx: any,_cache: any) => {
             class: _normalizeClass(_ctx.$style.items)
           }, [
             (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (instance) => {
-              return (_openBlock(), _createBlock(_component_MkA, {
+              return _withDirectives((_openBlock(), _createBlock(_component_MkA, {
                 key: instance.id,
                 class: _normalizeClass(_ctx.$style.item),
                 to: `/instance-info/${instance.host}`
@@ -140,7 +140,9 @@ return (_ctx: any,_cache: any) => {
                   _createVNode(MkInstanceCardMini, { instance: instance }, null, 8 /* PROPS */, ["instance"])
                 ]),
                 _: 2 /* DYNAMIC */
-              }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["to"]))
+              }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["to"])), [
+                [_directive_tooltip, `Status: ${getStatus(instance)}`, void 0, { mfm: true }]
+              ])
             }), 128 /* KEYED_FRAGMENT */))
           ])
         ]),

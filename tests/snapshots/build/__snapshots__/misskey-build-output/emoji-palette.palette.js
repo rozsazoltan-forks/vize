@@ -152,7 +152,7 @@ return (_ctx: any,_cache: any) => {
               default: _withCtx(({ item }) => [
                 _createElementVNode("button", {
                   class: _normalizeClass(["_button", _ctx.$style.emojisItem]),
-                  onClick: _cache[1] || (_cache[1] = ($event: any) => (remove(_ctx.item.emoji, $event)))
+                  onClick: _cache[1] || (_cache[1] = ($event: any) => (remove(item.emoji, $event)))
                 }, [
                   (item.emoji[0] === ':')
                     ? (_openBlock(), _createBlock(MkCustomEmoji, {

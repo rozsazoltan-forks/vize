@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-rocket-off" })
@@ -33,7 +33,7 @@ return (_ctx: any,_cache: any) => {
     }, [ (_unref(mock)) ? (_openBlock(), _createElementBlock("div", {
           key: 0,
           class: _normalizeClass(_ctx.$style.name)
-        }, [ _createVNode(_component_MkUserName, { user: __props.note.user }, null, 8 /* PROPS */, ["user"]) ])) : (_openBlock(), _createBlock(_component_MkA, {
+        }, [ _createVNode(_component_MkUserName, { user: __props.note.user }, null, 8 /* PROPS */, ["user"]) ])) : _withDirectives((_openBlock(), _createBlock(_component_MkA, {
           key: 1,
           class: _normalizeClass(_ctx.$style.name),
           to: _unref(userPage)(__props.note.user)
@@ -42,7 +42,7 @@ return (_ctx: any,_cache: any) => {
             _createVNode(_component_MkUserName, { user: __props.note.user }, null, 8 /* PROPS */, ["user"])
           ]),
           _: 1 /* STABLE */
-        }, 8 /* PROPS */, ["to"])), (__props.note.user.isBot) ? (_openBlock(), _createElementBlock("div", {
+        }, 8 /* PROPS */, ["to"])), [ [_directive_user_preview, __props.note.user.id] ]), (__props.note.user.isBot) ? (_openBlock(), _createElementBlock("div", {
           key: 0,
           class: _normalizeClass(_ctx.$style.isBot)
         }, "bot")) : _createCommentVNode("v-if", true), _createElementVNode("div", {
@@ -51,11 +51,13 @@ return (_ctx: any,_cache: any) => {
           key: 0,
           class: _normalizeClass(_ctx.$style.badgeRoles)
         }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(__props.note.user.badgeRoles, (role, i) => {
-            return (_openBlock(), _createElementBlock("img", {
+            return _withDirectives((_openBlock(), _createElementBlock("img", {
               key: i,
               class: _normalizeClass(_ctx.$style.badgeRole),
               src: role.iconUrl
-            }, 8 /* PROPS */, ["src"]))
+            }, 8 /* PROPS */, ["src"])), [
+              [_directive_tooltip, role.name]
+            ])
           }), 128 /* KEYED_FRAGMENT */)) ])) : _createCommentVNode("v-if", true), _createElementVNode("div", {
         class: _normalizeClass(_ctx.$style.info)
       }, [ (_unref(mock)) ? (_openBlock(), _createElementBlock("div", { key: 0 }, [ _createVNode(_component_MkTime, {

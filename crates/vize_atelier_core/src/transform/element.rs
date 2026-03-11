@@ -7,6 +7,10 @@ use crate::transforms::transform_expression::process_inline_handler;
 
 use super::{ExitFn, TransformContext};
 
+fn is_dynamic_component_tag(tag: &str) -> bool {
+    matches!(tag, "component" | "Component")
+}
+
 /// Transform element node
 pub fn transform_element<'a>(
     ctx: &mut TransformContext<'a>,
@@ -21,6 +25,10 @@ pub fn transform_element<'a>(
             ctx.helper(RuntimeHelper::CreateElementVNode);
         }
         ElementType::Component => {
+            if is_dynamic_component_tag(&el.tag) {
+                return None;
+            }
+
             // Only add ResolveComponent if component is not in binding metadata
             let is_in_bindings = ctx
                 .options

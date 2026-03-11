@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, renderList as _renderList, renderSlot as _renderSlot, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-chevron-up" })
@@ -105,13 +105,7 @@ return (_ctx: any,_cache: any) => {
             class: _normalizeClass(_ctx.$style.left)
           }, [
             (item.type === 'event')
-              ? (_openBlock(), _createElementBlock("slot", {
-                key: 0,
-                name: "left",
-                event: item.data,
-                timestamp: item.timestamp,
-                delta: item.delta
-              }))
+              ? _renderSlot(_ctx.$slots, "left", { key: 0 })
               : _createCommentVNode("v-if", true)
           ]),
           _createElementVNode("div", {
@@ -128,13 +122,7 @@ return (_ctx: any,_cache: any) => {
             class: _normalizeClass(_ctx.$style.right)
           }, [
             (item.type === 'event')
-              ? (_openBlock(), _createElementBlock("slot", {
-                key: 0,
-                name: "right",
-                event: item.data,
-                timestamp: item.timestamp,
-                delta: item.delta
-              }))
+              ? _renderSlot(_ctx.$slots, "right", { key: 0 })
               : (_openBlock(), _createElementBlock("div", {
                 key: 1,
                 class: _normalizeClass(_ctx.$style.dateLabel)

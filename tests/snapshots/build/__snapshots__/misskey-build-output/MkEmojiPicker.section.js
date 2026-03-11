@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, renderSlot as _renderSlot, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, renderSlot as _renderSlot, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-icons" })
@@ -45,7 +45,7 @@ return (_ctx: any,_cache: any) => {
   const _directive_panel = _resolveDirective("panel")
 
   return (!__props.hasChildSection)
-      ? (_openBlock(), _createElementBlock("section", {
+      ? _withDirectives((_openBlock(), _createElementBlock("section", {
         key: 0,
         style: "border-radius: 6px; border-bottom: 0.5px solid var(--MI_THEME-divider);"
       }, [ _createElementVNode("header", {
@@ -80,8 +80,8 @@ return (_ctx: any,_cache: any) => {
                     normal: true
                   }, null, 8 /* PROPS */, ["emoji", "normal"]))
               ], 40 /* PROPS, NEED_HYDRATION */, ["data-emoji", "disabled"]))
-            }), 128 /* KEYED_FRAGMENT */)) ])) : _createCommentVNode("v-if", true) ]))
-      : (_openBlock(), _createElementBlock("section", {
+            }), 128 /* KEYED_FRAGMENT */)) ])) : _createCommentVNode("v-if", true) ])), [ [_directive_panel] ])
+      : _withDirectives((_openBlock(), _createElementBlock("section", {
         key: 1,
         style: "border-radius: 6px; border-bottom: 0.5px solid var(--MI_THEME-divider);"
       }, [ _createElementVNode("header", {
@@ -132,7 +132,7 @@ return (_ctx: any,_cache: any) => {
                     normal: true
                   }, null, 8 /* PROPS */, ["emoji", "normal"]))
               ], 40 /* PROPS, NEED_HYDRATION */, ["data-emoji", "disabled"]))
-            }), 128 /* KEYED_FRAGMENT */)) ])) : _createCommentVNode("v-if", true) ]))
+            }), 128 /* KEYED_FRAGMENT */)) ])) : _createCommentVNode("v-if", true) ])), [ [_directive_panel] ])
 }
 }
 

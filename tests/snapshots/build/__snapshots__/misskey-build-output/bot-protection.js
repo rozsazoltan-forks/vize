@@ -58,7 +58,12 @@ const errorHandler: ApiWithDialogCustomErrors = {
 	},
 };
 const captchaResult = ref<string | null>(null);
-const meta = await misskeyApi('admin/captcha/current');
+const meta =  (
+  ([__temp,__restore] = _withAsyncContext(() => misskeyApi('admin/captcha/current'))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const botProtectionForm = useForm({
 	provider: meta.provider,
 	hcaptchaSiteKey: meta.hcaptcha.siteKey,
@@ -73,11 +78,7 @@ const botProtectionForm = useForm({
 }, async (state) => {
 	const provider = state.provider;
 	if (provider === 'none') {
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog()),
-  await __temp,
-  __restore()
-)
+		await os.apiWithDialog(
 			'admin/captcha/save',
 			{ provider: provider as Misskey.entities.AdminCaptchaSaveRequest['provider'] },
 			undefined,
@@ -103,11 +104,7 @@ const botProtectionForm = useForm({
 						? state.turnstileSecretKey
 						: null;
 
-;(
-  ([__temp,__restore] = _withAsyncContext(() => os.apiWithDialog()),
-  await __temp,
-  __restore()
-)
+		await os.apiWithDialog(
 			'admin/captcha/save',
 			{
 				provider: provider as Misskey.entities.AdminCaptchaSaveRequest['provider'],
@@ -121,11 +118,7 @@ const botProtectionForm = useForm({
 		);
 	}
 
-;(
-  ([__temp,__restore] = _withAsyncContext(() => fetchInstance(true))),
-  await __temp,
-  __restore()
-)
+	await fetchInstance(true);
 });
 watch(botProtectionForm.state, () => {
 	captchaResult.value = null;
@@ -218,8 +211,7 @@ return (_ctx: any,_cache: any) => {
               _createTextVNode(_toDisplayString(_unref(i18n).ts.none) + " (" + _toDisplayString(_unref(i18n).ts.notRecommended) + ")", 1 /* TEXT */)
             ]),
             key: "5"
-          }
-          : undefined,
+          },
           (_unref(botProtectionForm).modified.value)
             ? {
               name: "footer",

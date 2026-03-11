@@ -125,7 +125,7 @@ return (_ctx: any,_cache: any) => {
           _createTextVNode(_toDisplayString(_unref(i18n).ts._initialTutorial.title), 1 /* TEXT */)
         ]),
         key: "5"
-      } : undefined ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["width", "height"]))
+      } ]), 1032 /* PROPS, DYNAMIC_SLOTS */, ["width", "height"]))
 }
 }
 

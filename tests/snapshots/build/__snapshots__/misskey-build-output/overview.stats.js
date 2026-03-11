@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-users" })
@@ -74,11 +74,13 @@ return (_ctx: any,_cache: any) => {
                         style: "margin-right: 0.5em;"
                       }, null, 8 /* PROPS */, ["value"]),
                       (usersComparedToThePrevDay.value != null)
-                        ? (_openBlock(), _createBlock(MkNumberDiff, {
+                        ? _withDirectives((_openBlock(), _createBlock(MkNumberDiff, {
                           key: 0,
                           class: "diff",
                           value: usersComparedToThePrevDay.value
-                        }, null, 8 /* PROPS */, ["value"]))
+                        }, null, 8 /* PROPS */, ["value"])), [
+                          [_directive_tooltip, _unref(i18n).ts.dayOverDayChanges]
+                        ])
                         : _createCommentVNode("v-if", true)
                     ]),
                     _hoisted_2
@@ -95,11 +97,13 @@ return (_ctx: any,_cache: any) => {
                         style: "margin-right: 0.5em;"
                       }, null, 8 /* PROPS */, ["value"]),
                       (notesComparedToThePrevDay.value != null)
-                        ? (_openBlock(), _createBlock(MkNumberDiff, {
+                        ? _withDirectives((_openBlock(), _createBlock(MkNumberDiff, {
                           key: 0,
                           class: "diff",
                           value: notesComparedToThePrevDay.value
-                        }, null, 8 /* PROPS */, ["value"]))
+                        }, null, 8 /* PROPS */, ["value"])), [
+                          [_directive_tooltip, _unref(i18n).ts.dayOverDayChanges]
+                        ])
                         : _createCommentVNode("v-if", true)
                     ]),
                     _hoisted_4

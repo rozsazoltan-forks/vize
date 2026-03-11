@@ -269,7 +269,7 @@ return (_ctx: any,_cache: any) => {
                           _createTextVNode("\n\t\t\t\t\t\t\t\t" + _toDisplayString(item.id) + "\n\t\t\t\t\t\t\t\t", 1 /* TEXT */),
                           _createElementVNode("button", {
                             class: _normalizeClass(["_button", _ctx.$style.pinnedNoteRemove]),
-                            onClick: _cache[8] || (_cache[8] = ($event: any) => (removePinnedNote(_ctx.item.id)))
+                            onClick: _cache[8] || (_cache[8] = ($event: any) => (removePinnedNote(item.id)))
                           }, [
                             _hoisted_5
                           ])

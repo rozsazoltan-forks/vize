@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode, resolveDynamicComponent as _resolveDynamicComponent, renderList as _renderList, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode, resolveDynamicComponent as _resolveDynamicComponent, renderList as _renderList, renderSlot as _renderSlot, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 import * as Misskey from 'misskey-js'
 import { inject, watch, ref } from 'vue'
@@ -99,10 +99,7 @@ return (_ctx: any,_cache: any) => {
           }, null, 8 /* PROPS */, ["reaction", "reactionEmojis", "count", "isInitial", "noteId", "myReaction"]))
         }), 128 /* KEYED_FRAGMENT */)),
         (hasMoreReactions.value)
-          ? (_openBlock(), _createElementBlock("slot", {
-            key: 0,
-            name: "more"
-          }))
+          ? _renderSlot(_ctx.$slots, "more", { key: 0 })
           : _createCommentVNode("v-if", true)
       ]),
       _: 1 /* STABLE */

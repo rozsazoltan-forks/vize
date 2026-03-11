@@ -206,6 +206,30 @@ mod tests {
     }
 
     #[test]
+    fn test_transform_pascal_case_dynamic_component() {
+        let allocator = Bump::new();
+        let (mut root, errors) = parse(&allocator, r#"<Component :is="current" />"#);
+        assert!(errors.is_empty(), "Parse errors: {:?}", errors);
+
+        transform(&allocator, &mut root, TransformOptions::default(), None);
+
+        assert!(
+            !root
+                .components
+                .iter()
+                .any(|component| component.as_str() == "Component"),
+            "Dynamic component special tag should not be tracked as a resolved component"
+        );
+        assert!(
+            !root
+                .helpers
+                .iter()
+                .any(|helper| matches!(helper, crate::ast::RuntimeHelper::ResolveComponent)),
+            "Dynamic component special tag should not request resolveComponent"
+        );
+    }
+
+    #[test]
     fn test_transform_v_if() {
         assert_transform!("<div v-if=\"show\">hello</div>" => helpers: [OpenBlock, CreateBlock, Fragment, CreateComment]);
     }

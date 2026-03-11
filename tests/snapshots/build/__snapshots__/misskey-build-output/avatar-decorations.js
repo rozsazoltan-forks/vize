@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 import { ref, computed, defineAsyncComponent } from 'vue'
 import * as Misskey from 'misskey-js'
@@ -82,7 +82,7 @@ return (_ctx: any,_cache: any) => {
               class: _normalizeClass(_ctx.$style.decorations)
             }, [
               (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(avatarDecorations.value, (avatarDecoration) => {
-                return (_openBlock(), _createElementBlock("div", {
+                return _withDirectives((_openBlock(), _createElementBlock("div", {
                   key: avatarDecoration.id,
                   class: _normalizeClass(_ctx.$style.decoration),
                   onClick: _cache[0] || (_cache[0] = ($event: any) => (edit(avatarDecoration)))
@@ -103,7 +103,9 @@ return (_ctx: any,_cache: any) => {
                     decorations: [{ url: avatarDecoration.url }],
                     forceShowDecoration: ""
                   }, null, 8 /* PROPS */, ["user", "decorations"])
-                ]))
+                ])), [
+                  [_directive_panel]
+                ])
               }), 128 /* KEYED_FRAGMENT */))
             ])
           ])

@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-heart" })
@@ -204,7 +204,7 @@ return (_ctx: any,_cache: any) => {
                     : (_openBlock(), _createElementBlock("div", { key: 1 }, "(" + _toDisplayString(_unref(i18n).ts.noDescription) + ")", 1 /* TEXT */)),
                   _createElementVNode("div", null, [
                     (favorited.value)
-                      ? (_openBlock(), _createBlock(MkButton, {
+                      ? _withDirectives((_openBlock(), _createBlock(MkButton, {
                         key: 0,
                         asLike: "",
                         rounded: "",
@@ -221,8 +221,10 @@ return (_ctx: any,_cache: any) => {
                             : _createCommentVNode("v-if", true)
                         ]),
                         _: 1 /* STABLE */
-                      }))
-                      : (_openBlock(), _createBlock(MkButton, {
+                      })), [
+                        [_directive_tooltip, _unref(i18n).ts.unfavorite]
+                      ])
+                      : _withDirectives((_openBlock(), _createBlock(MkButton, {
                         key: 1,
                         asLike: "",
                         rounded: "",
@@ -238,7 +240,9 @@ return (_ctx: any,_cache: any) => {
                             : _createCommentVNode("v-if", true)
                         ]),
                         _: 1 /* STABLE */
-                      }))
+                      })), [
+                        [_directive_tooltip, _unref(i18n).ts.favorite]
+                      ])
                   ])
                 ]),
                 _createElementVNode("div", {

@@ -30,6 +30,12 @@ export type CompileSfcFn = (
 
 export interface VizeOptions {
   /**
+   * Override the public base used for dev-time asset URLs such as /@fs paths.
+   * Useful for frameworks like Nuxt that serve Vite from a subpath (e.g. /_nuxt/).
+   */
+  devUrlBase?: string;
+
+  /**
    * Files to include in compilation
    * @default /\.vue$/
    */

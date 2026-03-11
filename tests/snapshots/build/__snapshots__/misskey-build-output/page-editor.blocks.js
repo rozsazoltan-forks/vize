@@ -59,7 +59,7 @@ return (_ctx: any,_cache: any) => {
           _createVNode(_resolveDynamicComponent(getComponent(item.type)), {
             modelValue: item,
             "onUpdate:modelValue": updateItem,
-            onRemove: _cache[1] || (_cache[1] = () => removeItem(_ctx.item))
+            onRemove: _cache[1] || (_cache[1] = () => removeItem(item))
           }, null, 8 /* PROPS */, ["modelValue"])
         ])
       ]),

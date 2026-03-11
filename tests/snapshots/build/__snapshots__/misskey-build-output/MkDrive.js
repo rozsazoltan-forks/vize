@@ -702,7 +702,7 @@ return (_ctx: any,_cache: any) => {
               class: _normalizeClass(_ctx.$style.folders)
             }, [
               (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(_unref(foldersPaginator).items.value, (f, i) => {
-                return (_openBlock(), _createBlock(XFolder, {
+                return _withDirectives((_openBlock(), _createBlock(XFolder, {
                   key: f.id,
                   folder: f,
                   selectMode: __props.select === 'folder',
@@ -713,7 +713,9 @@ return (_ctx: any,_cache: any) => {
                   onUpload: onUploadRequested,
                   onDragstart: _cache[9] || (_cache[9] = ($event: any) => (isDragSource.value = true)),
                   onDragend: _cache[10] || (_cache[10] = ($event: any) => (isDragSource.value = false))
-                }, null, 8 /* PROPS */, ["folder", "selectMode", "isSelected"]))
+                }, null, 8 /* PROPS */, ["folder", "selectMode", "isSelected"])), [
+                  [_directive_anim, i]
+                ])
               }), 128 /* KEYED_FRAGMENT */))
             ]),
             (_unref(foldersPaginator).canFetchOlder.value)

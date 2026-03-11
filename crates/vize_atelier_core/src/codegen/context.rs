@@ -31,7 +31,8 @@ pub struct CodegenContext {
     pub(super) used_helpers: FxHashSet<RuntimeHelper>,
     /// Cache index for v-once
     pub(super) cache_index: usize,
-    /// Slot parameters (identifiers that should not be prefixed with _ctx.)
+    /// Template-scope parameters (slot props and v-for aliases) that should
+    /// not be prefixed with `_ctx.`
     pub(super) slot_params: FxHashSet<String>,
     /// When true, skip `is` prop in generate_props (used for dynamic components)
     pub(super) skip_is_prop: bool,
@@ -78,29 +79,36 @@ impl CodegenContext {
         }
     }
 
-    /// Add slot parameters (identifiers that should not be prefixed)
+    /// Add template-scope parameters (identifiers that should not be prefixed)
     pub fn add_slot_params(&mut self, params: &[String]) {
         for param in params {
             self.slot_params.insert(param.clone());
         }
     }
 
-    /// Remove slot parameters (when exiting slot scope)
+    /// Remove template-scope parameters when exiting their scope
     pub fn remove_slot_params(&mut self, params: &[String]) {
         for param in params {
             self.slot_params.remove(param);
         }
     }
 
-    /// Check if an identifier is a slot parameter
+    /// Check if an identifier is a template-scope parameter
     pub fn is_slot_param(&self, name: &str) -> bool {
         self.slot_params.contains(name)
     }
 
-    /// Check if there are any slot parameters registered (fast path check)
+    /// Check if there are any template-scope parameters registered
     #[inline]
     pub fn has_slot_params(&self) -> bool {
         !self.slot_params.is_empty()
+    }
+
+    /// Event handler caching is unsafe while template-scope params are in play,
+    /// because a cached closure would capture the first scoped value.
+    #[inline]
+    pub fn cache_handlers_in_current_scope(&self) -> bool {
+        self.options.cache_handlers && !self.has_slot_params()
     }
 
     /// Get next cache index for v-once

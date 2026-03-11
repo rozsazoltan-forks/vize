@@ -20,13 +20,23 @@ export default /*@__PURE__*/_defineComponent({
 let __temp: any, __restore: any
 
 const props = __props
-const highlighter = await getHighlighter();
+const highlighter =  (
+  ([__temp,__restore] = _withAsyncContext(() => getHighlighter())),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const darkMode = store.r.darkMode;
 const codeLang = ref<BundledLanguage | 'aiscript'>('js');
-const [lightThemeName, darkThemeName] = await Promise.all([
+const [lightThemeName, darkThemeName] =  (
+  ([__temp,__restore] = _withAsyncContext(() => Promise.all([
 	getTheme('light', true),
 	getTheme('dark', true),
-]);
+]))),
+  __temp = await __temp,
+  __restore(),
+  __temp
+);
 const html = computed(() => highlighter.codeToHtml(props.code, {
 	lang: codeLang.value,
 	themes: {
@@ -48,11 +58,7 @@ async function fetchLanguage(to: string): Promise<void> {
 		});
 		if (bundles.length > 0) {
 			if (_DEV_) console.log(`Loading language: ${language}`);
-;(
-  ([__temp,__restore] = _withAsyncContext(() => highlighter.loadLanguage(bundles[0].import))),
-  await __temp,
-  __restore()
-)
+			await highlighter.loadLanguage(bundles[0].import);
 			codeLang.value = language;
 		} else {
 			codeLang.value = 'js';

@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderSlot as _renderSlot, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref, vModelText as _vModelText } from "vue"
+import { openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderSlot as _renderSlot, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref, vShow as _vShow, vModelText as _vModelText } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-device-floppy" })
@@ -138,10 +138,10 @@ return (_ctx: any,_cache: any) => {
           class: "_textButton",
           type: "button",
           onClick: _cache[4] || (_cache[4] = ($event: any) => (preview.value = !preview.value))
-        }, _toDisplayString(_unref(i18n).ts.preview), 1 /* TEXT */)) : _createCommentVNode("v-if", true), (__props.mfmPreview) ? (_openBlock(), _createElementBlock("div", {
+        }, _toDisplayString(_unref(i18n).ts.preview), 1 /* TEXT */)) : _createCommentVNode("v-if", true), (__props.mfmPreview) ? _withDirectives((_openBlock(), _createElementBlock("div", {
           key: 0,
           class: _normalizeClass(_ctx.$style.mfmPreview)
-        }, [ _createVNode(_component_Mfm, { text: v.value }, null, 8 /* PROPS */, ["text"]) ])) : _createCommentVNode("v-if", true), (__props.manualSave && changed.value) ? (_openBlock(), _createBlock(MkButton, {
+        }, [ _createVNode(_component_Mfm, { text: v.value }, null, 8 /* PROPS */, ["text"]) ])), [ [_directive_panel], [_vShow, preview.value] ]) : _createCommentVNode("v-if", true), (__props.manualSave && changed.value) ? (_openBlock(), _createBlock(MkButton, {
           key: 0,
           primary: "",
           class: _normalizeClass(_ctx.$style.save),

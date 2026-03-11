@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveDirective as _resolveDirective, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
+import { openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderSlot as _renderSlot, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("i", { class: "ti ti-arrows-sort" })
@@ -72,7 +72,7 @@ return (_ctx: any,_cache: any) => {
             _hoisted_1
           ]),
           _: 1 /* STABLE */
-        }, 8 /* PROPS */, ["items", "modelValue"]), (__props.paginator.canSearch) ? (_openBlock(), _createBlock(MkButton, {
+        }, 8 /* PROPS */, ["items", "modelValue"]), (__props.paginator.canSearch) ? _withDirectives((_openBlock(), _createBlock(MkButton, {
             key: 0,
             iconOnly: "",
             transparent: "",
@@ -84,7 +84,7 @@ return (_ctx: any,_cache: any) => {
               _hoisted_2
             ]),
             _: 1 /* STABLE */
-          }, 8 /* PROPS */, ["active"])) : _createCommentVNode("v-if", true), (__props.canFilter) ? (_openBlock(), _createBlock(MkButton, {
+          }, 8 /* PROPS */, ["active"])), [ [_directive_tooltip, _unref(i18n).ts.search] ]) : _createCommentVNode("v-if", true), (__props.canFilter) ? _withDirectives((_openBlock(), _createBlock(MkButton, {
             key: 0,
             iconOnly: "",
             transparent: "",
@@ -96,7 +96,7 @@ return (_ctx: any,_cache: any) => {
               _hoisted_3
             ]),
             _: 1 /* STABLE */
-          }, 8 /* PROPS */, ["active"])) : _createCommentVNode("v-if", true), _createVNode(MkButton, {
+          }, 8 /* PROPS */, ["active"])), [ [_directive_tooltip, _unref(i18n).ts.filter] ]) : _createCommentVNode("v-if", true), _createVNode(MkButton, {
           iconOnly: "",
           transparent: "",
           rounded: "",
@@ -136,7 +136,7 @@ return (_ctx: any,_cache: any) => {
           type: "date",
           modelValue: _unref(formatDateTimeString)(new Date(date.value), 'yyyy-MM-dd'),
           "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event: any) => (date.value = new Date($event).getTime()))
-        }, null, 8 /* PROPS */, ["modelValue"])) : _createCommentVNode("v-if", true), (filterOpened.value) ? (_openBlock(), _createElementBlock("slot", { key: 0 })) : _createCommentVNode("v-if", true) ]))
+        }, null, 8 /* PROPS */, ["modelValue"])) : _createCommentVNode("v-if", true), (filterOpened.value) ? _renderSlot(_ctx.$slots, "default", { key: 0 }) : _createCommentVNode("v-if", true) ]))
 }
 }
 

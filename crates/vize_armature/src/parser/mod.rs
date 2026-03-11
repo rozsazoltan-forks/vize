@@ -150,7 +150,7 @@ impl<'a> Parser<'a> {
         // Condense whitespace if needed
         if let Some(ref mut root) = self.root {
             if self.options.whitespace == WhitespaceStrategy::Condense {
-                condense_whitespace(&mut root.children);
+                condense_whitespace(&mut root.children, self.options.is_pre_tag);
             }
         }
 

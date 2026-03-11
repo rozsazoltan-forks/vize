@@ -50,7 +50,7 @@ return (_ctx: any,_cache: any) => {
 
   return (_openBlock(), _createElementBlock("div", {
       ref_key: "rootEl", ref: rootEl,
-      class: _normalizeClass(_ctx.reversed ? '_pageScrollableReversed' : '_pageScrollable')
+      class: _normalizeClass(__props.reversed ? '_pageScrollableReversed' : '_pageScrollable')
     }, [ _createVNode(_component_MkStickyContainer, null, {
         header: _withCtx(() => [
           (_unref(prefer).s.showPageTabBarBottom && (props.tabs?.length ?? 0) > 0)
@@ -82,7 +82,7 @@ return (_ctx: any,_cache: any) => {
           _createElementVNode("div", {
             class: _normalizeClass(_ctx.$style.body)
           }, [
-            (_unref(prefer).s.enableHorizontalSwipe && _ctx.swipable && (props.tabs?.length ?? 1) > 1)
+            (_unref(prefer).s.enableHorizontalSwipe && __props.swipable && (props.tabs?.length ?? 1) > 1)
               ? (_openBlock(), _createBlock(MkSwiper, {
                 key: 0,
                 class: _normalizeClass(_ctx.$style.swiper),
@@ -95,11 +95,11 @@ return (_ctx: any,_cache: any) => {
                 ]),
                 _: 1 /* STABLE */
               }, 8 /* PROPS */, ["tabs", "tab"]))
-              : (_openBlock(), _createElementBlock("slot", { key: 1 }))
+              : _renderSlot(_ctx.$slots, "default", { key: 1 })
           ])
         ]),
         _: 1 /* STABLE */
-      }) ], 512 /* NEED_PATCH */))
+      }) ], 2 /* CLASS */))
 }
 }
 

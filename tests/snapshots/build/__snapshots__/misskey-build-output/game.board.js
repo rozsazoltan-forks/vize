@@ -1,5 +1,5 @@
 import { defineComponent as _defineComponent } from 'vue'
-import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, normalizeStyle as _normalizeStyle, withCtx as _withCtx, unref as _unref } from "vue"
+import { Fragment as _Fragment, Transition as _Transition, openBlock as _openBlock, createBlock as _createBlock, createElementBlock as _createElementBlock, createVNode as _createVNode, createElementVNode as _createElementVNode, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, resolveComponent as _resolveComponent, resolveDirective as _resolveDirective, withDirectives as _withDirectives, renderList as _renderList, toDisplayString as _toDisplayString, normalizeClass as _normalizeClass, normalizeStyle as _normalizeStyle, withCtx as _withCtx, unref as _unref } from "vue"
 
 
 const _hoisted_1 = /*#__PURE__*/ _createElementVNode("span", null, " vs ")
@@ -365,7 +365,7 @@ return (_ctx: any,_cache: any) => {
                 class: _normalizeClass(_ctx.$style.boardCells),
                 style: _normalizeStyle(cellsStyle.value)
               }, [ (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(engine.value.board, (stone, i) => {
-                  return (_openBlock(), _createElementBlock("div", {
+                  return _withDirectives((_openBlock(), _createElementBlock("div", {
                     key: i,
                     class: _normalizeClass([_ctx.$style.boardCell, {
   								[_ctx.$style.boardCell_empty]: stone == null,
@@ -419,7 +419,9 @@ return (_ctx: any,_cache: any) => {
                       ]),
                       _: 2 /* DYNAMIC */
                     }, 8 /* PROPS */, ["enterActiveClass", "leaveActiveClass", "enterFromClass", "leaveToClass"])
-                  ], 2 /* CLASS */))
+                  ], 2 /* CLASS */)), [
+                    [_directive_tooltip, `${String.fromCharCode(65 + engine.value.posToXy(i)[0])}${engine.value.posToXy(i)[1] + 1}`]
+                  ])
                 }), 128 /* KEYED_FRAGMENT */)) ], 4 /* STYLE */), (showBoardLabels.value) ? (_openBlock(), _createElementBlock("div", {
                   key: 0,
                   class: _normalizeClass(_ctx.$style.labelsY)

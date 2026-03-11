@@ -166,9 +166,9 @@ return (_ctx: any,_cache: any) => {
             class: _normalizeClass(_ctx.$style.file),
             role: "button",
             tabindex: "0",
-            onClick: _cache[1] || (_cache[1] = ($event: any) => (showFileMenu(_ctx.item, $event))),
-            onKeydown: _cache[2] || (_cache[2] = _withKeys(($event: any) => (showFileMenu(_ctx.item, $event)), ["space","enter"])),
-            onContextmenu: _cache[3] || (_cache[3] = _withModifiers(($event: any) => (showFileMenu(_ctx.item, $event)), ["prevent","stop"]))
+            onClick: _cache[1] || (_cache[1] = ($event: any) => (showFileMenu(item, $event))),
+            onKeydown: _cache[2] || (_cache[2] = _withKeys(($event: any) => (showFileMenu(item, $event)), ["space","enter"])),
+            onContextmenu: _cache[3] || (_cache[3] = _withModifiers(($event: any) => (showFileMenu(item, $event)), ["prevent","stop"]))
           }, [
             _createVNode(MkDriveFileThumbnail, {
               style: "pointer-events: none;",

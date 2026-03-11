@@ -9,13 +9,14 @@
  */
 
 import fs from "node:fs";
-import { defineNuxtModule, addVitePlugin } from "@nuxt/kit";
+import { addServerPlugin, addVitePlugin, createResolver, defineNuxtModule } from "@nuxt/kit";
 import vize from "@vizejs/vite-plugin";
 import { musea } from "@vizejs/vite-plugin-musea";
 import type { MuseaOptions } from "@vizejs/vite-plugin-musea";
 import type { NuxtMuseaOptions } from "@vizejs/musea-nuxt";
 import { createNuxtComponentResolver, injectNuxtComponentImports } from "./components";
 import { injectNuxtI18nHelpers } from "./i18n";
+import { buildNuxtDevAssetBase } from "./utils";
 
 export interface VizeNuxtOptions {
   /**
@@ -55,11 +56,29 @@ export default defineNuxtModule<VizeNuxtOptions>({
     },
   },
   setup(options, nuxt) {
+    const resolver = createResolver(import.meta.url);
+
     nuxt.options.vite.plugins = nuxt.options.vite.plugins || [];
 
     // Compiler
     if (options.compiler !== false) {
-      nuxt.options.vite.plugins.push(vize());
+      const devAssetBase = buildNuxtDevAssetBase(
+        nuxt.options.app.baseURL,
+        nuxt.options.app.buildAssetsDir,
+      );
+
+      nuxt.options.vite.plugins.push(
+        vize({
+          devUrlBase: devAssetBase,
+        }),
+      );
+
+      if (nuxt.options.dev) {
+        nuxt.options.nitro.virtual ||= {};
+        nuxt.options.nitro.virtual["#vizejs/nuxt/dev-stylesheet-links-config"] =
+          `export const devAssetBase = ${JSON.stringify(devAssetBase)};`;
+        addServerPlugin(resolver.resolve("./runtime/server/dev-stylesheet-links"));
+      }
 
       // Remove Nuxt's built-in @vitejs/plugin-vue when vize is active.
       // Both plugins handle .vue files; if both are active, @vitejs/plugin-vue
