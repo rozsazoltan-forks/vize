@@ -412,17 +412,16 @@ run = """
 echo "Publishing vize_carton..." && cargo publish -p vize_carton && sleep 30
 echo "Publishing vize_relief..." && cargo publish -p vize_relief && sleep 30
 echo "Publishing vize_armature..." && cargo publish -p vize_armature && sleep 30
+echo "Publishing vize_croquis..." && cargo publish -p vize_croquis && sleep 30
 echo "Publishing vize_atelier_core..." && cargo publish -p vize_atelier_core && sleep 30
 echo "Publishing vize_atelier_dom..." && cargo publish -p vize_atelier_dom && sleep 30
 echo "Publishing vize_atelier_vapor..." && cargo publish -p vize_atelier_vapor && sleep 30
+echo "Publishing vize_atelier_ssr..." && cargo publish -p vize_atelier_ssr && sleep 30
 echo "Publishing vize_atelier_sfc..." && cargo publish -p vize_atelier_sfc && sleep 30
-echo "Publishing vize_glyph..." && cargo publish -p vize_glyph && sleep 30
 echo "Publishing vize_patina..." && cargo publish -p vize_patina && sleep 30
 echo "Publishing vize_canon..." && cargo publish -p vize_canon && sleep 30
 echo "Publishing vize_musea..." && cargo publish -p vize_musea && sleep 30
-echo "Publishing vize_maestro..." && cargo publish -p vize_maestro && sleep 30
-echo "Publishing vize_vitrine..." && cargo publish -p vize_vitrine && sleep 30
-echo "Publishing vize..." && cargo publish -p vize
+echo "Publishing vize_fresco..." && cargo publish -p vize_fresco
 echo "Done!"
 """
 
