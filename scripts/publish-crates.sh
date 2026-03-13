@@ -2,7 +2,7 @@
 set -euo pipefail
 
 EXPECTED_VERSION=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
-PUBLISH_RETRY_LIMIT=${PUBLISH_RETRY_LIMIT:-30}
+PUBLISH_RETRY_LIMIT=${PUBLISH_RETRY_LIMIT:-60}
 PUBLISH_RETRY_DELAY=${PUBLISH_RETRY_DELAY:-5}
 
 echo "Expected version: $EXPECTED_VERSION"
@@ -16,30 +16,30 @@ is_published() {
       >/dev/null 2>&1
 }
 
-is_visible_in_index() {
+is_resolvable_from_registry() {
   local crate=$1
   local version=$2
 
-  cargo search "$crate" --limit 1 2>/dev/null | grep -Eq "^${crate} = \"${version}\""
+  cargo info "$crate@$version" >/dev/null 2>&1
 }
 
-wait_for_index() {
+wait_for_registry_resolution() {
   local crate=$1
   local version=$2
   local attempt=1
 
-  until is_visible_in_index "$crate" "$version"; do
+  until is_resolvable_from_registry "$crate" "$version"; do
     if [ "$attempt" -ge "$PUBLISH_RETRY_LIMIT" ]; then
-      echo "Timed out waiting for $crate v$version to appear in the crates.io index."
+      echo "Timed out waiting for $crate v$version to become resolvable from crates.io."
       return 1
     fi
 
-    echo "Waiting for $crate v$version to appear in the crates.io index... ($attempt/$PUBLISH_RETRY_LIMIT)"
+    echo "Waiting for $crate v$version to become resolvable from crates.io... ($attempt/$PUBLISH_RETRY_LIMIT)"
     attempt=$((attempt + 1))
     sleep "$PUBLISH_RETRY_DELAY"
   done
 
-  echo "$crate v$version is visible in the crates.io index."
+  echo "$crate v$version is resolvable from crates.io."
 }
 
 publish_crate() {
@@ -48,13 +48,13 @@ publish_crate() {
 
   if is_published "$crate" "$EXPECTED_VERSION"; then
     echo "$crate v$EXPECTED_VERSION is already published, skipping publish."
-    wait_for_index "$crate" "$EXPECTED_VERSION"
+    wait_for_registry_resolution "$crate" "$EXPECTED_VERSION"
     return 0
   fi
 
   cargo publish -p "$crate"
   echo "$crate v$EXPECTED_VERSION published successfully."
-  wait_for_index "$crate" "$EXPECTED_VERSION"
+  wait_for_registry_resolution "$crate" "$EXPECTED_VERSION"
 }
 
 publish_crate vize_carton
