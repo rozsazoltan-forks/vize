@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
     io::BufReader,
+    path::{Path, PathBuf},
     process::{Child, ChildStdin, ChildStdout, Command, Stdio},
     sync::atomic::{AtomicI64, AtomicUsize, Ordering},
     thread,
@@ -64,6 +65,30 @@ pub struct LspPosition {
     pub character: u32,
 }
 
+fn find_node_modules_with_vue(start: &Path) -> Option<PathBuf> {
+    let mut dir = start;
+    loop {
+        let node_modules = dir.join("node_modules");
+        if node_modules.join("vue").is_dir() {
+            return Some(node_modules);
+        }
+        dir = dir.parent()?;
+    }
+}
+
+fn resolve_temp_dir_base(project_root: Option<&Path>) -> PathBuf {
+    let fallback_root = project_root
+        .map(Path::to_path_buf)
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_else(|| PathBuf::from("."));
+
+    find_node_modules_with_vue(&fallback_root)
+        .and_then(|path| path.parent().map(Path::to_path_buf))
+        .unwrap_or(fallback_root)
+        .join("__agent_only")
+        .join("vize-tsgo")
+}
+
 impl TsgoLspClient {
     /// Start tsgo LSP server
     ///
@@ -95,12 +120,7 @@ impl TsgoLspClient {
         static NEXT_CLIENT_ID: AtomicUsize = AtomicUsize::new(0);
 
         let client_id = NEXT_CLIENT_ID.fetch_add(1, Ordering::Relaxed);
-        let temp_dir_base = project_root
-            .clone()
-            .or_else(|| std::env::current_dir().ok())
-            .unwrap_or_else(|| ".".into())
-            .join("__agent_only")
-            .join("vize-tsgo");
+        let temp_dir_base = resolve_temp_dir_base(project_root.as_deref());
         let temp_dir_path = temp_dir_base.join(&*cstr!("{}-{}", std::process::id(), client_id));
 
         let _ = std::fs::remove_dir_all(&temp_dir_path);
@@ -109,16 +129,7 @@ impl TsgoLspClient {
 
         // Find and symlink node_modules so tsgo can resolve packages (e.g., 'vue').
         // Walk up from project root to find node_modules that contains 'vue'.
-        let node_modules_path = project_root.as_ref().and_then(|root| {
-            let mut dir = root.as_path();
-            loop {
-                let nm = dir.join("node_modules");
-                if nm.join("vue").is_dir() {
-                    return Some(nm);
-                }
-                dir = dir.parent()?;
-            }
-        });
+        let node_modules_path = project_root.as_deref().and_then(find_node_modules_with_vue);
         if let Some(ref nm_path) = node_modules_path {
             let symlink_target = temp_dir_path.join("node_modules");
             // Remove stale symlink if exists
@@ -420,5 +431,75 @@ impl Drop for TsgoLspClient {
         if let Some(ref dir) = self.temp_dir {
             let _ = std::fs::remove_dir_all(dir);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::resolve_temp_dir_base;
+    use std::{
+        fs,
+        path::PathBuf,
+        sync::atomic::{AtomicUsize, Ordering},
+    };
+
+    fn unique_case_dir(name: &str) -> PathBuf {
+        static NEXT_CASE_ID: AtomicUsize = AtomicUsize::new(0);
+
+        let case_id = NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed);
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("__agent_only")
+            .join("tests")
+            .join(format!(
+                "tsgo-temp-dir-{name}-{}-{case_id}",
+                std::process::id()
+            ))
+    }
+
+    #[test]
+    fn resolves_temp_dir_under_package_root_when_node_modules_exists() {
+        let case_dir = unique_case_dir("package-root");
+        let source_dir = case_dir.join("playground").join("src").join("shared");
+        let node_modules_vue = case_dir.join("playground").join("node_modules").join("vue");
+
+        let _ = fs::remove_dir_all(&case_dir);
+        fs::create_dir_all(&source_dir).unwrap();
+        fs::create_dir_all(&node_modules_vue).unwrap();
+
+        let resolved = resolve_temp_dir_base(Some(&source_dir));
+
+        assert_eq!(
+            resolved,
+            case_dir
+                .join("playground")
+                .join("__agent_only")
+                .join("vize-tsgo")
+        );
+
+        let _ = fs::remove_dir_all(&case_dir);
+    }
+
+    #[test]
+    fn falls_back_to_nearest_available_node_modules_root() {
+        let case_dir = unique_case_dir("fallback");
+        let source_dir = case_dir.join("playground").join("src").join("shared");
+
+        let _ = fs::remove_dir_all(&case_dir);
+        fs::create_dir_all(&source_dir).unwrap();
+
+        let resolved = resolve_temp_dir_base(Some(&source_dir));
+        let expected_root = source_dir
+            .ancestors()
+            .find(|path| path.join("node_modules").join("vue").is_dir())
+            .unwrap()
+            .to_path_buf();
+
+        assert_eq!(
+            resolved,
+            expected_root.join("__agent_only").join("vize-tsgo")
+        );
+        assert!(!resolved.starts_with(&source_dir));
+
+        let _ = fs::remove_dir_all(&case_dir);
     }
 }
