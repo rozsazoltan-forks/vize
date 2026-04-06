@@ -1,6 +1,6 @@
 //! Virtual TypeScript generator for Vue SFC.
 //!
-//! Generates pure TypeScript from Vue SFC for tsgo type checking.
+//! Generates pure TypeScript from Vue SFC for Corsa-backed type checking.
 
 use super::import_rewriter::ImportRewriter;
 use super::source_map::SfcSourceMap;

@@ -1,6 +1,6 @@
-//! tsgo (TypeScript Go) integration for collecting TypeScript diagnostics.
+//! Corsa integration for collecting native TypeScript diagnostics.
 //!
-//! This module generates virtual TypeScript from Vue SFCs and uses the tsgo
+//! This module generates virtual TypeScript from Vue SFCs and uses the Corsa
 //! LSP bridge to collect type-checking diagnostics.
 #![allow(clippy::disallowed_types, clippy::disallowed_methods)]
 
@@ -12,12 +12,12 @@ use super::{DiagnosticService, SourceMapping, VirtualTsResult};
 use vize_carton::cstr;
 
 impl DiagnosticService {
-    /// Collect diagnostics from tsgo LSP.
-    pub(super) async fn collect_tsgo_diagnostics(
+    /// Collect diagnostics from the Corsa project-session backend.
+    pub(super) async fn collect_corsa_diagnostics(
         state: &ServerState,
         uri: &Url,
     ) -> Vec<Diagnostic> {
-        tracing::info!("collect_tsgo_diagnostics: {}", uri);
+        tracing::info!("collect_corsa_diagnostics: {}", uri);
 
         // Only process .vue files
         if !uri.path().ends_with(".vue") {
@@ -32,13 +32,13 @@ impl DiagnosticService {
         };
         let content = doc.text();
 
-        // Get tsgo bridge
-        tracing::info!("getting tsgo bridge...");
-        let Some(bridge) = state.get_tsgo_bridge().await else {
-            tracing::warn!("tsgo bridge not available");
+        // Get the shared Corsa bridge.
+        tracing::info!("getting corsa bridge...");
+        let Some(bridge) = state.get_corsa_bridge().await else {
+            tracing::warn!("corsa bridge not available");
             return vec![];
         };
-        tracing::info!("tsgo bridge acquired");
+        tracing::info!("corsa bridge acquired");
 
         // Generate virtual TypeScript
         let is_art_file = uri.path().ends_with(".art.vue");
@@ -65,10 +65,10 @@ impl DiagnosticService {
             line_mappings.iter().filter(|m| m.is_some()).count()
         );
 
-        // Create virtual document name (used by tsgo bridge to create the full URI)
+        // Create the virtual document name used to derive a stable URI.
         let virtual_name = cstr!("{}.ts", uri.path());
 
-        // Open or update document in tsgo (uses didChange if already open)
+        // Open or update the document in Corsa (uses didChange if already open).
         tracing::info!("opening/updating virtual document: {}", virtual_name);
         let virtual_uri = match bridge
             .open_or_update_virtual_document(&virtual_name, virtual_ts)
@@ -84,24 +84,24 @@ impl DiagnosticService {
             }
         };
 
-        // Get diagnostics (will poll for publishDiagnostics notification)
+        // Get diagnostics (this polls until publishDiagnostics has landed).
         tracing::info!(
-            "waiting for diagnostics from tsgo bridge for {}",
+            "waiting for diagnostics from corsa bridge for {}",
             virtual_uri
         );
-        let Ok(tsgo_diags) = bridge.get_diagnostics(&virtual_uri).await else {
-            tracing::warn!("failed to get diagnostics from tsgo");
+        let Ok(corsa_diags) = bridge.get_diagnostics(&virtual_uri).await else {
+            tracing::warn!("failed to get diagnostics from corsa");
             return vec![];
         };
 
         tracing::info!(
-            "tsgo returned {} raw diagnostics for {}",
-            tsgo_diags.len(),
+            "corsa returned {} raw diagnostics for {}",
+            corsa_diags.len(),
             virtual_uri
         );
 
         // Log each diagnostic for debugging
-        for (i, diag) in tsgo_diags.iter().enumerate() {
+        for (i, diag) in corsa_diags.iter().enumerate() {
             tracing::info!(
                 "  raw diag[{}]: line {}-{}, message: {}",
                 i,
@@ -134,7 +134,7 @@ impl DiagnosticService {
         };
 
         // Convert to LSP diagnostics with proper position mapping
-        tsgo_diags
+        corsa_diags
             .into_iter()
             .filter_map(|diag| {
                 // Skip diagnostics in preamble (before user script content)
@@ -250,7 +250,7 @@ impl DiagnosticService {
                         3 => DiagnosticSeverity::INFORMATION,
                         _ => DiagnosticSeverity::HINT,
                     }),
-                    source: Some("vize/tsgo".to_string()),
+                    source: Some("vize/corsa".to_string()),
                     message: diag.message,
                     ..Default::default()
                 })

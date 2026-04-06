@@ -136,7 +136,7 @@ const buildTasks = {
 
 const cliTasks = {
   cli: noCacheTask(
-    'sh -c \'if [ "${usage_debug:-$1}" = "true" ] || [ "$1" = "--debug" ]; then cargo install --path crates/vize --force --debug && echo "Installed vize CLI (debug build)"; else cargo install --path crates/vize --force && echo "Installed vize CLI (release build)"; fi\' --',
+    'sh -c \'if [ "${usage_debug:-$1}" = "true" ] || [ "$1" = "--debug" ]; then cargo install --path crates/vize --force --locked --debug && echo "Installed vize CLI (debug build)"; else cargo install --path crates/vize --force --locked && echo "Installed vize CLI (release build)"; fi\' --',
   ),
   "cli:help": noCacheTask("vize --help"),
   "cli:example": noCacheTask("vize './**/*.vue' -o . -v"),

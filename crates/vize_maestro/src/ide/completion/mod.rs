@@ -4,7 +4,7 @@
 //! - Template expressions and directives
 //! - Script bindings and imports
 //! - CSS properties and Vue-specific selectors
-//! - Real completions from tsgo (when available)
+//! - Real completions from Corsa (when available)
 //!
 //! Uses vize_croquis for accurate scope analysis and type information.
 #![allow(clippy::disallowed_methods)]

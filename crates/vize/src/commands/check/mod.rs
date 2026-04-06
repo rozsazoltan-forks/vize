@@ -1,6 +1,6 @@
 //! Check command - Type check Vue SFC files
 //!
-//! Generates Virtual TypeScript from Vue SFCs and uses tsgo LSP for type checking.
+//! Generates Virtual TypeScript from Vue SFCs and uses Corsa project sessions for type checking.
 //! Can connect to a running check-server via Unix socket for faster repeated checks.
 
 mod dts;
@@ -43,11 +43,11 @@ pub struct CheckArgs {
     #[arg(long)]
     pub profile: bool,
 
-    /// Path to tsgo executable (can also use TSGO_PATH env var)
+    /// Path to the Corsa executable (can also use `CORSA_PATH`)
     #[arg(long)]
-    pub tsgo_path: Option<String>,
+    pub corsa_path: Option<String>,
 
-    /// Number of parallel tsgo servers to use (defaults to an auto-tuned value)
+    /// Number of parallel Corsa servers to use (defaults to an auto-tuned value)
     #[arg(long)]
     pub servers: Option<usize>,
 }
@@ -111,6 +111,6 @@ pub fn run(args: CheckArgs) {
         return;
     }
 
-    // Otherwise, fall back to direct tsgo execution
+    // Otherwise, fall back to direct Corsa execution.
     runner::run_direct(&args);
 }

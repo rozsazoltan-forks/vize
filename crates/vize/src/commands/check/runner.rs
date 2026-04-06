@@ -1,6 +1,6 @@
 //! Check command execution logic.
 //!
-//! Contains the direct tsgo LSP runner, Unix socket runner, file collection,
+//! Contains the direct Corsa API runner, Unix socket runner, file collection,
 //! and globals parsing.
 
 #![allow(clippy::disallowed_macros)]
@@ -177,13 +177,13 @@ pub(crate) fn run_with_socket(args: &CheckArgs, socket_path: &str) {
     }
 }
 
-/// Run type checking directly with tsgo LSP (no file I/O).
+/// Run type checking directly with Corsa project sessions (no file I/O).
 pub(crate) fn run_direct(args: &CheckArgs) {
     use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
     use vize_atelier_core::parser::parse;
     use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
     use vize_canon::{
-        lsp_client::TsgoLspClient,
+        corsa_client::CorsaProjectClient,
         virtual_ts::{generate_virtual_ts_with_offsets, VirtualTsOptions},
     };
     use vize_carton::Bump;
@@ -432,7 +432,10 @@ pub(crate) fn run_direct(args: &CheckArgs) {
     }
 
     if !args.quiet {
-        eprintln!("Running tsgo LSP on {} files...", generated.len());
+        eprintln!(
+            "Running Corsa project sessions on {} files...",
+            generated.len()
+        );
     }
 
     let check_start = Instant::now();
@@ -524,7 +527,7 @@ pub(crate) fn run_direct(args: &CheckArgs) {
             .into_iter()
             .map(|indices| {
                 let project_root = project_root.clone();
-                let tsgo_path = args.tsgo_path.clone();
+                let corsa_path = args.corsa_path.clone();
                 let total_errors = &total_errors;
                 let all_diagnostics = &all_diagnostics;
                 let uri_map = &uri_map;
@@ -532,39 +535,48 @@ pub(crate) fn run_direct(args: &CheckArgs) {
 
                 s.spawn(move || {
                     // Initialize LSP client for this thread
-                    let mut lsp_client =
-                        match TsgoLspClient::new(tsgo_path.as_deref(), project_root.as_deref()) {
-                            Ok(client) => client,
-                            Err(e) => {
-                                eprintln!("\x1b[31mError:\x1b[0m Failed to start tsgo LSP: {}", e);
-                                return;
-                            }
-                        };
+                    let mut corsa_client = match CorsaProjectClient::new(
+                        corsa_path.as_deref(),
+                        project_root.as_deref(),
+                    ) {
+                        Ok(client) => client,
+                        Err(e) => {
+                            eprintln!(
+                                "\x1b[31mError:\x1b[0m Failed to start Corsa project session: {}",
+                                e
+                            );
+                            return;
+                        }
+                    };
 
                     // PHASE 1: Open files
                     // For single server: open all files
                     // For multiple servers: only open assigned files (rely on tsconfig for imports)
-                    let files_to_open: Vec<_> = if num_servers == 1 {
-                        uri_map.iter().collect()
+                    let files_to_open: Vec<(&str, &str)> = if num_servers == 1 {
+                        uri_map
+                            .iter()
+                            .map(|(uri, content)| (uri.as_str(), content.as_str()))
+                            .collect()
                     } else {
-                        indices.iter().map(|i| &uri_map[*i]).collect()
+                        indices
+                            .iter()
+                            .map(|i| {
+                                let (uri, content) = &uri_map[*i];
+                                (uri.as_str(), content.as_str())
+                            })
+                            .collect()
                     };
 
-                    for (uri, content) in &files_to_open {
-                        let _ = lsp_client.did_open_fast(uri, content);
-                    }
-
-                    // Wait for diagnostics
-                    lsp_client.wait_for_diagnostics(files_to_open.len());
+                    let _ = corsa_client.did_open_batch_fast(&files_to_open);
 
                     // PHASE 2: Request diagnostics in batch (pipelined)
-                    // tsgo doesn't publish diagnostics automatically - we must request them
+                    // Corsa does not always publish diagnostics proactively, so request them.
                     let uris: Vec<vize_carton::String> = indices
                         .iter()
                         .map(|i| cstr!("file://{}.mts", generated[*i].original))
                         .collect();
 
-                    let batch_results = lsp_client.request_diagnostics_batch(&uris);
+                    let batch_results = corsa_client.request_diagnostics_batch(&uris);
 
                     // Build a map from URI to diagnostics
                     let diag_map: vize_carton::FxHashMap<_, _> =
@@ -589,6 +601,7 @@ pub(crate) fn run_direct(args: &CheckArgs) {
                         // Filter and format diagnostics
                         #[allow(clippy::disallowed_types)]
                         let mut file_diags: Vec<std::string::String> = Vec::new();
+                        let mut seen_diags = vize_carton::FxHashSet::default();
                         for diag in &diagnostics {
                             let code_num = diag.code.as_ref().and_then(|c| match c {
                                 serde_json::Value::Number(n) => n.as_u64(),
@@ -601,7 +614,7 @@ pub(crate) fn run_direct(args: &CheckArgs) {
                             });
 
                             // Module resolution: fundamental limitation of single-file mode.
-                            // tsgo cannot resolve .vue imports, path aliases, or npm packages
+                            // Corsa cannot resolve .vue imports, path aliases, or npm packages
                             // without a full project context. This is NOT a virtual TS bug.
                             if matches!(
                                 code_num,
@@ -627,15 +640,9 @@ pub(crate) fn run_direct(args: &CheckArgs) {
                             }
 
                             let severity = match diag.severity {
-                                Some(1) => {
-                                    total_errors.fetch_add(1, AtomicOrdering::Relaxed);
-                                    "error"
-                                }
+                                Some(1) => "error",
                                 Some(2) => "warning",
-                                _ => {
-                                    total_errors.fetch_add(1, AtomicOrdering::Relaxed);
-                                    "error"
-                                }
+                                _ => "error",
                             };
                             #[allow(clippy::disallowed_types)]
                             let code_str = diag
@@ -655,10 +662,19 @@ pub(crate) fn run_direct(args: &CheckArgs) {
                                 diag.range.start.line,
                                 diag.range.start.character,
                             );
-                            file_diags.push(format!(
+                            let dedupe_key =
+                                format!("{}:{}{} {}", severity, line, code_str, diag.message);
+                            if !seen_diags.insert(dedupe_key) {
+                                continue;
+                            }
+                            let rendered = format!(
                                 "{}:{}:{}{} {}",
                                 severity, line, col, code_str, diag.message
-                            ));
+                            );
+                            if severity == "error" {
+                                total_errors.fetch_add(1, AtomicOrdering::Relaxed);
+                            }
+                            file_diags.push(rendered);
                         }
 
                         if !file_diags.is_empty() {
@@ -666,12 +682,8 @@ pub(crate) fn run_direct(args: &CheckArgs) {
                         }
                     }
 
-                    // PHASE 3: Close files that were opened
-                    for (uri, _) in &files_to_open {
-                        let _ = lsp_client.did_close(uri);
-                    }
-
-                    // Merge diagnostics into shared state
+                    // Merge diagnostics into shared state. The temporary client drops
+                    // after the thread exits, so explicit overlay teardown is redundant.
                     if let Ok(mut diags) = all_diagnostics.lock() {
                         diags.extend(chunk_diagnostics);
                     }
@@ -741,7 +753,7 @@ pub(crate) fn run_direct(args: &CheckArgs) {
     };
 
     println!(
-        "\n{} Type checked {} files in {:.2?} (collect: {:.2?}, gen: {:.2?}, lsp: {:.2?})",
+        "\n{} Type checked {} files in {:.2?} (collect: {:.2?}, gen: {:.2?}, corsa: {:.2?})",
         status,
         generated.len(),
         total_time,
@@ -769,7 +781,7 @@ pub(crate) fn run_direct(args: &CheckArgs) {
             "timing": {
                 "total_ms": total_time.as_secs_f64() * 1000.0,
                 "gen_ms": gen_time.as_secs_f64() * 1000.0,
-                "lsp_ms": check_time.as_secs_f64() * 1000.0,
+                "corsa_ms": check_time.as_secs_f64() * 1000.0,
             },
             "diagnostics": all_diagnostics.iter().map(|(file, diags)| {
                 serde_json::json!({
@@ -825,11 +837,15 @@ fn default_check_server_count(file_count: usize, cpu_count: usize) -> usize {
         return 1;
     }
 
-    let files_per_server = file_count.div_ceil(8);
-    cpu_count
-        .max(1)
-        .min(files_per_server.max(1))
-        .min(file_count)
+    let requested = if file_count < 2_048 {
+        2
+    } else if file_count < 8_192 {
+        3
+    } else {
+        4
+    };
+
+    requested.min(cpu_count.max(1)).min(file_count)
 }
 
 /// Collect .vue files from patterns.
@@ -913,8 +929,10 @@ mod tests {
 
     #[test]
     fn default_server_count_scales_beyond_previous_cap() {
-        assert_eq!(default_check_server_count(48, 8), 6);
-        assert_eq!(default_check_server_count(160, 12), 12);
+        assert_eq!(default_check_server_count(48, 8), 2);
+        assert_eq!(default_check_server_count(160, 12), 2);
+        assert_eq!(default_check_server_count(4_096, 12), 3);
+        assert_eq!(default_check_server_count(15_000, 12), 4);
     }
 
     #[test]

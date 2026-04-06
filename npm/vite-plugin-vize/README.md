@@ -180,8 +180,8 @@ Vize's native compiler is significantly faster than the official Vue compiler:
 
 | Benchmark (15,000 SFCs) | @vue/compiler-sfc | Vize  | Speedup  |
 | ----------------------- | ----------------- | ----- | -------- |
-| Single-threaded         | 16.21s            | 6.65s | **2.4x** |
-| Multi-threaded          | 4.13s             | 498ms | **8.3x** |
+| Single-threaded         | 10.43s            | 6.06s | **1.7x** |
+| Multi-threaded          | 3.45s             | 612ms | **5.6x** |
 
 ## Comparison with vite-plugin-vize
 

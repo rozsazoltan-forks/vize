@@ -162,9 +162,9 @@ vize check src/components/**/*.vue
 | ---------- | ------- | -------------------------------- |
 | `--strict` | `false` | Enable strict type checking mode |
 
-### Future: tsgo Integration
+### Future: Corsa Integration
 
-Vize's type checker is designed with awareness of [tsgo](https://github.com/nicolo-ribaudo/tsgo) (Microsoft's native TypeScript type checker written in Go). As tsgo matures, Vize plans to integrate with it for JavaScript/TypeScript type checking while continuing to provide Vue-specific template type analysis through Canon.
+Vize's type checker is being aligned around [Corsa](https://github.com/ubugeeei/corsa-bind), the native TypeScript execution layer used throughout the workspace. The goal is to keep JavaScript/TypeScript checking native while Canon continues to provide Vue-specific template type analysis.
 
 ## Musea
 

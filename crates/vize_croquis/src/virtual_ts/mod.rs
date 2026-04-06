@@ -1,7 +1,7 @@
 //! Virtual TypeScript code generation for Vue SFC type checking.
 //!
 //! Generates TypeScript code from Vue SFC components that can be fed
-//! to tsgo for type checking. This enables full TypeScript support
+//! to Corsa for type checking. This enables full TypeScript support
 //! for template expressions, props, emits, and other Vue features.
 //!
 //! ## Scope Hierarchy

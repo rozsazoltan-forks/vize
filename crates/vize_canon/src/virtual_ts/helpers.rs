@@ -50,7 +50,7 @@ declare global {
 /// Generate Vue template context declarations dynamically.
 ///
 /// Derives `$`-prefixed globals from `ComponentPublicInstance` so that
-/// type resolution is delegated to tsgo via Vue's type system
+/// type resolution is delegated to Corsa via Vue's type system
 /// (including `ComponentCustomProperties` augmentations from plugins).
 pub(crate) fn generate_template_context(options: &VirtualTsOptions) -> String {
     let mut ctx = String::default();

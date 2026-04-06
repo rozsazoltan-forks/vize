@@ -1,10 +1,10 @@
-//! Virtual project management for tsgo type checking.
+//! Virtual project management for Corsa-backed type checking.
 //!
 //! This module manages the virtual TypeScript project in `node_modules/.vize/canon/`.
 
 use std::path::{Path, PathBuf};
 
-use super::error::{TsgoError, TsgoResult};
+use super::error::{CorsaError, CorsaResult};
 use super::import_rewriter::ImportRewriter;
 use super::source_map::CompositeSourceMap;
 use super::virtual_ts::VirtualTsGenerator;
@@ -38,7 +38,7 @@ pub struct OriginalPosition {
     pub block_type: Option<SfcBlockType>,
 }
 
-/// Virtual project for tsgo type checking.
+/// Virtual project for Corsa-backed type checking.
 pub struct VirtualProject {
     /// Project root directory.
     project_root: PathBuf,
@@ -58,7 +58,7 @@ pub struct VirtualProject {
 
 impl VirtualProject {
     /// Create a new virtual project.
-    pub fn new(project_root: &Path) -> TsgoResult<Self> {
+    pub fn new(project_root: &Path) -> CorsaResult<Self> {
         let virtual_root = project_root
             .join("node_modules")
             .join(".vize")
@@ -84,11 +84,11 @@ impl VirtualProject {
     }
 
     /// Register a .vue file.
-    pub fn register_vue_file(&mut self, path: &Path, content: &str) -> TsgoResult<()> {
+    pub fn register_vue_file(&mut self, path: &Path, content: &str) -> CorsaResult<()> {
         let result = self
             .generator
             .generate_from_content(content)
-            .map_err(TsgoError::SfcParse)?;
+            .map_err(CorsaError::SfcParse)?;
 
         // Calculate virtual path: project/src/App.vue -> .vize/canon/src/App.vue.ts
         let relative = path.strip_prefix(&self.project_root)?;
@@ -99,7 +99,7 @@ impl VirtualProject {
             .file_name()
             .and_then(|n| n.to_str())
             .map(|n| cstr!("{n}.ts"))
-            .ok_or_else(|| TsgoError::PathError {
+            .ok_or_else(|| CorsaError::PathError {
                 path: path.to_path_buf(),
             })?;
         virtual_path.set_file_name(file_name);
@@ -120,7 +120,7 @@ impl VirtualProject {
     }
 
     /// Register a .ts or .tsx file.
-    pub fn register_ts_file(&mut self, path: &Path) -> TsgoResult<()> {
+    pub fn register_ts_file(&mut self, path: &Path) -> CorsaResult<()> {
         let content = std::fs::read_to_string(path)?;
 
         let source_type = if path.extension().map(|e| e == "tsx").unwrap_or(false) {
@@ -147,7 +147,7 @@ impl VirtualProject {
     }
 
     /// Materialize the virtual project to disk.
-    pub fn materialize(&self) -> TsgoResult<()> {
+    pub fn materialize(&self) -> CorsaResult<()> {
         // 1. Create/clean the virtual root
         if self.virtual_root.exists() {
             std::fs::remove_dir_all(&self.virtual_root)?;
@@ -170,7 +170,7 @@ impl VirtualProject {
     }
 
     /// Generate tsconfig.json for the virtual project.
-    fn generate_tsconfig(&self) -> TsgoResult<String> {
+    fn generate_tsconfig(&self) -> CorsaResult<String> {
         // Read the original tsconfig.json if it exists
         let original_tsconfig = self.project_root.join("tsconfig.json");
         let paths = if original_tsconfig.exists() {
@@ -198,7 +198,7 @@ impl VirtualProject {
     }
 
     /// Extract paths configuration from original tsconfig.json.
-    fn extract_paths_from_tsconfig(&self, tsconfig_path: &Path) -> TsgoResult<serde_json::Value> {
+    fn extract_paths_from_tsconfig(&self, tsconfig_path: &Path) -> CorsaResult<serde_json::Value> {
         let content = std::fs::read_to_string(tsconfig_path)?;
         let config: serde_json::Value = serde_json::from_str(&content)?;
 

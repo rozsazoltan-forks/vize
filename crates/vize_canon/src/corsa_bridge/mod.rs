@@ -1,26 +1,25 @@
-//! tsgo Bridge - Communication layer with TypeScript type checker.
+//! Corsa bridge for the native TypeScript checker.
 //!
-//! This module provides a bridge to tsgo (TypeScript Go implementation)
-//! via LSP protocol over stdio. It enables in-memory type checking
-//! without writing temporary files to disk.
+//! This module keeps the rest of the workspace insulated from process spawning,
+//! virtual document syncing, and the msgpack project-session details hidden
+//! behind the bridge surface.
 
 mod bridge;
-mod protocol;
-mod reader;
 mod types;
 
-pub use bridge::{BatchTypeChecker, TsgoBridge};
+pub use bridge::{BatchTypeChecker, CorsaBridge};
 pub use types::{
-    LspCompletionItem, LspCompletionList, LspCompletionResponse, LspDefinitionResponse,
-    LspDiagnostic, LspDocumentation, LspHover, LspHoverContents, LspLocation, LspLocationLink,
-    LspMarkedString, LspMarkupContent, LspPosition, LspRange, TsgoBridgeConfig, TsgoBridgeError,
-    TypeCheckResult, VIRTUAL_URI_SCHEME,
+    CorsaBridgeConfig, CorsaBridgeError, LspCompletionItem, LspCompletionList,
+    LspCompletionResponse, LspDefinitionResponse, LspDiagnostic, LspDocumentation, LspHover,
+    LspHoverContents, LspLocation, LspLocationLink, LspMarkedString, LspMarkupContent, LspPosition,
+    LspRange, TypeCheckResult, VIRTUAL_URI_SCHEME,
 };
 
 #[cfg(test)]
 mod tests {
     use super::{
-        LspDiagnostic, LspPosition, LspRange, TsgoBridgeConfig, TypeCheckResult, VIRTUAL_URI_SCHEME,
+        CorsaBridgeConfig, LspDiagnostic, LspPosition, LspRange, TypeCheckResult,
+        VIRTUAL_URI_SCHEME,
     };
     use vize_carton::cstr;
 
@@ -62,8 +61,8 @@ mod tests {
 
     #[test]
     fn test_config_default() {
-        let config = TsgoBridgeConfig::default();
-        assert!(config.tsgo_path.is_none());
+        let config = CorsaBridgeConfig::default();
+        assert!(config.corsa_path.is_none());
         assert!(config.working_dir.is_none());
         assert_eq!(config.timeout_ms, 30000);
         assert!(!config.enable_profiling);

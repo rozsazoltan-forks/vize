@@ -1,4 +1,4 @@
-//! Shared tsgo helpers for mapping virtual document responses back to Vue SFCs.
+//! Shared Corsa helpers for mapping virtual document responses back to Vue SFCs.
 #![allow(clippy::disallowed_types, clippy::disallowed_methods)]
 
 use std::collections::HashMap;
@@ -27,10 +27,12 @@ impl<'a> CurrentVirtualDocument<'a> {
     }
 }
 
+/// Build the virtual template request path used for Corsa queries.
 pub(crate) fn template_request_path(uri: &Url) -> String {
     cstr!("{}.template.ts", uri.path())
 }
 
+/// Build the virtual script request path used for Corsa queries.
 pub(crate) fn script_request_path(uri: &Url, is_setup: bool) -> String {
     if is_setup {
         cstr!("{}.setup.ts", uri.path())
@@ -39,6 +41,7 @@ pub(crate) fn script_request_path(uri: &Url, is_setup: bool) -> String {
     }
 }
 
+/// Normalize a filesystem path into the `file://` form expected by Corsa.
 pub(crate) fn request_file_uri(path: &str) -> String {
     if path.starts_with("file://") {
         String::from(path)
@@ -47,17 +50,19 @@ pub(crate) fn request_file_uri(path: &str) -> String {
     }
 }
 
-pub(crate) fn map_tsgo_locations(
+/// Map a batch of Corsa locations back onto the current Vue document.
+pub(crate) fn map_corsa_locations(
     ctx: &IdeContext<'_>,
     locations: Vec<LspLocation>,
 ) -> Vec<Location> {
     locations
         .iter()
-        .filter_map(|location| map_tsgo_location(ctx, location))
+        .filter_map(|location| map_corsa_location(ctx, location))
         .collect()
 }
 
-pub(crate) fn map_tsgo_location(ctx: &IdeContext<'_>, location: &LspLocation) -> Option<Location> {
+/// Map a single Corsa location back to either the Vue SFC or a real file URI.
+pub(crate) fn map_corsa_location(ctx: &IdeContext<'_>, location: &LspLocation) -> Option<Location> {
     if let Some(current_doc) = match_current_virtual_document(ctx, &location.uri) {
         let range = map_virtual_range(
             ctx,
@@ -96,7 +101,8 @@ pub(crate) fn map_tsgo_location(ctx: &IdeContext<'_>, location: &LspLocation) ->
     })
 }
 
-pub(crate) fn map_tsgo_prepare_rename(
+/// Translate a Corsa prepare-rename payload into SFC coordinates.
+pub(crate) fn map_corsa_prepare_rename(
     ctx: &IdeContext<'_>,
     request_uri: &str,
     response: PrepareRenameResponse,
@@ -117,7 +123,8 @@ pub(crate) fn map_tsgo_prepare_rename(
     }
 }
 
-pub(crate) fn map_tsgo_workspace_edit(
+/// Rewrite a workspace edit so virtual-document edits target the Vue source.
+pub(crate) fn map_corsa_workspace_edit(
     ctx: &IdeContext<'_>,
     mut edit: WorkspaceEdit,
 ) -> Option<WorkspaceEdit> {

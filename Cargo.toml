@@ -64,6 +64,7 @@ oxc_formatter = { git = "https://github.com/oxc-project/oxc", branch = "main" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 toml = "0.8"
+lsp-types = "0.97"
 
 # NAPI
 napi = { version = "2.14", default-features = false, features = ["napi8", "serde-json"] }
@@ -101,6 +102,11 @@ insta = { version = "1.41", features = ["toml"] }
 
 # Benchmarking
 criterion = "0.5"
+
+# Published corsa crates
+corsa = { package = "corsa", version = "0.3.1" }
+corsa_lsp = { package = "corsa_lsp", version = "0.3.1" }
+corsa_runtime = { package = "corsa_runtime", version = "0.3.1" }
 
 [profile.release]
 lto = true

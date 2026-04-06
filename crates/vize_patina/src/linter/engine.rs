@@ -134,7 +134,7 @@ impl Linter {
         #[cfg(not(target_arch = "wasm32"))]
         if super::native_type_aware::has_active_type_aware_rules(self) {
             let template_result =
-                super::native_type_aware::lint_sfc_with_tsgo(self, source, filename);
+                super::native_type_aware::lint_sfc_with_corsa(self, source, filename);
             return Self::merge_lint_results(template_result, sfc_result);
         }
 

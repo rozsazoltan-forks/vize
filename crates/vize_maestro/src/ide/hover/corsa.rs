@@ -1,7 +1,7 @@
-//! Tsgo integration for hover.
+//! Corsa integration for hover.
 //!
 //! Provides offset conversion between SFC and virtual TypeScript documents,
-//! and conversion of tsgo hover responses to LSP hover format.
+//! and conversion of Corsa hover responses to LSP hover format.
 #![allow(
     clippy::disallowed_types,
     clippy::disallowed_methods,
@@ -11,7 +11,7 @@
 use std::sync::Arc;
 
 use tower_lsp::lsp_types::{Hover, HoverContents, MarkupContent, MarkupKind, Range};
-use vize_canon::{LspHover, LspHoverContents, LspMarkedString, TsgoBridge};
+use vize_canon::{CorsaBridge, LspHover, LspHoverContents, LspMarkedString};
 
 use super::HoverService;
 use crate::ide::IdeContext;
@@ -99,13 +99,13 @@ impl HoverService {
         None
     }
 
-    /// Get hover for an art variant template with tsgo.
+    /// Get hover for an art variant template with Corsa.
     ///
-    /// Maps the art variant offset to the virtual TS offset and requests hover from tsgo.
-    pub(super) async fn hover_art_variant_with_tsgo(
+    /// Maps the art variant offset to the virtual TS offset and requests hover from Corsa.
+    pub(super) async fn hover_art_variant_with_corsa(
         ctx: &IdeContext<'_>,
         info: &ArtVariantInfo,
-        tsgo_bridge: Option<Arc<TsgoBridge>>,
+        corsa_bridge: Option<Arc<CorsaBridge>>,
     ) -> Option<Hover> {
         let word = Self::get_word_at_offset(&ctx.content, ctx.offset);
 
@@ -113,13 +113,13 @@ impl HoverService {
             return None;
         }
 
-        // Check for Vue directives first (these don't need tsgo)
+        // Check for Vue directives first; these do not need Corsa.
         if let Some(hover) = Self::hover_directive(&word) {
             return Some(hover);
         }
 
-        // Try to get type information from tsgo via virtual TypeScript
-        if let Some(bridge) = tsgo_bridge {
+        // Try to get type information from Corsa via virtual TypeScript.
+        if let Some(bridge) = corsa_bridge {
             if let Some(ref virtual_docs) = ctx.virtual_docs {
                 if let Some(ref template) = virtual_docs.template {
                     // Convert the art variant relative offset through the template source map
@@ -144,7 +144,7 @@ impl HoverService {
                             return Self::hover_template(ctx);
                         };
 
-                        // Request hover from tsgo
+                        // Request hover from Corsa.
                         if let Ok(Some(hover)) = bridge.hover(&uri, line, character).await {
                             return Some(Self::convert_lsp_hover(hover));
                         }
@@ -157,7 +157,7 @@ impl HoverService {
         Self::hover_template(ctx)
     }
 
-    /// Convert tsgo LspHover to tower-lsp Hover.
+    /// Convert a Corsa hover payload to tower-lsp Hover.
     pub(super) fn convert_lsp_hover(lsp_hover: LspHover) -> Hover {
         let contents = match lsp_hover.contents {
             LspHoverContents::Markup(markup) => {

@@ -24,9 +24,9 @@ Compiling **15,000 Vue SFC files** (36.9 MB total):
 
 |                                | @vue/compiler-sfc | Vize  | Speedup   |
 | ------------------------------ | ----------------- | ----- | --------- |
-| **Single Thread**              | 10.52s            | 3.82s | **2.8x**  |
-| **Multi Thread**               | 3.71s             | 380ms | **9.8x**  |
-| **compiler-sfc ST vs Vize MT** | 10.52s            | 380ms | **27.7x** |
+| **Single Thread**              | 10.43s            | 6.06s | **1.7x**  |
+| **Multi Thread**               | 3.45s             | 612ms | **5.6x**  |
+| **compiler-sfc ST vs Vize MT** | 10.43s            | 612ms | **16.7x** |
 
 The single-threaded improvement comes from Rust's zero-cost abstractions (no GC, no JIT warmup, cache-friendly memory layout). The multi-threaded improvement comes from Rayon's work-stealing thread pool, which scales near-linearly with CPU core count.
 
@@ -131,11 +131,11 @@ Run `vp run --workspace-root bench:fmt` to reproduce.
 
 Type checking **15,000 Vue SFC files**:
 
-|          | vue-tsc (ST) | Vize canon (ST) | Speedup   | vue-tsc (MT) | Vize canon (MT) | Speedup   | **vue-tsc ST vs Vize MT** |
-| -------- | ------------ | --------------- | --------- | ------------ | --------------- | --------- | ------------------------- |
-| **Time** | 35.69s       | 369ms           | **96.7x** | 26.76s       | 472ms           | **56.7x** | **75.5x**                 |
+|          | vue-tsc (ST) | Vize canon (ST) | Speedup  | vue-tsc (MT) | Vize canon (MT) | Speedup  | **vue-tsc ST vs Vize MT** |
+| -------- | ------------ | --------------- | -------- | ------------ | --------------- | -------- | ------------------------- |
+| **Time** | 22.13s       | 6.28s           | **3.5x** | 20.31s       | 3.33s           | **6.1x** | **6.6x**                  |
 
-> **Note:** Vize canon is still in early development and does not yet cover the full range of type checking features that vue-tsc provides. The speed difference partly reflects the difference in the amount of work each tool currently performs. These numbers will change as canon's feature set matures.
+> **Note:** Vize canon is still in early development and the Corsa-backed diagnostics path is still catching up with vue-tsc fidelity. These measurements reflect the current native project-session implementation with auto-tuned parallel Corsa sessions and will change as diagnostics coverage and parity improve.
 
 Run `vp run --workspace-root bench:check` to reproduce.
 

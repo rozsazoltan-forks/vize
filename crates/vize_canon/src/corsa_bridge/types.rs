@@ -1,4 +1,4 @@
-//! Type definitions for the tsgo bridge.
+//! Type definitions for the Corsa bridge.
 //!
 //! Contains all LSP protocol types, error types, configuration,
 //! and result types used by the bridge.
@@ -16,14 +16,14 @@ use vize_carton::String;
 /// Virtual URI scheme for in-memory documents.
 pub const VIRTUAL_URI_SCHEME: &str = "vize-virtual";
 
-/// Error types for tsgo bridge operations.
+/// Error types for Corsa bridge operations.
 #[derive(Debug, Clone)]
-pub enum TsgoBridgeError {
-    /// Failed to spawn tsgo process
+pub enum CorsaBridgeError {
+    /// Failed to spawn the Corsa process.
     SpawnFailed(String),
-    /// Failed to communicate with tsgo
+    /// Failed to communicate with Corsa.
     CommunicationError(String),
-    /// tsgo returned an error response
+    /// Corsa returned an error response.
     ResponseError { code: i64, message: String },
     /// Request timed out
     Timeout,
@@ -33,24 +33,24 @@ pub enum TsgoBridgeError {
     ProcessTerminated,
 }
 
-impl std::fmt::Display for TsgoBridgeError {
+impl std::fmt::Display for CorsaBridgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::SpawnFailed(msg) => write!(f, "Failed to spawn tsgo: {}", msg),
+            Self::SpawnFailed(msg) => write!(f, "Failed to spawn Corsa: {}", msg),
             Self::CommunicationError(msg) => write!(f, "Communication error: {}", msg),
             Self::ResponseError { code, message } => {
-                write!(f, "tsgo error [{}]: {}", code, message)
+                write!(f, "corsa error [{}]: {}", code, message)
             }
             Self::Timeout => write!(f, "Request timed out"),
             Self::NotInitialized => write!(f, "Bridge not initialized"),
-            Self::ProcessTerminated => write!(f, "tsgo process terminated"),
+            Self::ProcessTerminated => write!(f, "Corsa process terminated"),
         }
     }
 }
 
-impl std::error::Error for TsgoBridgeError {}
+impl std::error::Error for CorsaBridgeError {}
 
-/// LSP diagnostic from tsgo.
+/// LSP diagnostic from Corsa.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[allow(clippy::disallowed_types)]
 pub struct LspDiagnostic {
@@ -291,12 +291,12 @@ impl TypeCheckResult {
     }
 }
 
-/// Configuration for tsgo bridge.
+/// Configuration for the Corsa bridge.
 #[derive(Debug, Clone)]
-pub struct TsgoBridgeConfig {
-    /// Path to tsgo executable
-    pub tsgo_path: Option<PathBuf>,
-    /// Working directory for tsgo
+pub struct CorsaBridgeConfig {
+    /// Path to the native checker executable.
+    pub corsa_path: Option<PathBuf>,
+    /// Working directory used for module resolution.
     pub working_dir: Option<PathBuf>,
     /// Request timeout in milliseconds
     pub timeout_ms: u64,
@@ -304,10 +304,10 @@ pub struct TsgoBridgeConfig {
     pub enable_profiling: bool,
 }
 
-impl Default for TsgoBridgeConfig {
+impl Default for CorsaBridgeConfig {
     fn default() -> Self {
         Self {
-            tsgo_path: None,
+            corsa_path: None,
             working_dir: None,
             timeout_ms: 30000,
             enable_profiling: false,
