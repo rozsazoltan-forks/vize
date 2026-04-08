@@ -51,11 +51,28 @@
 npm install -g vize
 ```
 
+For Vite projects that want one shared config for the plugin and the npm CLI:
+
+```bash
+npm install -D vize @vizejs/vite-plugin
+```
+
 ```bash
 vize build src/**/*.vue    # Compile
 vize fmt --check           # Format check
 vize lint --fix            # Lint & auto-fix
 vize check --strict        # Type check
+```
+
+```ts
+// vize.config.ts
+import { defineConfig } from "vize";
+
+export default defineConfig({
+  compiler: {
+    sourceMap: true,
+  },
+});
 ```
 
 See the [documentation](https://vizejs.dev) for detailed usage, Vite plugin setup, experimental bundler integrations, WASM bindings, and more.

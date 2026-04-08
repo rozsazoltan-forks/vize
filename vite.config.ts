@@ -142,7 +142,9 @@ const buildTasks = {
   "build:wasm-web": task(
     "wasm-pack build crates/vize_vitrine --target web --out-dir ../../playground/src/wasm --features wasm --no-default-features",
   ),
-  "build:vite-plugin": noCacheTask(runInPackages("build", ["./npm/vite-plugin-vize"])),
+  "build:vite-plugin": noCacheTask(
+    `${runInPackages("build", ["./npm/vize"])} && ${runInPackages("build", ["./npm/vite-plugin-vize"])}`,
+  ),
   "build:plugin": noCacheTask(runTask("build:vite-plugin")),
   "build:cli": task("cargo build --release -p vize"),
   "install:plugin": noCacheTask("pnpm -C npm/vite-plugin-vize install"),

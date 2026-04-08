@@ -126,7 +126,10 @@ jobs:
           cache: true
 
       - name: Build npm packages
-        run: vp run --filter './npm/vize-native' --filter './npm/vite-plugin-vize' build
+        run: |
+          vp run --filter './npm/vize-native' build
+          vp run --filter './npm/vize' build
+          vp run --filter './npm/vite-plugin-vize' build
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4

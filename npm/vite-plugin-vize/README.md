@@ -14,13 +14,13 @@ High-performance native Vite plugin for Vue SFC compilation powered by [Vize](ht
 
 ```bash
 # npm
-npm install @vizejs/vite-plugin
+npm install @vizejs/vite-plugin vize
 
 # pnpm
-pnpm add @vizejs/vite-plugin
+pnpm add @vizejs/vite-plugin vize
 
 # yarn
-yarn add @vizejs/vite-plugin
+yarn add @vizejs/vite-plugin vize
 ```
 
 ## Usage
@@ -40,6 +40,43 @@ export default defineConfig({
   ],
 });
 ```
+
+### Shared config
+
+`vize.config.ts`
+
+```ts
+import { defineConfig } from "vize";
+
+export default defineConfig({
+  compiler: {
+    sourceMap: true,
+  },
+  vite: {
+    scanPatterns: ["src/**/*.vue"],
+  },
+});
+```
+
+`vize.config.pkl`
+
+```pkl
+amends "node_modules/vize/pkl/vize.pkl"
+
+compiler {
+  sourceMap = true
+}
+
+vite {
+  scanPatterns = new Listing {
+    "src/**/*.vue"
+  }
+}
+```
+
+`@vizejs/vite-plugin` loads the same `vize.config.ts`, `vize.config.js`, `vize.config.mjs`,
+`vize.config.pkl`, and `vize.config.json` files as the `vize` npm CLI. Importing
+`defineConfig` from `@vizejs/vite-plugin` still works, but `vize` is the shared entry point.
 
 ### Nuxt
 
