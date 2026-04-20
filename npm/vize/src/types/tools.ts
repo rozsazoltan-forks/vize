@@ -1,4 +1,5 @@
 import type { LintPreset, RuleSeverity, RuleCategory } from "./core.js";
+import type { LintRulesConfig } from "./rules.js";
 
 // ============================================================================
 // LinterConfig
@@ -22,7 +23,7 @@ export interface LinterConfig {
   /**
    * Rules to enable/disable
    */
-  rules?: Record<string, RuleSeverity>;
+  rules?: LintRulesConfig;
 
   /**
    * Category-level severity overrides
@@ -174,6 +175,12 @@ export interface LspConfig {
    * @default true
    */
   codeActions?: boolean;
+
+  /**
+   * Enable type checking diagnostics and type-aware LSP features
+   * @default true
+   */
+  typecheck?: boolean;
 
   /**
    * Use Corsa for type checking in LSP

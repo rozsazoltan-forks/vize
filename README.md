@@ -28,6 +28,10 @@
 > This project is under active development and is not yet ready for production use.
 > APIs and features may change without notice.
 
+> [!IMPORTANT]
+> For day-to-day editor support, keep using the official Vue language tools (`vuejs/language-tools`) for now.
+> Treat `vize lsp` and the VS Code extension as experimental until the LSP and type-checking behavior stabilizes.
+
 > [!NOTE]
 > `@vizejs/vite-plugin` is the recommended bundler integration today.
 > `@vizejs/unplugin` (rollup / webpack / esbuild) and `@vizejs/rspack-plugin` are available, but non-Vite integrations are still unstable and should be tested carefully before adoption.
@@ -81,6 +85,40 @@ export default defineConfig({
 ```
 
 See the [documentation](https://vizejs.dev) for detailed usage, Vite plugin setup, experimental bundler integrations, WASM bindings, and more.
+
+## Oxlint Integration
+
+`oxlint-plugin-vize` brings Vize Patina diagnostics into Oxlint through Oxlint's JS plugin system. It is intended for teams that want Oxlint's fast JavaScript / TypeScript rules and Vize's Vue SFC rules in one terminal workflow.
+
+Install the package with:
+
+```bash
+pnpm add -D oxlint oxlint-plugin-vize
+```
+
+`oxlint-plugin-vize` resolves the matching Vize native binding through platform-specific optional dependencies, so consumers do not need a separate `@vizejs/native` install.
+
+Main features:
+
+- Adds Vize diagnostics under the `vize/*` rule namespace while keeping Oxlint core rules and the built-in `vue` plugin running normally.
+- Provides preset rule maps for JS/TS Oxlint configs, including `configs.recommended`, `configs.essential`, `configs.opinionated`, `configs.nuxt`, and opt-in type-aware variants.
+- Supports Patina settings through `settings.vize`, including `locale`, `preset`, and `helpLevel`.
+- Ships an `oxlint-vize` wrapper for terminal runs, including a temporary workaround for scriptless `.vue` files while upstream JS plugin coverage improves.
+- Reuses native lint results per file inside the Oxlint process so multiple enabled Vize rules do not repeatedly parse the same SFC.
+
+Recommended terminal command:
+
+```bash
+pnpm exec oxlint-vize -c .oxlintrc.json -f stylish src
+```
+
+Limitations:
+
+- The integration is terminal-first. `stylish` is the recommended formatter for human-readable mixed Oxlint + Vize output.
+- Raw `oxlint` can miss `.vue` files without `<script>` or `<script setup>`; use `oxlint-vize` if your project has template-only SFCs.
+- Oxlint JS plugins still cannot report original template / style ranges with full fidelity in every formatter, so JSON and other machine-readable outputs should be treated as best-effort for Vize template diagnostics.
+- Oxlint core rules that depend on JavaScript bindings inside Vue templates are still tied to upstream Vue work in [Oxc's Better Vue Support](https://github.com/oxc-project/oxc/issues/15761).
+- The SFC range and formatter limitation is tracked separately in [oxc-project/oxc#20465](https://github.com/oxc-project/oxc/issues/20465).
 
 ## Nix Flake
 
