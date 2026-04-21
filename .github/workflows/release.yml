@@ -334,17 +334,16 @@ jobs:
         shell: bash
         run: |
           mkdir -p .artifacts/vize-native
-          mapfile -t files < <(find npm/vize-native \
+          find npm/vize-native \
             -path '*/node_modules/*' -prune -o \
-            -type f -name '*.node' -print)
-          if [ "${#files[@]}" -eq 0 ]; then
+            -type f -name '*.node' -exec cp {} .artifacts/vize-native/ \;
+          if ! find .artifacts/vize-native -maxdepth 1 -type f -name '*.node' | grep -q .; then
             echo "No vize-native .node files found after build." >&2
             find npm/vize-native -path '*/node_modules/*' -prune -o -type f -print | sort >&2
             exit 1
           fi
           printf 'Collected vize-native artifacts:\n'
-          printf '  %s\n' "${files[@]}"
-          cp "${files[@]}" .artifacts/vize-native/
+          find .artifacts/vize-native -maxdepth 1 -type f -name '*.node' -print | sort | sed 's/^/  /'
 
       - name: Upload vize-native artifact
         uses: actions/upload-artifact@v4
@@ -377,17 +376,16 @@ jobs:
         shell: bash
         run: |
           mkdir -p .artifacts/fresco-native
-          mapfile -t files < <(find npm/fresco-native \
+          find npm/fresco-native \
             -path '*/node_modules/*' -prune -o \
-            -type f -name '*.node' -print)
-          if [ "${#files[@]}" -eq 0 ]; then
+            -type f -name '*.node' -exec cp {} .artifacts/fresco-native/ \;
+          if ! find .artifacts/fresco-native -maxdepth 1 -type f -name '*.node' | grep -q .; then
             echo "No fresco-native .node files found after build." >&2
             find npm/fresco-native -path '*/node_modules/*' -prune -o -type f -print | sort >&2
             exit 1
           fi
           printf 'Collected fresco-native artifacts:\n'
-          printf '  %s\n' "${files[@]}"
-          cp "${files[@]}" .artifacts/fresco-native/
+          find .artifacts/fresco-native -maxdepth 1 -type f -name '*.node' -print | sort | sed 's/^/  /'
 
       - name: Upload fresco-native artifact
         uses: actions/upload-artifact@v4
