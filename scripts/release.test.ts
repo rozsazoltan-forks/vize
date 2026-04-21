@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 
@@ -51,4 +52,43 @@ test("confirm_release skips prompting when -y is set", () => {
       stderr: "",
     },
   );
+});
+
+test("update_workspace_manifest_versions bumps exact internal crate pins", () => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "release-script-"));
+  const manifestPath = path.join(tempDir, "Cargo.toml");
+
+  try {
+    writeFileSync(
+      manifestPath,
+      `[workspace.package]
+version = "0.52.0"
+
+[workspace.dependencies]
+vize_carton = { path = "crates/vize_carton", version = "=0.52.0" }
+vize_relief = { path = "crates/vize_relief", version = "=0.52.0" }
+serde = { version = "=1.0.228", features = ["derive"] }
+`,
+    );
+
+    const result = runBash(
+      `source scripts/release.sh; update_workspace_manifest_versions '${manifestPath}' 0.52.0 0.53.0`,
+    );
+
+    assert.equal(result.status, 0, result.stderr);
+
+    const updated = readFileSync(manifestPath, "utf8");
+    assert.match(updated, /\[workspace\.package\]\nversion = "0\.53\.0"/);
+    assert.match(
+      updated,
+      /vize_carton = \{ path = "crates\/vize_carton", version = "=0\.53\.0" \}/,
+    );
+    assert.match(
+      updated,
+      /vize_relief = \{ path = "crates\/vize_relief", version = "=0\.53\.0" \}/,
+    );
+    assert.match(updated, /serde = \{ version = "=1\.0\.228", features = \["derive"\] \}/);
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 });

@@ -55,6 +55,20 @@ confirm_release() {
   fi
 }
 
+update_workspace_manifest_versions() {
+  local manifest_path current_version new_version
+
+  manifest_path="$1"
+  current_version="$2"
+  new_version="$3"
+
+  CURRENT_VERSION="$current_version" NEW_VERSION="$new_version" perl -0pi.bak -e '
+    s/^version = "\Q$ENV{CURRENT_VERSION}\E"$/version = "$ENV{NEW_VERSION}"/m;
+    s/^(vize_[A-Za-z0-9_]+\s*=\s*\{[^}\n]*\bversion = ")=\Q$ENV{CURRENT_VERSION}\E(")/$1=$ENV{NEW_VERSION}$2/gm;
+  ' "$manifest_path"
+  rm -f "$manifest_path.bak"
+}
+
 main() {
   local bump auto_confirm current_version
   local major minor patch prerelease prerelease_num
@@ -165,10 +179,7 @@ main() {
 
   # Update Cargo.toml (workspace version and dependencies)
   echo "Updating Cargo.toml..."
-  sed -i.bak 's/^version = ".*"/version = "'"$NEW_VERSION"'"/' Cargo.toml
-  # Update publishable internal crate versions in workspace.dependencies
-  sed -i.bak 's/version = "'"$CURRENT_VERSION"'"/version = "'"$NEW_VERSION"'"/g' Cargo.toml
-  rm -f Cargo.toml.bak
+  update_workspace_manifest_versions Cargo.toml "$CURRENT_VERSION" "$NEW_VERSION"
 
   # Update Cargo.lock to reflect the new versions
   echo "Updating Cargo.lock..."
