@@ -251,36 +251,28 @@ jobs:
         settings:
           - host: macos-latest
             target: x86_64-apple-darwin
-            build_vize: vp run --filter './npm/vize-native' build -- --target x86_64-apple-darwin
-            build_fresco: vp run --filter './npm/fresco-native' build -- --target x86_64-apple-darwin
+            cross_compile: false
           - host: macos-latest
             target: aarch64-apple-darwin
-            build_vize: vp run --filter './npm/vize-native' build -- --target aarch64-apple-darwin
-            build_fresco: vp run --filter './npm/fresco-native' build -- --target aarch64-apple-darwin
+            cross_compile: false
           - host: windows-latest
             target: x86_64-pc-windows-msvc
-            build_vize: vp run --filter './npm/vize-native' build -- --target x86_64-pc-windows-msvc
-            build_fresco: vp run --filter './npm/fresco-native' build -- --target x86_64-pc-windows-msvc
+            cross_compile: false
           - host: windows-latest
             target: aarch64-pc-windows-msvc
-            build_vize: vp run --filter './npm/vize-native' build -- --target aarch64-pc-windows-msvc
-            build_fresco: vp run --filter './npm/fresco-native' build -- --target aarch64-pc-windows-msvc
+            cross_compile: false
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            build_vize: vp run --filter './npm/vize-native' build -- --target x86_64-unknown-linux-gnu
-            build_fresco: vp run --filter './npm/fresco-native' build -- --target x86_64-unknown-linux-gnu
+            cross_compile: false
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            build_vize: vp run --filter './npm/vize-native' build -- --target x86_64-unknown-linux-musl --cross-compile
-            build_fresco: vp run --filter './npm/fresco-native' build -- --target x86_64-unknown-linux-musl --cross-compile
+            cross_compile: true
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            build_vize: vp run --filter './npm/vize-native' build -- --target aarch64-unknown-linux-gnu --cross-compile
-            build_fresco: vp run --filter './npm/fresco-native' build -- --target aarch64-unknown-linux-gnu --cross-compile
+            cross_compile: true
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
-            build_vize: vp run --filter './npm/vize-native' build -- --target aarch64-unknown-linux-musl --cross-compile
-            build_fresco: vp run --filter './npm/fresco-native' build -- --target aarch64-unknown-linux-musl --cross-compile
+            cross_compile: true
     steps:
       - uses: actions/checkout@v4
 
@@ -310,30 +302,98 @@ jobs:
           cache-workspace-crates: "true"
 
       - name: Setup Zig
-        if: contains(matrix.settings.build_vize, '--cross-compile')
+        if: matrix.settings.cross_compile
         uses: goto-bus-stop/setup-zig@v2
 
-      - name: Build vize-native
-        run: ${{ matrix.settings.build_vize }}
+      - name: Clean native build outputs
         shell: bash
+        run: |
+          find npm/vize-native -maxdepth 1 -type f -name '*.node' -delete
+          find npm/fresco-native -maxdepth 1 -type f -name '*.node' -delete
+
+      - name: Build vize-native
+        working-directory: npm/vize-native
+        shell: bash
+        run: |
+          args=(
+            build
+            --platform
+            --release
+            --manifest-path ../../crates/vize_vitrine/Cargo.toml
+            -p vize_vitrine
+            --features napi
+            --output-dir .
+            --target "${{ matrix.settings.target }}"
+          )
+          if [[ "${{ matrix.settings.cross_compile }}" == "true" ]]; then
+            args+=(--cross-compile)
+          fi
+          vp exec napi "${args[@]}"
+
+      - name: Collect vize-native artifact
+        shell: bash
+        run: |
+          mkdir -p .artifacts/vize-native
+          mapfile -t files < <(find npm/vize-native \
+            -path '*/node_modules/*' -prune -o \
+            -type f -name '*.node' -print)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No vize-native .node files found after build." >&2
+            find npm/vize-native -path '*/node_modules/*' -prune -o -type f -print | sort >&2
+            exit 1
+          fi
+          printf 'Collected vize-native artifacts:\n'
+          printf '  %s\n' "${files[@]}"
+          cp "${files[@]}" .artifacts/vize-native/
 
       - name: Upload vize-native artifact
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: npm/vize-native/*.node
+          path: .artifacts/vize-native/*.node
           if-no-files-found: error
           compression-level: 0
 
       - name: Build fresco-native
-        run: ${{ matrix.settings.build_fresco }}
+        working-directory: npm/fresco-native
         shell: bash
+        run: |
+          args=(
+            build
+            --platform
+            --release
+            --manifest-path ../../crates/vize_fresco/Cargo.toml
+            -p vize_fresco
+            --features napi
+            --output-dir .
+            --target "${{ matrix.settings.target }}"
+          )
+          if [[ "${{ matrix.settings.cross_compile }}" == "true" ]]; then
+            args+=(--cross-compile)
+          fi
+          vp exec napi "${args[@]}"
+
+      - name: Collect fresco-native artifact
+        shell: bash
+        run: |
+          mkdir -p .artifacts/fresco-native
+          mapfile -t files < <(find npm/fresco-native \
+            -path '*/node_modules/*' -prune -o \
+            -type f -name '*.node' -print)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No fresco-native .node files found after build." >&2
+            find npm/fresco-native -path '*/node_modules/*' -prune -o -type f -print | sort >&2
+            exit 1
+          fi
+          printf 'Collected fresco-native artifacts:\n'
+          printf '  %s\n' "${files[@]}"
+          cp "${files[@]}" .artifacts/fresco-native/
 
       - name: Upload fresco-native artifact
         uses: actions/upload-artifact@v4
         with:
           name: fresco-bindings-${{ matrix.settings.target }}
-          path: npm/fresco-native/*.node
+          path: .artifacts/fresco-native/*.node
           if-no-files-found: error
           compression-level: 0
 
