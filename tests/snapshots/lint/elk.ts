@@ -47,7 +47,7 @@ describe(`${app.name} lint (linter)`, () => {
     }
 
     // Re-parse and pretty-print for stable snapshot
-    const parsed = JSON.parse(stdout);
+    const parsed = JSON.parse(stdout) as LintFileResult[];
     assert.ok(Array.isArray(parsed) && parsed.length > 0, "lint should produce results");
     const prettyOutput = JSON.stringify(parsed, null, 2).replaceAll(lintConfig.cwd, "<cwd>") + "\n";
 

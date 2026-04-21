@@ -41,6 +41,8 @@ const testedPackages = [
   "./npm/rspack-vize-plugin",
 ];
 
+const floatingPromiseTestPatterns = ["scripts/*.test.ts", "tests/**/*.ts"];
+
 const cacheInputs = {
   workspace: [
     ".node-version",
@@ -95,6 +97,21 @@ const noCacheTask = (command: string) => ({
   cache: false as const,
   command,
 });
+
+const shellQuote = (command: string) => `'${command.replaceAll("'", `'"'"'`)}'`;
+const runInDirectory = (cwd: string, command: string) =>
+  `sh -c ${shellQuote(`cd ${cwd} && ${command}`)}`;
+const pnpmDlx = (packages: string[], command: string) =>
+  `pnpm ${packages.map((pkg) => `--package=${pkg}`).join(" ")} dlx sh -c ${shellQuote(command)}`;
+
+const vscodeBuildPackages = ["vite-plus@0.1.11"];
+const vscodeCheckPackages = [
+  "typescript@^5.7.0",
+  "@types/node@^20.11.0",
+  "@types/vscode@^1.75.0",
+  "vite-plus@0.1.11",
+];
+const vscodePackagePackages = ["@vscode/vsce@^3.3.2", "vite-plus@0.1.11"];
 
 const commandExists = (command: string) =>
   spawnSync("sh", ["-c", `command -v ${command}`], { stdio: "ignore" }).status === 0;
@@ -186,11 +203,14 @@ const buildTasks = {
   "build:plugin": noCacheTask(runTask("build:vite-plugin")),
   "build:cli": task("cargo build --release -p vize"),
   "build:vscode-extension": noCacheTask(
-    "pnpm -C npm/vscode-vize install --ignore-workspace --no-lockfile && pnpm -C npm/vscode-vize run build",
+    runInDirectory("npm/vscode-vize", pnpmDlx(vscodeBuildPackages, "vp pack")),
   ),
   "build:editor-extensions": noCacheTask(runTasks("build:vscode-extension", "check:zed-extension")),
   "package:vscode-extension": noCacheTask(
-    "pnpm -C npm/vscode-vize install --ignore-workspace --no-lockfile && pnpm -C npm/vscode-vize run package",
+    runInDirectory(
+      "npm/vscode-vize",
+      pnpmDlx(vscodePackagePackages, "vsce package --no-dependencies --out dist/vize.vsix"),
+    ),
   ),
   "check:zed-extension": task("cargo check --manifest-path npm/zed-vize/Cargo.toml", {
     input: ["npm/zed-vize/**"],
@@ -201,7 +221,7 @@ const buildTasks = {
   "package:editor-extensions": noCacheTask(
     runTasks("package:vscode-extension", "check:zed-extension", "package:zed-extension"),
   ),
-  "install:plugin": noCacheTask("pnpm -C npm/vite-plugin-vize install"),
+  "install:plugin": noCacheTask("vp install --filter './npm/vite-plugin-vize'"),
 };
 
 const cliTasks = {
@@ -263,19 +283,25 @@ const benchmarkTasks = {
   "bench:rust": noCacheTask("cargo bench -p vize_atelier_sfc"),
 };
 
+const ciPackageCheckCommand = runInPackages("check", ciCheckedPackages, {
+  concurrencyLimit: 1,
+});
+
 const checkTasks = {
   check: task(runInPackages("check", checkedPackages, { concurrencyLimit: 1 }), {
     input: cacheInputs.jsChecks,
   }),
+  "check:repo": noCacheTask("vp check"),
   // The oxlint example intentionally exits non-zero for its default lint script,
   // so CI checks every package except that runnable failure-case fixture.
-  "check:ci": task(runInPackages("check", ciCheckedPackages, { concurrencyLimit: 1 }), {
-    input: cacheInputs.jsChecks,
-  }),
+  "check:ci": noCacheTask(`vp check && ${ciPackageCheckCommand}`),
   "check:fix": noCacheTask(runInPackages("check:fix", checkedPackages)),
   "check:rust": task("cargo check --workspace", { input: cacheInputs.rust }),
   "check:vscode-extension": noCacheTask(
-    "pnpm -C npm/vscode-vize install --ignore-workspace --no-lockfile && pnpm -C npm/vscode-vize run check",
+    runInDirectory(
+      "npm/vscode-vize",
+      pnpmDlx(vscodeCheckPackages, "tsc --noEmit && vp check src vite.config.ts"),
+    ),
   ),
   "check:editor-extensions": noCacheTask(runTasks("check:vscode-extension", "check:zed-extension")),
   clippy: task("cargo clippy --workspace -- -D warnings", { input: cacheInputs.rust }),
@@ -287,7 +313,7 @@ const checkTasks = {
   "lint:rust": task("cargo clippy --workspace -- -D warnings", { input: cacheInputs.rust }),
   "lint:all": noCacheTask(runTasks("lint:rust", "check")),
   "fmt:check": noCacheTask(runTask("check")),
-  ci: noCacheTask(runTasks("fmt:all", "clippy", "test")),
+  ci: noCacheTask(runTasks("fmt:all", "clippy", "test", "check:ci")),
 };
 
 const releaseTasks = {
@@ -295,10 +321,10 @@ const releaseTasks = {
     'sh -c \'if [ -n "${usage_type:-}" ] && { [ $# -eq 0 ] || [ "$1" != "$usage_type" ]; }; then set -- "$usage_type" "$@"; fi; ./scripts/release.sh "$@"\' --',
   ),
   "publish:wasm": noCacheTask(
-    'sh -c \'cd npm/vize-wasm && cargo build --release -p vize_vitrine --no-default-features --features wasm --target wasm32-unknown-unknown && wasm-bindgen ../../target/wasm32-unknown-unknown/release/vize_vitrine.wasm --out-dir . --target web && VERSION=$(node -p "require(\\"./package.json\\").version") && case "$VERSION" in *-alpha*) npm publish --access public --tag alpha ;; *-beta*) npm publish --access public --tag beta ;; *-rc*) npm publish --access public --tag rc ;; *) npm publish --access public ;; esac\'',
+    'sh -c \'cd npm/vize-wasm && cargo build --release -p vize_vitrine --no-default-features --features wasm --target wasm32-unknown-unknown && wasm-bindgen ../../target/wasm32-unknown-unknown/release/vize_vitrine.wasm --out-dir . --target web && VERSION=$(node -p "require(\\"./package.json\\").version") && case "$VERSION" in *-alpha*) pnpm publish --access public --no-git-checks --tag alpha ;; *-beta*) pnpm publish --access public --no-git-checks --tag beta ;; *-rc*) pnpm publish --access public --no-git-checks --tag rc ;; *) pnpm publish --access public --no-git-checks ;; esac\'',
   ),
   "publish:native": noCacheTask(
-    `${runTask("build:native")} && ${publishWithVersionTag("npm/vize-native", "npm publish --access public")}`,
+    `${runTask("build:native")} && ${publishWithVersionTag("npm/vize-native", "pnpm publish --access public --no-git-checks")}`,
   ),
   "publish:vite-plugin": noCacheTask(
     `${runTask("build:vite-plugin")} && ${publishWithVersionTag("npm/vite-plugin-vize", "pnpm publish --access public --no-git-checks")}`,
@@ -311,7 +337,13 @@ const releaseTasks = {
   ),
   "publish:crates": noCacheTask("bash ./scripts/publish-crates.sh"),
   "publish:vscode-extension": noCacheTask(
-    'sh -c \'cd npm/vscode-vize && pnpm install --ignore-workspace --no-lockfile && pnpm run build && if [ "${NPM_TAG:-latest}" = "latest" ]; then pnpm run publish; else pnpm run publish:pre; fi\'',
+    runInDirectory(
+      "npm/vscode-vize",
+      pnpmDlx(
+        vscodePackagePackages,
+        'if [ "${NPM_TAG:-latest}" = "latest" ]; then vsce publish --no-dependencies; else vsce publish --no-dependencies --pre-release; fi',
+      ),
+    ),
   ),
   publish: noCacheTask(runTasks("publish:npm", "publish:crates")),
 };
@@ -327,10 +359,22 @@ export default defineConfig({
     },
     outDir: "target/vp-build",
   },
+  fmt: {
+    ignorePatterns: ["**/__snapshots__/**", "**/__snapshot__/**", "**/__agent_only/**"],
+  },
   lint: {
+    ignorePatterns: ["**/__snapshots__/**", "**/__snapshot__/**", "**/__agent_only/**"],
     options: {
       typeAware: true,
     },
+    overrides: [
+      {
+        files: floatingPromiseTestPatterns,
+        rules: {
+          "typescript/no-floating-promises": "off",
+        },
+      },
+    ],
   },
   run: {
     cache: {
