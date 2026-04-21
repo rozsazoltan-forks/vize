@@ -396,7 +396,7 @@ jobs:
             if [ -d "$dir" ]; then
               echo "Publishing $dir..."
               cd "$dir"
-              publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG || echo "Failed to publish $dir (may need initial manual publish)"
+              publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance || echo "Failed to publish $dir (may need initial manual publish)"
               cd ../..
             fi
           done
@@ -413,7 +413,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Publish fresco native packages to npm (using Trusted Publishing / OIDC)
   release-npm-fresco-native:
@@ -474,7 +474,7 @@ jobs:
             if [ -d "$dir" ]; then
               echo "Publishing $dir..."
               cd "$dir"
-              publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG || echo "Failed to publish $dir (may need initial manual publish)"
+              publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance || echo "Failed to publish $dir (may need initial manual publish)"
               cd ../..
             fi
           done
@@ -491,7 +491,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish WASM package (using Trusted Publishing / OIDC)
   release-npm-wasm:
@@ -554,7 +554,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish Vite plugin (using Trusted Publishing / OIDC)
   release-npm-vite-plugin:
@@ -592,7 +592,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish Oxlint plugin package (using Trusted Publishing / OIDC)
   release-npm-oxlint-plugin:
@@ -649,7 +649,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish unplugin package (using Trusted Publishing / OIDC)
   release-npm-unplugin:
@@ -687,7 +687,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish Fresco package (using Trusted Publishing / OIDC)
   release-npm-fresco:
@@ -725,7 +725,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish Musea MCP server (using Trusted Publishing / OIDC)
   release-npm-musea-mcp-server:
@@ -763,7 +763,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish Vite plugin for Musea (using Trusted Publishing / OIDC)
   release-npm-vite-plugin-musea:
@@ -801,7 +801,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish Rspack plugin (using Trusted Publishing / OIDC)
   release-npm-rspack-plugin:
@@ -839,7 +839,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish Musea Nuxt (using Trusted Publishing / OIDC)
   release-npm-musea-nuxt:
@@ -877,7 +877,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Build and publish @vizejs/nuxt (using Trusted Publishing / OIDC)
   release-npm-nuxt:
@@ -921,7 +921,7 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
 
   # Publish crates to crates.io (using Trusted Publishing)
   release-crates:
@@ -1041,4 +1041,4 @@ jobs:
             done
             return 1
           }
-          publish_with_retry vp pm publish --provenance --access public --no-git-checks --tag $NPM_TAG
+          publish_with_retry vp pm publish --access public --no-git-checks --tag $NPM_TAG -- --provenance
