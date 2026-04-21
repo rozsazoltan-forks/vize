@@ -55,6 +55,8 @@ graph TD
 
 Because all tools share the same parser and AST, they have a consistent understanding of your code. A lint rule in Patina operates on the same AST nodes as the compiler in Atelier — there's no risk of parser disagreement.
 
+For type checking, `vize_canon` adds one more step: it generates virtual TypeScript from Vue SFCs and asks Corsa project sessions from [`corsa-bind`](https://github.com/ubugeeei/corsa-bind) for native diagnostics, then maps those results back onto the original files.
+
 ## Crate Responsibilities
 
 | Layer         | Crate                | Role                                                 |
@@ -70,7 +72,7 @@ Because all tools share the same parser and AST, they have a consistent understa
 | Compilation   | `vize_atelier_ssr`   | Server-side rendering compilation                    |
 | Bindings      | `vize_vitrine`       | Node.js (NAPI) + WASM bindings                       |
 | CLI           | `vize`               | Command-line interface (clap + rayon)                |
-| Type Checking | `vize_canon`         | TypeScript type checker for templates                |
+| Type Checking | `vize_canon`         | Native TypeScript and Vue diagnostics via `corsa-bind` |
 | Linting       | `vize_patina`        | Vue.js linter with i18n (en/ja/zh)                   |
 | Formatting    | `vize_glyph`         | Vue.js formatter (template + script + style)         |
 | LSP           | `vize_maestro`       | Language Server Protocol (tower-lsp)                 |
@@ -123,6 +125,7 @@ Vize integrates with the broader Rust ecosystem for specialized tasks:
 | [Rayon](https://docs.rs/rayon)                           | Data-parallel multi-threading     | `vize`, `vize_vitrine`              |
 | [bumpalo](https://docs.rs/bumpalo)                       | Arena allocation for AST nodes    | `vize_carton`                       |
 | [LightningCSS](https://lightningcss.dev/)                | CSS parsing and transformation    | `vize_atelier_sfc`                  |
+| [`corsa-bind`](https://github.com/ubugeeei/corsa-bind)  | Native TypeScript project sessions and diagnostics | `vize_canon`, `vize_maestro`, `vize_patina` |
 | [tower-lsp](https://docs.rs/tower-lsp)                   | LSP server framework              | `vize_maestro`                      |
 | [clap](https://docs.rs/clap)                             | CLI argument parsing              | `vize`                              |
 | [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/) | WASM-JavaScript interop           | `vize_vitrine`                      |
