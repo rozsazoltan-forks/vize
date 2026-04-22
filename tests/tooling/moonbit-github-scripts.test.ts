@@ -246,3 +246,69 @@ test("github/write_coverage_summary appends the tail of coverage output", () => 
     rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+test("github/build_napi_package builds Apple targets with cargo and writes the expected .node artifact", () => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "moonbit-build-napi-apple-"));
+  const binDir = path.join(tempDir, "bin");
+  const packageDir = path.join(tempDir, "npm", "vize-native");
+  const artifactPath = path.join(
+    tempDir,
+    "target",
+    "aarch64-apple-darwin",
+    "release",
+    "libvize_vitrine.dylib",
+  );
+  const commandArgsPath = path.join(tempDir, "cargo-args.txt");
+
+  try {
+    fs.mkdirSync(binDir, { recursive: true });
+    fs.mkdirSync(packageDir, { recursive: true });
+    writeFakeCommand(
+      binDir,
+      "cargo",
+      [
+        "const fs = require('node:fs');",
+        "const path = require('node:path');",
+        `const argsPath = ${JSON.stringify(commandArgsPath)};`,
+        `const artifactPath = ${JSON.stringify(artifactPath)};`,
+        "fs.writeFileSync(argsPath, process.argv.slice(2).join('\\n'));",
+        "fs.mkdirSync(path.dirname(artifactPath), { recursive: true });",
+        "fs.writeFileSync(artifactPath, 'apple-native');",
+      ].join("\n"),
+    );
+
+    const result = runMoonScript(
+      "github/build_napi_package",
+      [packageDir, "../../crates/vize_vitrine/Cargo.toml", "vize_vitrine", "aarch64-apple-darwin"],
+      {
+        cwd: tempDir,
+        env: {
+          PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
+        },
+      },
+    );
+
+    assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`.trim());
+    assert.equal(
+      fs.readFileSync(commandArgsPath, "utf8"),
+      [
+        "build",
+        "--release",
+        "--manifest-path",
+        "../../crates/vize_vitrine/Cargo.toml",
+        "-p",
+        "vize_vitrine",
+        "--features",
+        "napi",
+        "--target",
+        "aarch64-apple-darwin",
+      ].join("\n"),
+    );
+    assert.equal(
+      fs.readFileSync(path.join(packageDir, "vize-vitrine.darwin-arm64.node"), "utf8"),
+      "apple-native",
+    );
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
