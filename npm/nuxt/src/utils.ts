@@ -30,5 +30,5 @@ export function isVizeVirtualVueModuleId(id: string): boolean {
 
 export function normalizeVizeVirtualVueModuleId(id: string): string {
   const withoutPrefix = id.startsWith("\0vize-ssr:") ? id.slice("\0vize-ssr:".length) : id.slice(1);
-  return withoutPrefix.replace(/\.ts$/, "");
+  return withoutPrefix.replace(/\.ts(?=\?|$)/, "");
 }
