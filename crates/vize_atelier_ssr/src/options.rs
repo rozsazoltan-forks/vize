@@ -25,6 +25,10 @@ pub struct SsrCompilerOptions {
     #[serde(default)]
     pub is_ts: bool,
 
+    /// Whether the template targets a custom renderer instead of the DOM.
+    #[serde(default)]
+    pub custom_renderer: bool,
+
     /// CSS variables to inject (from SFC <style> blocks with v-bind)
     #[serde(default)]
     pub ssr_css_vars: Option<String>,
@@ -45,6 +49,7 @@ impl Clone for SsrCompilerOptions {
             comments: self.comments,
             inline: self.inline,
             is_ts: self.is_ts,
+            custom_renderer: self.custom_renderer,
             ssr_css_vars: self.ssr_css_vars.clone(),
             binding_metadata: self.binding_metadata.clone(),
             // Croquis is consumed by the compiler; clones intentionally drop it.

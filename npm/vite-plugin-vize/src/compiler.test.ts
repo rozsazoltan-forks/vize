@@ -73,4 +73,58 @@ assert.match(
   "Batch SSR compilation should match single-file binding resolution for lowercase imported components",
 );
 
+const customRendererSource = `<script setup lang="ts">
+import { Primitive } from "@tresjs/core";
+const visible = true;
+</script>
+
+<template>
+  <mesh>
+    <group v-if="visible">
+      <primitive />
+    </group>
+  </mesh>
+</template>`;
+
+const customRendererClientCompiled = compileFile(
+  "/src/TresCustomRenderer.vue",
+  new Map(),
+  { sourceMap: false, ssr: false, vapor: true, customRenderer: true },
+  customRendererSource,
+);
+
+assert.match(
+  customRendererClientCompiled.code,
+  /const _component_primitive = _ctx\.Primitive/,
+  "Custom renderer Vapor builds should still resolve imported lowercase components through setup bindings",
+);
+assert.doesNotMatch(
+  customRendererClientCompiled.code,
+  /_resolveComponent\("(mesh|group|primitive)"\)/,
+  "Custom renderer Vapor builds must not fall back to runtime component resolution for intrinsic tags",
+);
+
+const customRendererSsrCompiled = compileFile(
+  "/src/TresCustomRenderer.vue",
+  new Map(),
+  { sourceMap: false, ssr: true, vapor: true, customRenderer: true },
+  customRendererSource,
+);
+
+assert.match(
+  customRendererSsrCompiled.code,
+  /\$setup\.Primitive/,
+  "Custom renderer SSR builds should keep imported lowercase components bound to setup",
+);
+assert.doesNotMatch(
+  customRendererSsrCompiled.code,
+  /_resolveComponent\("(mesh|group|primitive)"\)/,
+  "Custom renderer SSR builds must not resolve intrinsic tags as Vue components",
+);
+assert.doesNotMatch(
+  customRendererSsrCompiled.code,
+  /<primitive><\/primitive>/,
+  "Custom renderer SSR builds must not stringify imported lowercase components as plain elements",
+);
+
 console.log("✅ vite-plugin-vize compiler tests passed!");

@@ -333,5 +333,31 @@ import { Primitive } from '@tresjs/core'
       expect(result.script?.code).toContain("_ssrRenderComponent($setup.Primitive");
       expect(result.script?.code).not.toContain('_resolveComponent("primitive")');
     });
+
+    it("should keep custom renderer intrinsics as elements while preserving imported lowercase bindings", () => {
+      const sfc = `
+<script setup lang="ts">
+import { Primitive } from '@tresjs/core'
+const visible = true
+</script>
+
+<template>
+  <mesh>
+    <group v-if="visible">
+      <primitive />
+    </group>
+  </mesh>
+</template>
+`;
+      const domResult = wasm!.compileSfc(sfc, { customRenderer: true });
+      expect(domResult.script?.code).toContain("Primitive");
+      expect(domResult.script?.code).not.toContain('_createElementBlock("primitive")');
+      expect(domResult.script?.code).not.toContain('_resolveComponent("group")');
+
+      const ssrResult = wasm!.compileSfc(sfc, { ssr: true, customRenderer: true });
+      expect(ssrResult.script?.code).toContain("$setup.Primitive");
+      expect(ssrResult.script?.code).not.toContain('_resolveComponent("group")');
+      expect(ssrResult.script?.code).not.toContain("<primitive></primitive>");
+    });
   });
 });

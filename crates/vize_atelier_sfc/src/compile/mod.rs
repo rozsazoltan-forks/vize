@@ -105,7 +105,13 @@ pub fn compile_sfc(
         let template_result = if is_vapor {
             profile!(
                 "atelier.sfc.template.vapor",
-                compile_template_block_vapor(template, &scope_id, has_scoped, None)
+                compile_template_block_vapor(
+                    template,
+                    &scope_id,
+                    has_scoped,
+                    None,
+                    options.template.custom_renderer,
+                )
             )
         } else {
             // Enable hoisting for template-only SFCs (hoisted consts go at module level)
@@ -198,7 +204,13 @@ pub fn compile_sfc(
             let template_result = if is_vapor {
                 profile!(
                     "atelier.sfc.template.vapor",
-                    compile_template_block_vapor(template, &scope_id, has_scoped, None)
+                    compile_template_block_vapor(
+                        template,
+                        &scope_id,
+                        has_scoped,
+                        None,
+                        options.template.custom_renderer,
+                    )
                 )
             } else {
                 let mut template_opts = options.template.clone();
@@ -396,7 +408,8 @@ pub fn compile_sfc(
                     template,
                     &scope_id,
                     has_scoped,
-                    Some(&script_bindings)
+                    Some(&script_bindings),
+                    options.template.custom_renderer,
                 )
             ))
         } else {

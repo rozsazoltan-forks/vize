@@ -454,6 +454,9 @@ pub struct TemplateCompileOptions {
     /// Whether TypeScript mode
     pub is_ts: bool,
 
+    /// Whether the template targets a custom renderer instead of the DOM.
+    pub custom_renderer: bool,
+
     /// Compiler options
     pub compiler_options: Option<vize_atelier_dom::DomCompilerOptions>,
 }

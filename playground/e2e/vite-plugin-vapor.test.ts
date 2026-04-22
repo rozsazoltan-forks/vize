@@ -207,6 +207,37 @@ import { Primitive } from "@tresjs/core";
     expect(result.code).not.toContain('_template("<primitive></primitive>", true)');
   });
 
+  it("keeps Tres-style custom renderer intrinsics as elements around imported lowercase components", () => {
+    const result = compileSfc(
+      `<script setup lang="ts">
+import { Primitive } from "@tresjs/core";
+const visible = true;
+</script>
+
+<template>
+  <mesh>
+    <group v-if="visible">
+      <primitive />
+    </group>
+  </mesh>
+</template>`,
+      {
+        filename: "/src/TresCustomRenderer.vue",
+        sourceMap: false,
+        ssr: false,
+        vapor: true,
+        customRenderer: true,
+        isTs: true,
+      },
+    );
+
+    expect(result.code).toContain('const t1 = _template("<mesh></mesh>", true)');
+    expect(result.code).toContain('const t0 = _template("<group></group>", true)');
+    expect(result.code).toContain("const _component_primitive = _ctx.Primitive");
+    expect(result.code).not.toContain('_resolveComponent("mesh")');
+    expect(result.code).not.toContain('_resolveComponent("group")');
+  });
+
   it("keeps Atelier output tabs reactive even when v-if siblings are present", () => {
     const source = readFileSync(
       new URL("../src/features/atelier/AtelierPlayground.vue", import.meta.url),

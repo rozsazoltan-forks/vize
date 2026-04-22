@@ -90,12 +90,13 @@ export function getEnvironmentCache(
 export function getCompileOptionsForRequest(
   state: Pick<VizePluginState, "isProduction" | "mergedOptions">,
   ssr: boolean,
-): { sourceMap: boolean; ssr: boolean; vapor: boolean } {
+): { sourceMap: boolean; ssr: boolean; vapor: boolean; customRenderer: boolean } {
   return {
     sourceMap: state.mergedOptions?.sourceMap ?? !state.isProduction,
     ssr,
     // Vapor runtime is client-oriented today; use VDOM for SSR and Vapor on the client.
     vapor: !ssr && (state.mergedOptions?.vapor ?? false),
+    customRenderer: state.mergedOptions?.customRenderer ?? false,
   };
 }
 
@@ -182,6 +183,7 @@ export async function compileAll(state: VizePluginState): Promise<void> {
   const result = compileBatch(fileContents, state.cache, {
     ssr: false,
     vapor: state.mergedOptions.vapor ?? false,
+    customRenderer: state.mergedOptions.customRenderer ?? false,
   });
 
   for (const file of changedFiles) {

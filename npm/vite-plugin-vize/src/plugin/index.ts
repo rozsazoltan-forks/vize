@@ -175,6 +175,7 @@ export function vize(options: VizeOptions = {}): Plugin[] {
         ssr: options.ssr ?? compilerConfig.ssr ?? false,
         sourceMap: options.sourceMap ?? compilerConfig.sourceMap,
         vapor: options.vapor ?? compilerConfig.vapor ?? false,
+        customRenderer: options.customRenderer ?? compilerConfig.customRenderer ?? false,
         include: options.include ?? viteConfig.include,
         exclude: options.exclude ?? viteConfig.exclude,
         scanPatterns: options.scanPatterns ?? viteConfig.scanPatterns,

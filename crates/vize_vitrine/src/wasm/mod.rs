@@ -36,11 +36,11 @@ use crate::{CompileResult, CompilerOptions};
 use vize_atelier_core::options::CodegenMode;
 use vize_atelier_core::parser::parse;
 use vize_atelier_dom::{compile_template_with_options, DomCompilerOptions};
+use vize_atelier_sfc::compile_script::typescript::transform_typescript_to_js;
 use vize_atelier_sfc::{
     compile_sfc as sfc_compile, parse_sfc, CssCompileOptions, CssTargets, ScriptCompileOptions,
     SfcCompileOptions, SfcDescriptor, SfcParseOptions, StyleCompileOptions, TemplateCompileOptions,
 };
-use vize_atelier_sfc::compile_script::typescript::transform_typescript_to_js;
 use vize_atelier_ssr::compile_ssr as ssr_compile;
 use vize_atelier_vapor::{compile_vapor as vapor_compile, VaporCompilerOptions};
 
@@ -97,6 +97,7 @@ fn parse_compiler_options(options: &JsValue) -> ParsedCompilerOptions {
             filename: get_string("filename"),
             output_mode: get_string("outputMode"),
             is_ts: get_bool("isTs"),
+            custom_renderer: get_bool("customRenderer"),
             script_ext: get_string("scriptExt"),
         },
         binding_metadata,
@@ -575,6 +576,7 @@ impl Compiler {
                 scoped: descriptor.styles.iter().any(|s| s.scoped),
                 ssr: opts.ssr.unwrap_or(false),
                 is_ts: output_is_ts,
+                custom_renderer: opts.custom_renderer.unwrap_or(false),
                 ..Default::default()
             },
             style: StyleCompileOptions {
@@ -600,7 +602,8 @@ impl Compiler {
 
         if source_is_ts && !output_is_ts {
             if let Some(template_result) = template_result.as_mut() {
-                template_result.code = transform_typescript_to_js(&template_result.code).to_string();
+                template_result.code =
+                    transform_typescript_to_js(&template_result.code).to_string();
             }
         }
 
@@ -682,6 +685,7 @@ fn compile_internal(
         let vapor_opts = VaporCompilerOptions {
             prefix_identifiers: opts.prefix_identifiers.unwrap_or(false),
             ssr: opts.ssr.unwrap_or(false),
+            custom_renderer: opts.custom_renderer.unwrap_or(false),
             binding_metadata,
             ..Default::default()
         };
@@ -726,6 +730,7 @@ fn compile_internal(
         ssr: opts.ssr.unwrap_or(false),
         source_map: opts.source_map.unwrap_or(false),
         is_ts: opts.is_ts.unwrap_or(false),
+        custom_renderer: opts.custom_renderer.unwrap_or(false),
         binding_metadata,
         inline: has_binding_metadata,
         ..Default::default()

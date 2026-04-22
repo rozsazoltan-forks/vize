@@ -19,6 +19,13 @@ export interface CompilerConfig {
   vapor?: boolean;
 
   /**
+   * Treat lowercase non-HTML tags as custom renderer elements instead of Vue components.
+   * Useful for TresJS and other custom renderers.
+   * @default false
+   */
+  customRenderer?: boolean;
+
+  /**
    * Enable SSR mode
    * @default false
    */

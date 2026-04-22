@@ -4,6 +4,8 @@ use crate::ast::RuntimeHelper;
 use crate::options::CodegenOptions;
 
 use super::helpers::default_helper_alias;
+use vize_carton::camelize;
+use vize_carton::capitalize;
 use vize_carton::FxHashSet;
 use vize_carton::String;
 use vize_carton::ToCompactString;
@@ -182,12 +184,28 @@ impl CodegenContext {
 
     /// Check if a component is in binding metadata (from script setup)
     pub fn is_component_in_bindings(&self, component: &str) -> bool {
-        if let Some(ref metadata) = self.options.binding_metadata {
-            // Check both the original name and PascalCase version
-            metadata.bindings.contains_key(component)
-        } else {
-            false
+        self.resolve_component_binding_name(component).is_some()
+    }
+
+    /// Resolve the binding name for a component tag.
+    pub fn resolve_component_binding_name(&self, component: &str) -> Option<String> {
+        let metadata = self.options.binding_metadata.as_ref()?;
+
+        if metadata.bindings.contains_key(component) {
+            return Some(component.into());
         }
+
+        let camel = camelize(component);
+        if metadata.bindings.contains_key(camel.as_str()) {
+            return Some(camel);
+        }
+
+        let pascal = capitalize(&camel);
+        if metadata.bindings.contains_key(pascal.as_str()) {
+            return Some(pascal);
+        }
+
+        None
     }
 
     /// Push string to buffer (alias for `push`, compatible with `appends!`/`append!` macros)

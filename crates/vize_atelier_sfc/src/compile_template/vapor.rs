@@ -12,6 +12,7 @@ pub(crate) fn compile_template_block_vapor(
     scope_id: &str,
     has_scoped: bool,
     bindings: Option<&BindingMetadata>,
+    custom_renderer: bool,
 ) -> Result<String, SfcError> {
     let allocator = Bump::new();
 
@@ -20,6 +21,7 @@ pub(crate) fn compile_template_block_vapor(
         prefix_identifiers: false,
         ssr: false,
         binding_metadata: bindings.cloned(),
+        custom_renderer,
         ..Default::default()
     };
 

@@ -1,6 +1,6 @@
 //! Element transformation functions.
 
-use vize_carton::{is_builtin_directive, Box, String, Vec};
+use vize_carton::{capitalize, is_builtin_directive, Box, String, Vec};
 
 use crate::ast::*;
 use crate::transforms::transform_expression::process_inline_handler;
@@ -16,6 +16,8 @@ pub fn transform_element<'a>(
     ctx: &mut TransformContext<'a>,
     el: &mut Box<'a, ElementNode<'a>>,
 ) -> Option<std::vec::Vec<ExitFn<'a>>> {
+    maybe_promote_element_to_component(ctx, el);
+
     // Process props and directives
     process_element_props(ctx, el);
 
@@ -54,6 +56,45 @@ pub fn transform_element<'a>(
     }
 
     None
+}
+
+fn maybe_promote_element_to_component(
+    ctx: &TransformContext<'_>,
+    el: &mut Box<'_, ElementNode<'_>>,
+) {
+    if el.tag_type != ElementType::Element {
+        return;
+    }
+
+    if is_dynamic_component_tag(&el.tag)
+        || has_is_attribute(el)
+        || is_registered_component(ctx, &el.tag)
+        || el.tag.chars().next().is_some_and(|c| c.is_uppercase())
+        || el.tag.contains('-')
+    {
+        el.tag_type = ElementType::Component;
+    }
+}
+
+fn has_is_attribute(el: &ElementNode<'_>) -> bool {
+    el.props.iter().any(|prop| match prop {
+        PropNode::Directive(dir) => dir.name == "is",
+        PropNode::Attribute(attr) => attr.name == "is",
+    })
+}
+
+fn is_registered_component(ctx: &TransformContext<'_>, tag: &str) -> bool {
+    if ctx.is_component_registered(tag) {
+        return true;
+    }
+
+    let camel = vize_carton::camelize(tag);
+    if ctx.is_component_registered(camel.as_str()) {
+        return true;
+    }
+
+    let pascal = capitalize(&camel);
+    ctx.is_component_registered(pascal.as_str())
 }
 
 /// Process directive expressions with _ctx prefix

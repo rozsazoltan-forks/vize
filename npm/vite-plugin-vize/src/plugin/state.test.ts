@@ -57,6 +57,7 @@ assert.deepEqual(
     sourceMap: true,
     ssr: false,
     vapor: true,
+    customRenderer: false,
   },
   "Client requests should keep Vapor enabled when the plugin is configured for it",
 );
@@ -73,6 +74,7 @@ assert.deepEqual(
     sourceMap: false,
     ssr: true,
     vapor: false,
+    customRenderer: false,
   },
   "SSR requests should continue to use the VDOM compiler while client builds hydrate with Vapor",
 );

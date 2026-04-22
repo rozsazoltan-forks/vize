@@ -3,6 +3,7 @@ export interface SfcCompileOptionsNapi {
   sourceMap?: boolean;
   ssr?: boolean;
   vapor?: boolean;
+  customRenderer?: boolean;
   scopeId?: string;
 }
 
@@ -23,6 +24,7 @@ export interface VizeUnpluginOptions {
   ssr?: boolean;
   sourceMap?: boolean;
   vapor?: boolean;
+  customRenderer?: boolean;
   root?: string;
   debug?: boolean;
 }
@@ -60,6 +62,7 @@ export interface NormalizedVizeUnpluginOptions {
   ssr: boolean;
   sourceMap: boolean;
   vapor: boolean;
+  customRenderer: boolean;
   root: string;
   debug: boolean;
 }
