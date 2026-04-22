@@ -339,6 +339,27 @@ import DashTest from './dash-test.vue'
       expect(ssrResult.script?.code).not.toContain('_resolveComponent("dash-test")');
     });
 
+    it("should resolve dotted component tags through setup member bindings in both DOM and SSR output", () => {
+      const sfc = `
+<script setup lang="ts">
+import { Form, Input } from 'ant-design-vue'
+</script>
+
+<template>
+  <Form.Item label="Teacher">
+    <Input />
+      </Form.Item>
+</template>
+`;
+      const domResult = wasm!.compileSfc(sfc, {});
+      expect(domResult.script?.code).toMatch(/_create(?:Block|VNode)\(Form\.Item/);
+      expect(domResult.script?.code).not.toContain('_resolveComponent("Form.Item")');
+
+      const ssrResult = wasm!.compileSfc(sfc, { ssr: true });
+      expect(ssrResult.script?.code).toContain("$setup.Form.Item");
+      expect(ssrResult.script?.code).not.toContain('_resolveComponent("Form.Item")');
+    });
+
     it("should resolve lowercase imported components from setup bindings in SSR mode", () => {
       const sfc = `
 <script setup lang="ts">

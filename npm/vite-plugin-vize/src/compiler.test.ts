@@ -91,6 +91,70 @@ assert.doesNotMatch(
   "Batch SSR compilation should also drop the Vapor marker when falling back to VDOM",
 );
 
+const antDesignSource = `<script setup lang="ts">
+import { Form, Input } from "ant-design-vue";
+</script>
+
+<template>
+  <Form.Item label="Teacher">
+    <Input />
+  </Form.Item>
+</template>`;
+
+const antDesignDomCompiled = compileFile(
+  "/src/AntDesignTeacher.vue",
+  new Map(),
+  { sourceMap: false, ssr: false, vapor: false },
+  antDesignSource,
+);
+
+assert.match(
+  antDesignDomCompiled.code,
+  /_create(?:Block|VNode)\(Form\.Item/,
+  "DOM builds should compile dotted component tags to direct setup member expressions",
+);
+assert.doesNotMatch(
+  antDesignDomCompiled.code,
+  /_resolveComponent\("Form\.Item"\)/,
+  "DOM builds must not fall back to runtime resolution for dotted imported components",
+);
+
+const antDesignSsrCompiled = compileFile(
+  "/src/AntDesignTeacher.vue",
+  new Map(),
+  { sourceMap: false, ssr: true, vapor: false },
+  antDesignSource,
+);
+
+assert.match(
+  antDesignSsrCompiled.code,
+  /\$setup\.Form\.Item/,
+  "SSR builds should preserve setup member expressions for dotted imported components",
+);
+assert.doesNotMatch(
+  antDesignSsrCompiled.code,
+  /_resolveComponent\("Form\.Item"\)/,
+  "SSR builds must not fall back to runtime resolution for dotted imported components",
+);
+
+const antDesignVaporCompiled = compileFile(
+  "/src/AntDesignTeacher.vue",
+  new Map(),
+  { sourceMap: false, ssr: false, vapor: true },
+  antDesignSource,
+);
+
+assert.match(
+  antDesignVaporCompiled.code,
+  /const _component_Form_Item = _ctx\.Form\.Item/,
+  "Vapor builds should resolve dotted imported components through ctx member expressions",
+);
+assert.doesNotMatch(
+  antDesignVaporCompiled.code,
+  /_resolveComponent\("Form\.Item"\)/,
+  "Vapor builds must not leave dotted imported components to runtime resolution",
+);
+
 const customRendererSource = `<script setup lang="ts">
 import { Primitive } from "@tresjs/core";
 const visible = true;

@@ -13,6 +13,19 @@ use vize_carton::{cstr, FxHashMap, String, ToCompactString};
 
 use super::{context::GenerateContext, generate_block, setup::is_svg_tag};
 
+fn component_resolution_var(tag: &str) -> String {
+    let mut ident = String::with_capacity(tag.len() + 11);
+    ident.push_str("_component_");
+    for ch in tag.chars() {
+        if ch.is_ascii_alphanumeric() || ch == '_' {
+            ident.push(ch);
+        } else {
+            ident.push('_');
+        }
+    }
+    ident
+}
+
 fn emit_component_resolution(ctx: &mut GenerateContext, component_var: &str, tag: &str) {
     if let Some(binding_expr) = ctx.resolve_component_binding_expr(tag) {
         ctx.push_line(&cstr!("const {} = {}", component_var, binding_expr));
@@ -913,7 +926,7 @@ fn generate_create_component(
                     {
                         emit_component_resolution(
                             ctx,
-                            &cstr!("_component_{}", inner_comp.tag),
+                            component_resolution_var(inner_comp.tag.as_str()).as_str(),
                             inner_comp.tag.as_str(),
                         );
                         ctx.mark_component_resolved(inner_comp.tag.as_str());
@@ -947,7 +960,7 @@ fn generate_create_component(
         }
         ComponentKind::Suspense => {
             ctx.use_helper("createComponentWithFallback");
-            let comp_var: String = cstr!("_component_{}", tag);
+            let comp_var = component_resolution_var(tag.as_str());
             if !ctx.is_component_resolved(tag.as_str()) {
                 emit_component_resolution(ctx, comp_var.as_str(), tag.as_str());
                 ctx.mark_component_resolved(tag.as_str());
@@ -956,7 +969,7 @@ fn generate_create_component(
         }
         ComponentKind::Regular => {
             ctx.use_helper("createComponentWithFallback");
-            let comp_var: String = cstr!("_component_{}", tag);
+            let comp_var = component_resolution_var(tag.as_str());
             if !ctx.is_component_resolved(tag.as_str()) {
                 emit_component_resolution(ctx, comp_var.as_str(), tag.as_str());
                 ctx.mark_component_resolved(tag.as_str());

@@ -307,21 +307,30 @@ impl<'a> GenerateContext<'a> {
     pub(crate) fn resolve_component_binding_expr(&self, component: &str) -> Option<String> {
         let bindings = self.binding_metadata?;
 
-        if bindings.bindings.contains_key(component) {
-            return Some(cstr!("_ctx.{}", component));
+        let resolve_base = |name: &str| {
+            if bindings.bindings.contains_key(name) {
+                return Some(name.to_compact_string());
+            }
+
+            let camel = camelize(name);
+            if bindings.bindings.contains_key(camel.as_str()) {
+                return Some(camel);
+            }
+
+            let pascal = capitalize(&camel);
+            if bindings.bindings.contains_key(pascal.as_str()) {
+                return Some(pascal);
+            }
+
+            None
+        };
+
+        if let Some((base, suffix)) = component.split_once('.') {
+            let resolved_base = resolve_base(base)?;
+            return Some(cstr!("_ctx.{}.{}", resolved_base, suffix));
         }
 
-        let camel = camelize(component);
-        if bindings.bindings.contains_key(camel.as_str()) {
-            return Some(cstr!("_ctx.{}", camel));
-        }
-
-        let pascal = capitalize(&camel);
-        if bindings.bindings.contains_key(pascal.as_str()) {
-            return Some(cstr!("_ctx.{}", pascal));
-        }
-
-        None
+        resolve_base(component).map(|binding| cstr!("_ctx.{}", binding))
     }
 
     pub(crate) fn mark_component_resolved(&mut self, component: &str) {

@@ -191,21 +191,34 @@ impl CodegenContext {
     pub fn resolve_component_binding_name(&self, component: &str) -> Option<String> {
         let metadata = self.options.binding_metadata.as_ref()?;
 
-        if metadata.bindings.contains_key(component) {
-            return Some(component.into());
+        let resolve_base = |name: &str| {
+            if metadata.bindings.contains_key(name) {
+                return Some(name.to_compact_string());
+            }
+
+            let camel = camelize(name);
+            if metadata.bindings.contains_key(camel.as_str()) {
+                return Some(camel);
+            }
+
+            let pascal = capitalize(&camel);
+            if metadata.bindings.contains_key(pascal.as_str()) {
+                return Some(pascal);
+            }
+
+            None
+        };
+
+        if let Some((base, suffix)) = component.split_once('.') {
+            let resolved_base = resolve_base(base)?;
+            let mut resolved = String::with_capacity(resolved_base.len() + suffix.len() + 1);
+            resolved.push_str(resolved_base.as_str());
+            resolved.push('.');
+            resolved.push_str(suffix);
+            return Some(resolved);
         }
 
-        let camel = camelize(component);
-        if metadata.bindings.contains_key(camel.as_str()) {
-            return Some(camel);
-        }
-
-        let pascal = capitalize(&camel);
-        if metadata.bindings.contains_key(pascal.as_str()) {
-            return Some(pascal);
-        }
-
-        None
+        resolve_base(component)
     }
 
     /// Push string to buffer (alias for `push`, compatible with `appends!`/`append!` macros)
