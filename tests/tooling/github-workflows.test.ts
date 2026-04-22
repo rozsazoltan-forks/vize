@@ -30,6 +30,40 @@ test("deploy-docs deploy job installs MoonBit before running script-mode helpers
   assert.ok(setupIndex < moonRunIndex);
 });
 
+test("WASM build jobs install MoonBit before invoking moon run", () => {
+  const cases = [
+    {
+      workflowName: "check.yml",
+      jobName: "playground-test",
+      moonRun:
+        "run: moon run --target native - -- playground/src/wasm < tools/moon/scripts/github/build_vitrine_wasm.mbtx",
+    },
+    {
+      workflowName: "deploy-docs.yml",
+      jobName: "build-playground",
+      moonRun:
+        "run: moon run --target native - -- npm/vize-wasm playground/src/wasm < tools/moon/scripts/github/build_vitrine_wasm.mbtx",
+    },
+  ] as const;
+
+  for (const { workflowName, jobName, moonRun } of cases) {
+    const workflow = readRepoFile(".github", "workflows", workflowName);
+    const jobStart = workflow.indexOf(`\n  ${jobName}:\n`);
+    const remaining = workflow.slice(jobStart + 1);
+    const nextJobMatch = /\n  [a-z0-9-]+:\n/g.exec(remaining.slice(1));
+    const jobBody = remaining.slice(0, nextJobMatch ? nextJobMatch.index + 1 : undefined);
+    const setupIndex = jobBody.indexOf("- uses: ./.github/actions/setup-moonbit");
+    const moonRunIndex = jobBody.indexOf(moonRun);
+
+    assert.notEqual(setupIndex, -1, `${workflowName}:${jobName} is missing setup-moonbit`);
+    assert.notEqual(moonRunIndex, -1, `${workflowName}:${jobName} is missing the wasm build step`);
+    assert.ok(
+      setupIndex < moonRunIndex,
+      `${workflowName}:${jobName} runs moon before setup-moonbit`,
+    );
+  }
+});
+
 test("setup-moonbit defines explicit Windows and Unix execution paths", () => {
   const action = readRepoFile(".github", "actions", "setup-moonbit", "action.yml");
 

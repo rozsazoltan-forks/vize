@@ -119,6 +119,8 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
+      - uses: ./.github/actions/setup-moonbit
+
       - name: Cache Rust
         uses: Swatinem/rust-cache@v2
         with:
@@ -148,7 +150,6 @@ jobs:
           node-version-file: ".node-version"
           cache: true
           run-install: false
-      - uses: ./.github/actions/setup-moonbit
 
       - name: Install JS dependencies
         run: moon run --target native - -- --filter './playground...' --filter './npm/vite-plugin-vize...' --filter './npm/vize...' --filter './npm/vize-native...' < tools/moon/scripts/github/vp_install.mbtx
