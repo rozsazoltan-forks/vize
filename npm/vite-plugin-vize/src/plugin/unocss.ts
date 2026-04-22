@@ -1,8 +1,7 @@
 import fs from "node:fs";
 
 import {
-  isVizeVirtualVueModuleId,
-  normalizeVizeVirtualVueModuleId,
+  VIZE_SSR_PREFIX,
 } from "../virtual.ts";
 
 type UnoCssLikePlugin = {
@@ -12,6 +11,29 @@ type UnoCssLikePlugin = {
 };
 
 const bridgePatched = Symbol("vize.unocssBridgePatched");
+
+const plainSsrPrefix = VIZE_SSR_PREFIX.slice(1);
+
+function stripBridgePrefix(id: string): string {
+  if (id.startsWith(VIZE_SSR_PREFIX)) {
+    return id.slice(VIZE_SSR_PREFIX.length);
+  }
+  if (id.startsWith(plainSsrPrefix)) {
+    return id.slice(plainSsrPrefix.length);
+  }
+  if (id.startsWith("\0")) {
+    return id.slice(1);
+  }
+  return id;
+}
+
+function isUnoCssBridgeModuleId(id: string): boolean {
+  return /\.vue\.ts(?:\?|$)/.test(stripBridgePrefix(id));
+}
+
+function normalizeUnoCssBridgeModuleId(id: string): string {
+  return stripBridgePrefix(id).replace(/\.ts(?=\?|$)/, "");
+}
 
 export function patchUnoCssBridge(plugins: UnoCssLikePlugin[]): void {
   for (const plugin of plugins) {
@@ -32,11 +54,11 @@ export function patchUnoCssBridge(plugins: UnoCssLikePlugin[]): void {
       id: string,
       ...args: unknown[]
     ): unknown {
-      if (!isVizeVirtualVueModuleId(id)) {
+      if (!isUnoCssBridgeModuleId(id)) {
         return originalTransform.call(this, code, id, ...args);
       }
 
-      const normalizedId = normalizeVizeVirtualVueModuleId(id);
+      const normalizedId = normalizeUnoCssBridgeModuleId(id);
       let effectiveCode = code;
 
       if (isExtractionOnly) {

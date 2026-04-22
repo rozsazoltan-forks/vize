@@ -8,8 +8,10 @@ import { patchUnoCssBridge } from "./unocss.ts";
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "vize-unocss-"));
 const sourcePath = path.join(tempRoot, "App.vue");
 const virtualId = `\0${sourcePath}.ts`;
+const plainBuildId = `${sourcePath}.ts`;
 const queriedClientVirtualId = `${virtualId}?macro=true`;
 const queriedSsrVirtualId = `\0vize-ssr:${sourcePath}.ts?vue&type=template`;
+const queriedPlainSsrBuildId = `vize-ssr:${sourcePath}.ts?vue&type=template`;
 
 fs.writeFileSync(
   sourcePath,
@@ -23,7 +25,7 @@ fs.writeFileSync(
 
   const plugins = [
     {
-      name: "unocss:global:build",
+      name: "unocss:global:build:scan",
       transform(code: string, id: string) {
         receivedCode = code;
         receivedId = id;
@@ -68,7 +70,7 @@ fs.writeFileSync(
 
   const plugins = [
     {
-      name: "unocss:global:build",
+      name: "unocss:global:build:scan",
       transform() {
         callCount += 1;
         return null;
@@ -89,7 +91,7 @@ fs.writeFileSync(
 
   const plugins = [
     {
-      name: "unocss:global:build",
+      name: "unocss:global:dev:scan",
       transform(code: string, id: string) {
         receivedCode = code;
         receivedId = id;
@@ -112,7 +114,7 @@ fs.writeFileSync(
 
   const plugins = [
     {
-      name: "unocss:global:build",
+      name: "unocss:global:build:scan",
       transform(code: string, id: string) {
         receivedCode = code;
         receivedId = id;
@@ -123,6 +125,83 @@ fs.writeFileSync(
 
   patchUnoCssBridge(plugins);
   plugins[0]!.transform!("export default {}", queriedSsrVirtualId);
+
+  assert.equal(receivedId, `${sourcePath}?vue&type=template`);
+  assert.match(receivedCode, /export default \{\}/);
+  assert.match(receivedCode, /text="sm slate-700"/);
+}
+
+{
+  let receivedCode = "";
+  let receivedId = "";
+
+  const plugins = [
+    {
+      name: "unocss:global:build:scan",
+      transform(code: string, id: string) {
+        receivedCode = code;
+        receivedId = id;
+        return null;
+      },
+    },
+  ];
+
+  patchUnoCssBridge(plugins);
+  plugins[0]!.transform!("export default {}", plainBuildId);
+
+  assert.equal(receivedId, sourcePath);
+  assert.match(receivedCode, /export default \{\}/);
+  assert.match(receivedCode, /flex="~ col gap-2"/);
+}
+
+{
+  const scannedIds: string[] = [];
+  const extractedAttributes: string[] = [];
+
+  const plugins = [
+    {
+      name: "unocss:global:build:scan",
+      transform(code: string, id: string) {
+        if (!/\.(vue|svelte|[jt]sx|mdx?|astro|html)($|\?)/.test(id)) {
+          return null;
+        }
+
+        scannedIds.push(id);
+        extractedAttributes.push(
+          ...Array.from(
+            code.matchAll(/\b(?:flex|text)="([^"]+)"/g),
+            ([, value]) => value!,
+          ),
+        );
+        return null;
+      },
+    },
+  ];
+
+  patchUnoCssBridge(plugins);
+  plugins[0]!.transform!("export default {}", plainBuildId);
+
+  assert.deepEqual(scannedIds, [sourcePath]);
+  assert.deepEqual(extractedAttributes, ["~ col gap-2", "sm slate-700"]);
+}
+
+{
+  let receivedCode = "";
+  let receivedId = "";
+
+  const plugins = [
+    {
+      name: "unocss:global:build:scan",
+      transform(code: string, id: string) {
+        receivedCode = code;
+        receivedId = id;
+        return null;
+      },
+    },
+  ];
+
+  patchUnoCssBridge(plugins);
+  plugins[0]!.transform!("export default {}", queriedPlainSsrBuildId);
 
   assert.equal(receivedId, `${sourcePath}?vue&type=template`);
   assert.match(receivedCode, /export default \{\}/);
