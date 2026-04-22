@@ -85,8 +85,10 @@ test("github/collect_native_artifacts copies .node files and skips node_modules"
   try {
     fs.mkdirSync(path.join(sourceDir, "nested"), { recursive: true });
     fs.mkdirSync(path.join(sourceDir, "node_modules", "ignored"), { recursive: true });
+    fs.mkdirSync(outputDir, { recursive: true });
     writeFileSync(path.join(sourceDir, "nested", "first.node"), "first");
     writeFileSync(path.join(sourceDir, "node_modules", "ignored", "skip.node"), "skip");
+    writeFileSync(path.join(outputDir, "keep.txt"), "keep");
 
     const result = runMoonScript(
       "github/collect_native_artifacts",
@@ -99,6 +101,7 @@ test("github/collect_native_artifacts copies .node files and skips node_modules"
     assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`.trim());
     assert.equal(fs.readFileSync(path.join(outputDir, "first.node"), "utf8"), "first");
     assert.equal(fs.existsSync(path.join(outputDir, "skip.node")), false);
+    assert.equal(fs.readFileSync(path.join(outputDir, "keep.txt"), "utf8"), "keep");
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
