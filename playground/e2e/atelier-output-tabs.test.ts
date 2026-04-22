@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { mount } from "@vue/test-utils";
 import { computed, defineComponent, h } from "vue";
-import type { CompilerOptions, SfcCompileResult, WasmModule } from "../src/wasm/index";
+import type {
+  CompilerOptions,
+  SfcCompileResult,
+  WasmModule,
+} from "../src/wasm/index";
 
 let currentCompiler: WasmModule | null = null;
 
@@ -25,7 +29,10 @@ vi.mock("../src/shared/MonacoEditor.vue", () => ({
           class: "monaco-editor-stub",
           value: props.modelValue,
           onInput: (event: Event) => {
-            emit("update:modelValue", (event.target as HTMLTextAreaElement).value);
+            emit(
+              "update:modelValue",
+              (event.target as HTMLTextAreaElement).value,
+            );
           },
         });
     },
@@ -44,6 +51,14 @@ vi.mock("../src/shared/CodeHighlight.vue", () => ({
       return () => h("pre", { class: "code-highlight-stub" }, props.code);
     },
   }),
+}));
+
+vi.mock("../src/features/atelier/formatters", () => ({
+  formatCode: vi.fn(
+    async (code: string, parser: string) => `[${parser}] ${code}`,
+  ),
+  formatCss: vi.fn(async (code: string) => code),
+  transpileToJs: vi.fn(async (code: string) => `js:${code}`),
 }));
 
 import AtelierPlayground from "../src/features/atelier/AtelierPlayground.vue";
@@ -96,14 +111,22 @@ describe("Atelier output tabs", () => {
   it("switches between VDOM, SSR, and Vapor outputs without shifting the code view toggle", async () => {
     const compileSfc = vi.fn((_: string, options: CompilerOptions) => {
       if (options.outputMode === "vapor") {
-        return createSfcResult("const mode = 'dom-script'", "const mode = 'vapor'", [
-          'const t0 = _template("<div></div>")',
-        ]);
+        return createSfcResult(
+          "const mode = 'dom-script'",
+          "const mode = 'vapor'",
+          ['const t0 = _template("<div></div>")'],
+        );
       }
       if (options.ssr) {
-        return createSfcResult("const mode = 'dom-script'", "const mode = 'ssr'");
+        return createSfcResult(
+          "const mode = 'dom-script'",
+          "const mode = 'ssr'",
+        );
       }
-      return createSfcResult("const mode = 'dom'", "const mode = 'dom-template'");
+      return createSfcResult(
+        "const mode = 'dom'",
+        "const mode = 'dom-template'",
+      );
     });
 
     currentCompiler = {
