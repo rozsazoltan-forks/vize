@@ -38,6 +38,7 @@ describe("vite-plugin vapor options", () => {
       sourceMap: false,
       ssr: true,
       vapor: true,
+      customRenderer: false,
       scopeId: undefined,
     });
   });
@@ -46,6 +47,7 @@ describe("vite-plugin vapor options", () => {
     expect(buildCompileBatchOptions({ ssr: false, vapor: true })).toEqual({
       ssr: false,
       vapor: true,
+      customRenderer: false,
     });
   });
 
@@ -75,6 +77,32 @@ const count = ref(1);
     expect(result.code).toContain("const __vaporRender = render");
     expect(result.code).toContain("return __vaporRender(__ctx, __props, __emit, __attrs, __slots)");
     expect(result.code).toContain("return n0");
+  });
+
+  it("warns and falls back to standard SSR when Vapor is requested for SFCs", () => {
+    const result = compileSfc(
+      `<script setup lang="ts">
+const count = 1;
+</script>
+
+<template>
+  <div>{{ count }}</div>
+</template>`,
+      {
+        filename: "/src/SsrFallback.vue",
+        sourceMap: false,
+        ssr: true,
+        vapor: true,
+        isTs: true,
+      },
+    );
+
+    expect(result.code).toContain("ssrRender");
+    expect(result.code).not.toContain("__vapor");
+    expect(result.errors).toEqual([]);
+    expect(result.warnings).toEqual([
+      "SFC Vapor SSR is not supported yet; falling back to standard SSR output.",
+    ]);
   });
 
   it("compiles the playground app itself to Vapor output", () => {

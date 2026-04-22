@@ -52,6 +52,11 @@ assert.match(
   /ssrRender/,
   "SSR builds should still emit server-renderer code paths when Vapor is enabled for the client",
 );
+assert.doesNotMatch(
+  ssrCompiled.code,
+  /__vapor/,
+  "SSR builds should not keep the Vapor component marker when the compiler falls back to VDOM",
+);
 
 const batchResult = compileBatch(
   [
@@ -79,6 +84,11 @@ assert.match(
   batchResult.results[0]?.code ?? "",
   /\$setup\.Primitive/,
   "Batch SSR compilation should match single-file binding resolution for lowercase imported components",
+);
+assert.doesNotMatch(
+  batchResult.results[0]?.code ?? "",
+  /__vapor/,
+  "Batch SSR compilation should also drop the Vapor marker when falling back to VDOM",
 );
 
 const customRendererSource = `<script setup lang="ts">
@@ -133,6 +143,11 @@ assert.doesNotMatch(
   customRendererSsrCompiled.code,
   /<primitive><\/primitive>/,
   "Custom renderer SSR builds must not stringify imported lowercase components as plain elements",
+);
+assert.doesNotMatch(
+  customRendererSsrCompiled.code,
+  /__vapor/,
+  "Custom renderer SSR builds should not keep the Vapor marker after the SSR fallback",
 );
 
 console.log("✅ vite-plugin-vize compiler tests passed!");

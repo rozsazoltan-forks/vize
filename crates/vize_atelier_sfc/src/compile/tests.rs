@@ -240,6 +240,43 @@ const currentCode = ref('dom');
 }
 
 #[test]
+fn test_ssr_vapor_request_falls_back_with_warning() {
+    let source = r#"<script setup>
+const count = 1
+</script>
+
+<template>
+  <div>{{ count }}</div>
+</template>"#;
+
+    let descriptor = parse_sfc(source, SfcParseOptions::default()).expect("Failed to parse SFC");
+    let result = compile_sfc(
+        &descriptor,
+        SfcCompileOptions {
+            template: TemplateCompileOptions {
+                ssr: true,
+                ..Default::default()
+            },
+            vapor: true,
+            ..Default::default()
+        },
+    )
+    .expect("Failed to compile SFC");
+
+    assert!(result.code.contains("ssrRender"));
+    assert!(!result.code.contains("__vapor"));
+    assert_eq!(result.warnings.len(), 1);
+    assert_eq!(
+        result.warnings[0].code.as_deref(),
+        Some("VAPOR_SSR_FALLBACK")
+    );
+    assert_eq!(
+        result.warnings[0].message.as_str(),
+        "SFC Vapor SSR is not supported yet; falling back to standard SSR output."
+    );
+}
+
+#[test]
 fn test_v_if_branch_component_dynamic_prop_keeps_props_patch_flag() {
     let source = r#"<script setup lang="ts">
 import { ref } from 'vue';

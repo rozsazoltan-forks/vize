@@ -29,6 +29,18 @@ use self::styles::compile_styles;
 pub use crate::compile_script::ScriptCompileResult;
 use vize_carton::{profile, String, ToCompactString};
 
+fn create_vapor_ssr_fallback_warning(descriptor: &SfcDescriptor) -> SfcError {
+    SfcError {
+        message: "SFC Vapor SSR is not supported yet; falling back to standard SSR output."
+            .to_compact_string(),
+        code: Some("VAPOR_SSR_FALLBACK".to_compact_string()),
+        loc: descriptor
+            .template
+            .as_ref()
+            .map(|template| template.loc.clone()),
+    }
+}
+
 /// Compile an SFC descriptor into JavaScript and CSS
 pub fn compile_sfc(
     descriptor: &SfcDescriptor,
@@ -57,20 +69,24 @@ pub fn compile_sfc(
         String::default()
     };
 
+    let vapor_requested = options.vapor
+        || descriptor
+            .script_setup
+            .as_ref()
+            .map(|s| s.attrs.contains_key("vapor"))
+            .unwrap_or(false)
+        || descriptor
+            .script
+            .as_ref()
+            .map(|s| s.attrs.contains_key("vapor"))
+            .unwrap_or(false);
+
     // Vapor components currently render on the client. For SSR we fall back to
     // the standard VDOM compiler and let the client hydrate with Vapor output.
-    let is_vapor = !options.template.ssr
-        && (options.vapor
-            || descriptor
-                .script_setup
-                .as_ref()
-                .map(|s| s.attrs.contains_key("vapor"))
-                .unwrap_or(false)
-            || descriptor
-                .script
-                .as_ref()
-                .map(|s| s.attrs.contains_key("vapor"))
-                .unwrap_or(false));
+    if descriptor.template.is_some() && options.template.ssr && vapor_requested {
+        warnings.push(create_vapor_ssr_fallback_warning(descriptor));
+    }
+    let is_vapor = !options.template.ssr && vapor_requested;
 
     // source_has_ts: whether source uses TypeScript (detected from lang="ts")
     // Used for: parsing source as TS, preserving TS declarations, resolving type references
