@@ -8,7 +8,7 @@ pub(crate) mod helpers;
 
 use crate::options::SsrCompilerOptions;
 use vize_atelier_core::ast::{RootNode, RuntimeHelper, TemplateChildNode};
-use vize_carton::{cstr, Bump, FxHashSet, String, ToCompactString};
+use vize_carton::{camelize, capitalize, cstr, Bump, FxHashSet, String, ToCompactString};
 
 /// SSR codegen result
 #[derive(Debug, Default)]
@@ -169,11 +169,24 @@ impl<'a> SsrCodegenContext<'a> {
         self.core_helpers.insert(helper);
     }
 
-    pub(crate) fn is_component_in_bindings(&self, component: &str) -> bool {
-        self.options
-            .binding_metadata
-            .as_ref()
-            .is_some_and(|metadata| metadata.bindings.contains_key(component))
+    pub(crate) fn resolve_component_binding_name(&self, component: &str) -> Option<String> {
+        let metadata = self.options.binding_metadata.as_ref()?;
+
+        if metadata.bindings.contains_key(component) {
+            return Some(component.to_compact_string());
+        }
+
+        let camel = camelize(component);
+        if metadata.bindings.contains_key(camel.as_str()) {
+            return Some(camel);
+        }
+
+        let pascal = capitalize(camel.as_str());
+        if metadata.bindings.contains_key(pascal.as_str()) {
+            return Some(pascal);
+        }
+
+        None
     }
 
     /// Push raw code to the buffer

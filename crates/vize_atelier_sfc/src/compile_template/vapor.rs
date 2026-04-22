@@ -19,6 +19,7 @@ pub(crate) fn compile_template_block_vapor(
     let vapor_opts = VaporCompilerOptions {
         prefix_identifiers: false,
         ssr: false,
+        binding_metadata: bindings.cloned(),
         ..Default::default()
     };
 

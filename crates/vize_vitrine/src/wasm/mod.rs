@@ -669,6 +669,7 @@ fn compile_internal(
         let vapor_opts = VaporCompilerOptions {
             prefix_identifiers: opts.prefix_identifiers.unwrap_or(false),
             ssr: opts.ssr.unwrap_or(false),
+            binding_metadata,
             ..Default::default()
         };
         let result = vapor_compile(&allocator, template, vapor_opts);

@@ -52,6 +52,7 @@ use vize_atelier_core::{
     options::{ParserOptions, TransformOptions},
     parser::parse_with_options,
     transform::transform,
+    Namespace,
 };
 use vize_carton::{Bump, String};
 
@@ -86,7 +87,13 @@ pub fn compile_vapor<'a>(
     options: VaporCompilerOptions,
 ) -> VaporCompileResult {
     // Parse
-    let parser_opts = ParserOptions::default();
+    let parser_opts = ParserOptions {
+        is_void_tag: vize_carton::is_void_tag,
+        is_native_tag: Some(vize_carton::is_native_tag),
+        is_pre_tag: |tag| tag == "pre",
+        get_namespace,
+        ..ParserOptions::default()
+    };
     let (mut root, errors) = parse_with_options(allocator, source, parser_opts);
 
     if !errors.is_empty() {
@@ -119,6 +126,29 @@ pub fn compile_vapor<'a>(
         templates: result.templates,
         error_messages: Vec::new(),
     }
+}
+
+fn get_namespace(tag: &str, parent: Option<&str>) -> Namespace {
+    if vize_carton::is_svg_tag(tag) {
+        return Namespace::Svg;
+    }
+    if vize_carton::is_math_ml_tag(tag) {
+        return Namespace::MathMl;
+    }
+
+    if let Some(parent_tag) = parent {
+        if vize_carton::is_svg_tag(parent_tag) && tag != "foreignObject" {
+            return Namespace::Svg;
+        }
+        if vize_carton::is_math_ml_tag(parent_tag)
+            && tag != "annotation-xml"
+            && tag != "foreignObject"
+        {
+            return Namespace::MathMl;
+        }
+    }
+
+    Namespace::Html
 }
 
 #[cfg(test)]

@@ -25,6 +25,10 @@ export function isVizeVirtual(id: string): boolean {
   return id.startsWith("\0") && pathPart.endsWith(".vue.ts");
 }
 
+export function isVizeVirtualVueModuleId(id: string): boolean {
+  return id.startsWith("\0") && /\.vue\.ts(?:\?|$)/.test(id);
+}
+
 export function isVizeSsrVirtual(id: string): boolean {
   return id.startsWith(VIZE_SSR_PREFIX);
 }
@@ -38,6 +42,11 @@ export function toVirtualId(realPath: string, ssr = false): string {
 export function fromVirtualId(virtualId: string): string {
   const prefix = isVizeSsrVirtual(virtualId) ? VIZE_SSR_PREFIX.length : 1;
   return virtualId.slice(prefix, -3);
+}
+
+export function normalizeVizeVirtualVueModuleId(id: string): string {
+  const prefix = isVizeSsrVirtual(id) ? VIZE_SSR_PREFIX.length : 1;
+  return id.slice(prefix).replace(/\.ts(?=\?|$)/, "");
 }
 
 export function escapeRegExp(value: string): string {

@@ -194,6 +194,7 @@ export function loadHook(
           generateOutput(compiled, {
             isProduction: state.isProduction,
             isDev: state.server !== null && !isSsr,
+            ssr: isSsr,
             hmrUpdateType: pendingHmrUpdateType,
             extractCss: state.extractCss,
             filePath: realPath,

@@ -188,4 +188,96 @@ assert.match(
   "SSR loads should read from the SSR compilation cache",
 );
 
+const cssPath = "/src/SsrStyles.vue";
+const cssState: VizePluginState = {
+  ...hmrState,
+  cache: new Map([
+    [
+      cssPath,
+      {
+        code: `export default { __name: "ClientCss" }`,
+        css: ".demo { color: tomato; }",
+        scopeId: "clientcss",
+        hasScoped: false,
+        styles: [],
+      },
+    ],
+  ]),
+  ssrCache: new Map([
+    [
+      cssPath,
+      {
+        code: `export default { __name: "ServerCss" }`,
+        css: ".demo { color: tomato; }",
+        scopeId: "servercss",
+        hasScoped: false,
+        styles: [],
+      },
+    ],
+  ]),
+};
+
+const clientCssLoad = loadHook(cssState, toVirtualId(cssPath), { ssr: false });
+assert.ok(clientCssLoad && typeof clientCssLoad === "object", "Client CSS load should succeed");
+assert.match(
+  clientCssLoad.code,
+  /__vize_css__/,
+  "Client loads should keep inline CSS injection in development",
+);
+
+const ssrCssLoad = loadHook(cssState, toVirtualId(cssPath, true), { ssr: true });
+assert.ok(ssrCssLoad && typeof ssrCssLoad === "object", "SSR CSS load should succeed");
+assert.doesNotMatch(
+  ssrCssLoad.code,
+  /__vize_css__/,
+  "SSR loads should not inject client-only CSS runtime shims",
+);
+assert.doesNotMatch(
+  ssrCssLoad.code,
+  /document\.createElement/,
+  "SSR loads should stay free of document-based side effects",
+);
+
+const cssModulePath = "/src/ModuleButton.vue";
+const cssModuleState: VizePluginState = {
+  ...hmrState,
+  cache: new Map([
+    [
+      cssModulePath,
+      {
+        code: `const _sfc_main = { name: "ModuleButton" }
+export default _sfc_main`,
+        scopeId: "modulecss",
+        hasScoped: false,
+        styles: [
+          {
+            content: ".root { color: red; }",
+            lang: "css",
+            scoped: false,
+            module: "buttonStyles",
+            index: 0,
+          },
+        ],
+      },
+    ],
+  ]),
+  ssrCache: new Map(),
+};
+
+const cssModuleLoad = loadHook(cssModuleState, toVirtualId(cssModulePath), { ssr: false });
+assert.ok(
+  cssModuleLoad && typeof cssModuleLoad === "object",
+  "CSS module virtual loads should succeed",
+);
+assert.match(
+  cssModuleLoad.code,
+  /import buttonStyles from "\/src\/ModuleButton\.vue\?vue=&type=style&index=0&lang=css&module=buttonStyles";/,
+  "CSS module virtual loads should emit delegated style imports",
+);
+assert.match(
+  cssModuleLoad.code,
+  /_sfc_main\.__cssModules\["buttonStyles"\] = buttonStyles;/,
+  "CSS module bindings should be attached for normal-script output without relying on semicolons",
+);
+
 console.log("✅ vite-plugin-vize load boundary tests passed!");

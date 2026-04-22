@@ -61,6 +61,7 @@ export function createFilter(
 export interface GenerateOutputOptions {
   isProduction: boolean;
   isDev: boolean;
+  ssr?: boolean;
   hmrUpdateType?: HmrUpdateType;
   extractCss?: boolean;
   /**
@@ -71,7 +72,7 @@ export interface GenerateOutputOptions {
 }
 
 export function generateOutput(compiled: CompiledModule, options: GenerateOutputOptions): string {
-  const { isProduction, isDev, hmrUpdateType, extractCss, filePath } = options;
+  const { isProduction, isDev, ssr, hmrUpdateType, extractCss, filePath } = options;
 
   let output = compiled.code;
 
@@ -175,13 +176,14 @@ export function generateOutput(compiled: CompiledModule, options: GenerateOutput
             `_sfc_main.__cssModules = _sfc_main.__cssModules || {};\n_sfc_main.__cssModules[${JSON.stringify(m.name)}] = ${m.bindingName};`,
         )
         .join("\n");
-      // Insert before the final "export default _sfc_main;"
+      // Insert before the final export, regardless of whether the compiler
+      // emitted a trailing semicolon.
       output = output.replace(
-        /^export default _sfc_main;/m,
+        /^export default _sfc_main;?$/m,
         `${cssModuleSetup}\nexport default _sfc_main;`,
       );
     }
-  } else if (compiled.css && !(isProduction && extractCss)) {
+  } else if (!ssr && compiled.css && !(isProduction && extractCss)) {
     // --- Inline CSS injection (original behavior for plain CSS) ---
     const cssCode = JSON.stringify(compiled.css);
     const cssId = JSON.stringify(`vize-style-${compiled.scopeId}`);

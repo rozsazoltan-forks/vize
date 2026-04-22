@@ -315,5 +315,20 @@ const msg = 'Hello SSR'
       expect(result).toBeDefined();
       expect(result.script?.code).toBeDefined();
     });
+
+    it("should resolve lowercase imported components from setup bindings in SSR mode", () => {
+      const sfc = `
+<script setup lang="ts">
+import { Primitive } from '@tresjs/core'
+</script>
+
+<template>
+  <primitive />
+</template>
+`;
+      const result = wasm!.compileSfc(sfc, { ssr: true });
+      expect(result.script?.code).toContain("_ssrRenderComponent($setup.Primitive");
+      expect(result.script?.code).not.toContain('_resolveComponent("primitive")');
+    });
   });
 });

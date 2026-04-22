@@ -23,6 +23,7 @@ import { resolveIdHook } from "./resolve.ts";
 import { loadHook, transformHook } from "./load.ts";
 import { handleHotUpdateHook, handleGenerateBundleHook } from "./hmr.ts";
 import { createVueCompatPlugin, createPostTransformPlugin } from "./compat.ts";
+import { patchUnoCssBridge } from "./unocss.ts";
 
 export type { VizePluginState } from "./state.ts";
 
@@ -211,6 +212,7 @@ export function vize(options: VizeOptions = {}): Plugin[] {
         "dist/**",
         ".git/**",
       ];
+      patchUnoCssBridge(resolvedConfig.plugins as Array<{ name?: string; transform?: Function }>);
       state.initialized = true;
     },
 

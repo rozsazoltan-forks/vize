@@ -184,6 +184,29 @@ function render() {
     expect(result.code).not.toContain("formatHelp(diagnostic.help)");
   });
 
+  it("treats lowercase imported Tres-style components as Vapor components", () => {
+    const result = compileSfc(
+      `<script setup lang="ts">
+import { Primitive } from "@tresjs/core";
+</script>
+
+<template>
+  <primitive />
+</template>`,
+      {
+        filename: "/src/TresPrimitive.vue",
+        sourceMap: false,
+        ssr: false,
+        vapor: true,
+        isTs: true,
+      },
+    );
+
+    expect(result.code).toContain("const _component_primitive = _ctx.Primitive");
+    expect(result.code).toContain("_createComponentWithFallback(_component_primitive");
+    expect(result.code).not.toContain('_template("<primitive></primitive>", true)');
+  });
+
   it("keeps Atelier output tabs reactive even when v-if siblings are present", () => {
     const source = readFileSync(
       new URL("../src/features/atelier/AtelierPlayground.vue", import.meta.url),

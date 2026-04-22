@@ -174,6 +174,44 @@ export default _sfc_main
   );
 }
 
+// Test 3e: CSS Modules bindings should be injected even when export default has no semicolon
+{
+  const output = generateOutput(
+    {
+      code: `
+const _sfc_main = { name: "ModuleButton" }
+export default _sfc_main
+`,
+      scopeId: "cssmodule",
+      hasScoped: false,
+      styles: [
+        {
+          content: ".root { color: red; }",
+          lang: "css",
+          scoped: false,
+          module: "buttonStyles",
+          index: 0,
+        },
+      ],
+    },
+    {
+      isProduction: false,
+      isDev: false,
+      filePath: "/src/ModuleButton.vue",
+    },
+  );
+  assert.ok(
+    output.includes(
+      'import buttonStyles from "/src/ModuleButton.vue?vue=&type=style&index=0&lang=css&module=buttonStyles";',
+    ),
+    "CSS Modules should emit a virtual style import with the original binding name",
+  );
+  assert.ok(
+    output.includes('_sfc_main.__cssModules["buttonStyles"] = buttonStyles;'),
+    "CSS Modules should attach bindings even when export default omits a semicolon",
+  );
+}
+
 // =============================================================================
 // Test: Query parameter preservation in relative imports
 // =============================================================================
