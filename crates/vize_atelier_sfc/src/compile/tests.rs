@@ -619,6 +619,34 @@ const doubled = computed(() => count.value * 2)
 }
 
 #[test]
+fn test_script_setup_sfc_uses_setup_bindings_for_kebab_case_imported_components() {
+    let source = r#"<script setup lang="ts">
+import DashTest from './dash-test.vue'
+</script>
+
+<template>
+  <dash-test />
+  <DashTest />
+</template>"#;
+
+    let descriptor = parse_sfc(source, SfcParseOptions::default()).expect("Failed to parse SFC");
+    let opts = SfcCompileOptions {
+        script: ScriptCompileOptions {
+            is_ts: true,
+            ..Default::default()
+        },
+        template: TemplateCompileOptions {
+            is_ts: true,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    let result = compile_sfc(&descriptor, opts).expect("Failed to compile SFC");
+
+    insta::assert_snapshot!(result.code.as_str());
+}
+
+#[test]
 fn test_script_setup_sfc_ssr_uses_server_renderer_output() {
     let source = r#"<script setup lang="ts">
 const msg = 'hello'
@@ -658,6 +686,35 @@ import { NuxtLayout, NuxtPage } from "#components"
     <NuxtPage />
   </NuxtLayout>
 </template>"##;
+
+    let descriptor = parse_sfc(source, SfcParseOptions::default()).expect("Failed to parse SFC");
+    let opts = SfcCompileOptions {
+        script: ScriptCompileOptions {
+            is_ts: true,
+            ..Default::default()
+        },
+        template: TemplateCompileOptions {
+            is_ts: true,
+            ssr: true,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    let result = compile_sfc(&descriptor, opts).expect("Failed to compile SFC");
+
+    insta::assert_snapshot!(result.code.as_str());
+}
+
+#[test]
+fn test_script_setup_sfc_ssr_uses_setup_bindings_for_kebab_case_imported_components() {
+    let source = r#"<script setup lang="ts">
+import DashTest from './dash-test.vue'
+</script>
+
+<template>
+  <dash-test />
+  <DashTest />
+</template>"#;
 
     let descriptor = parse_sfc(source, SfcParseOptions::default()).expect("Failed to parse SFC");
     let opts = SfcCompileOptions {

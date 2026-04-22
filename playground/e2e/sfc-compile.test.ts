@@ -319,6 +319,26 @@ const msg = 'Hello SSR'
       expect(result.script?.code).toBeDefined();
     });
 
+    it("should resolve kebab-case imported components through setup bindings in both DOM and SSR output", () => {
+      const sfc = `
+<script setup lang="ts">
+import DashTest from './dash-test.vue'
+</script>
+
+<template>
+  <dash-test />
+  <DashTest />
+</template>
+`;
+      const domResult = wasm!.compileSfc(sfc, {});
+      expect(domResult.script?.code).toContain("_createVNode(DashTest)");
+      expect(domResult.script?.code).not.toContain('_resolveComponent("dash-test")');
+
+      const ssrResult = wasm!.compileSfc(sfc, { ssr: true });
+      expect(ssrResult.script?.code).toContain("$setup.DashTest");
+      expect(ssrResult.script?.code).not.toContain('_resolveComponent("dash-test")');
+    });
+
     it("should resolve lowercase imported components from setup bindings in SSR mode", () => {
       const sfc = `
 <script setup lang="ts">
