@@ -168,10 +168,7 @@ fs.writeFileSync(
 
         scannedIds.push(id);
         extractedAttributes.push(
-          ...Array.from(
-            code.matchAll(/\b(?:flex|text)="([^"]+)"/g),
-            ([, value]) => value!,
-          ),
+          ...Array.from(code.matchAll(/\b(?:flex|text)="([^"]+)"/g), ([, value]) => value!),
         );
         return null;
       },

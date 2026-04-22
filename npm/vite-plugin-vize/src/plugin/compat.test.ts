@@ -4,9 +4,7 @@ import path from "node:path";
 import { createPostTransformPlugin } from "./compat.ts";
 import type { VizePluginState } from "./state.ts";
 
-function createState(
-  overrides: Partial<VizePluginState> = {},
-): VizePluginState {
+function createState(overrides: Partial<VizePluginState> = {}): VizePluginState {
   return {
     cache: new Map(),
     ssrCache: new Map(),
@@ -60,10 +58,7 @@ const msg = 'hello'
     ssr: true,
   });
 
-  assert.ok(
-    result && typeof result === "object",
-    "SSR virtual SFC transforms should succeed",
-  );
+  assert.ok(result && typeof result === "object", "SSR virtual SFC transforms should succeed");
   assert.doesNotMatch(
     result.code,
     /__vize_css__/,

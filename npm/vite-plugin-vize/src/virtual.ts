@@ -80,22 +80,13 @@ export function rewriteDynamicTemplateImports(
 
   // Normalize alias-based template literal imports (e.g. `@/foo/${x}.svg`) to browser paths.
   for (const rule of aliasRules) {
-    const pattern = new RegExp(
-      `\\bimport\\s*\\(\\s*\`${escapeRegExp(rule.fromPrefix)}`,
-      "g",
-    );
-    rewritten = rewritten.replace(
-      pattern,
-      `import(/* @vite-ignore */ \`${rule.toPrefix}`,
-    );
+    const pattern = new RegExp(`\\bimport\\s*\\(\\s*\`${escapeRegExp(rule.fromPrefix)}`, "g");
+    rewritten = rewritten.replace(pattern, `import(/* @vite-ignore */ \`${rule.toPrefix}`);
   }
 
   // Dynamic template imports are intentionally runtime-resolved: mark them to silence
   // Vite's static analysis warning while keeping runtime behavior.
-  rewritten = rewritten.replace(
-    /\bimport\s*\(\s*`/g,
-    "import(/* @vite-ignore */ `",
-  );
+  rewritten = rewritten.replace(/\bimport\s*\(\s*`/g, "import(/* @vite-ignore */ `");
 
   return rewritten;
 }

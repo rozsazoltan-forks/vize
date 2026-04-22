@@ -1,14 +1,9 @@
 import assert from "node:assert/strict";
 
-import {
-  fromVirtualId,
-  isVizeVirtual,
-  normalizeVizeVirtualVueModuleId,
-} from "./virtual.ts";
+import { fromVirtualId, isVizeVirtual, normalizeVizeVirtualVueModuleId } from "./virtual.ts";
 
 const clientVirtualId = "\0/repo/app/components/Foo.vue.ts?macro=true";
-const ssrVirtualId =
-  "\0vize-ssr:/repo/app/components/Foo.vue.ts?vue&type=template";
+const ssrVirtualId = "\0vize-ssr:/repo/app/components/Foo.vue.ts?vue&type=template";
 
 assert.equal(
   isVizeVirtual(clientVirtualId),

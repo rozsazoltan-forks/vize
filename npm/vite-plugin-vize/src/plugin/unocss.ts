@@ -1,8 +1,6 @@
 import fs from "node:fs";
 
-import {
-  VIZE_SSR_PREFIX,
-} from "../virtual.ts";
+import { VIZE_SSR_PREFIX } from "../virtual.ts";
 
 type UnoCssLikePlugin = {
   name?: string;
@@ -63,10 +61,7 @@ export function patchUnoCssBridge(plugins: UnoCssLikePlugin[]): void {
 
       if (isExtractionOnly) {
         try {
-          const originalSource = fs.readFileSync(
-            normalizedId.split("?")[0]!,
-            "utf-8",
-          );
+          const originalSource = fs.readFileSync(normalizedId.split("?")[0]!, "utf-8");
           effectiveCode = `${code}\n${originalSource}`;
         } catch {
           // Ignore missing virtual sources and keep the compiled code path.

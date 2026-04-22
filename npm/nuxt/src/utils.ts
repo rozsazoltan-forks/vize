@@ -2,22 +2,15 @@ import type { VizeOptions } from "@vizejs/vite-plugin";
 
 function normalizeUrlPrefix(value: string): string {
   const withLeadingSlash = value.startsWith("/") ? value : `/${value}`;
-  return withLeadingSlash.endsWith("/")
-    ? withLeadingSlash
-    : `${withLeadingSlash}/`;
+  return withLeadingSlash.endsWith("/") ? withLeadingSlash : `${withLeadingSlash}/`;
 }
 
-export function buildNuxtDevAssetBase(
-  baseURL = "/",
-  buildAssetsDir = "/_nuxt/",
-): string {
+export function buildNuxtDevAssetBase(baseURL = "/", buildAssetsDir = "/_nuxt/"): string {
   const normalizedBase = normalizeUrlPrefix(baseURL);
   const normalizedAssetsDir = normalizeUrlPrefix(buildAssetsDir);
   return normalizedBase === "/"
     ? normalizedAssetsDir
-    : normalizeUrlPrefix(
-        `${normalizedBase}${normalizedAssetsDir.replace(/^\//, "")}`,
-      );
+    : normalizeUrlPrefix(`${normalizedBase}${normalizedAssetsDir.replace(/^\//, "")}`);
 }
 
 export function buildNuxtCompilerOptions(
@@ -36,8 +29,6 @@ export function isVizeVirtualVueModuleId(id: string): boolean {
 }
 
 export function normalizeVizeVirtualVueModuleId(id: string): string {
-  const withoutPrefix = id.startsWith("\0vize-ssr:")
-    ? id.slice("\0vize-ssr:".length)
-    : id.slice(1);
+  const withoutPrefix = id.startsWith("\0vize-ssr:") ? id.slice("\0vize-ssr:".length) : id.slice(1);
   return withoutPrefix.replace(/\.ts(?=\?|$)/, "");
 }

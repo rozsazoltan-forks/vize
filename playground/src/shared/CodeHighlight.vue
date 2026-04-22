@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, watch } from "vue";
-import {
-  createHighlighter,
-  type Highlighter,
-  type ThemeRegistration,
-} from "shiki";
+import { createHighlighter, type Highlighter, type ThemeRegistration } from "shiki";
 
 const props = defineProps<{
   code: string;
@@ -148,10 +144,7 @@ const sharedState =
   });
 
 function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function normalizePlainLines(code: string): string[] {
@@ -241,8 +234,7 @@ async function highlight(renderId: number) {
       .map((token, tokenIdx) => {
         const escaped = escapeHtml(token.content);
         const darkColor = token.color;
-        const lightColor =
-          lightLines[lineIdx]?.[tokenIdx]?.color ?? token.color;
+        const lightColor = lightLines[lineIdx]?.[tokenIdx]?.color ?? token.color;
         return `<span style="--d:${darkColor};--l:${lightColor}">${escaped}</span>`;
       })
       .join("");
@@ -285,15 +277,8 @@ watch(
 </script>
 
 <template>
-  <div
-    class="code-highlight"
-    :class="{ 'with-line-numbers': props.showLineNumbers }"
-  >
-    <div
-      v-if="props.showLineNumbers"
-      ref="lineNumbersEl"
-      class="line-numbers"
-    ></div>
+  <div class="code-highlight" :class="{ 'with-line-numbers': props.showLineNumbers }">
+    <div v-if="props.showLineNumbers" ref="lineNumbersEl" class="line-numbers"></div>
     <div ref="codeContentEl" class="code-content"></div>
   </div>
 </template>

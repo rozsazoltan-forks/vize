@@ -62,8 +62,7 @@ const activeCodeOutputText = computed(() => {
 });
 
 const activeCodeHighlightKey = computed(
-  () =>
-    `${codeOutputVersion.value}:${codeOutputTarget.value}:${codeViewMode.value}`,
+  () => `${codeOutputVersion.value}:${codeOutputTarget.value}:${codeViewMode.value}`,
 );
 
 watch(
@@ -116,9 +115,7 @@ onUnmounted(() => {
     <div class="panel-header">
       <h2>{{ inputMode === "sfc" ? "SFC (.vue)" : "Template" }}</h2>
       <div class="panel-actions">
-        <button class="btn-ghost" @click="handlePresetChange(selectedPreset)">
-          Reset
-        </button>
+        <button class="btn-ghost" @click="handlePresetChange(selectedPreset)">Reset</button>
         <button class="btn-ghost" @click="copyToClipboard(source)">Copy</button>
       </div>
     </div>
@@ -131,21 +128,13 @@ onUnmounted(() => {
     <div class="panel-header">
       <h2>
         Output
-        <span v-if="compileTime !== null" class="compile-time"
-          >{{ compileTime.toFixed(4) }}ms</span
-        >
+        <span v-if="compileTime !== null" class="compile-time">{{ compileTime.toFixed(4) }}ms</span>
       </h2>
       <div class="tabs">
-        <button
-          :class="['tab', { active: activeTab === 'code' }]"
-          @click="activeTab = 'code'"
-        >
+        <button :class="['tab', { active: activeTab === 'code' }]" @click="activeTab = 'code'">
           Code
         </button>
-        <button
-          :class="['tab', { active: activeTab === 'ast' }]"
-          @click="activeTab = 'ast'"
-        >
+        <button :class="['tab', { active: activeTab === 'ast' }]" @click="activeTab = 'ast'">
           AST
         </button>
         <button
@@ -155,10 +144,7 @@ onUnmounted(() => {
         >
           Bindings
         </button>
-        <button
-          :class="['tab', { active: activeTab === 'tokens' }]"
-          @click="activeTab = 'tokens'"
-        >
+        <button :class="['tab', { active: activeTab === 'tokens' }]" @click="activeTab = 'tokens'">
           Tokens ({{ tokenStats.total }})
         </button>
         <button
@@ -168,16 +154,10 @@ onUnmounted(() => {
           Helpers
         </button>
         <template v-if="inputMode === 'sfc'">
-          <button
-            :class="['tab', { active: activeTab === 'sfc' }]"
-            @click="activeTab = 'sfc'"
-          >
+          <button :class="['tab', { active: activeTab === 'sfc' }]" @click="activeTab = 'sfc'">
             SFC
           </button>
-          <button
-            :class="['tab', { active: activeTab === 'css' }]"
-            @click="activeTab = 'css'"
-          >
+          <button :class="['tab', { active: activeTab === 'css' }]" @click="activeTab = 'css'">
             CSS
           </button>
         </template>
@@ -205,10 +185,7 @@ onUnmounted(() => {
                 <button
                   v-for="target in availableCodeOutputTargets"
                   :key="target"
-                  :class="[
-                    'toggle-btn',
-                    { active: codeOutputTarget === target },
-                  ]"
+                  :class="['toggle-btn', { active: codeOutputTarget === target }]"
                   @click="codeOutputTarget = target"
                 >
                   {{ CODE_OUTPUT_LABELS[target] }}
@@ -218,34 +195,23 @@ onUnmounted(() => {
                 <button
                   :class="['toggle-btn', { active: codeViewMode === 'ts' }]"
                   :disabled="!activeCodeOutput.isTypeScript"
-                  @click="
-                    activeCodeOutput.isTypeScript && (codeViewMode = 'ts')
-                  "
+                  @click="activeCodeOutput.isTypeScript && (codeViewMode = 'ts')"
                 >
                   TS
                 </button>
                 <button
                   :class="['toggle-btn', { active: codeViewMode === 'js' }]"
                   :disabled="!activeCodeOutput.isTypeScript"
-                  @click="
-                    activeCodeOutput.isTypeScript && (codeViewMode = 'js')
-                  "
+                  @click="activeCodeOutput.isTypeScript && (codeViewMode = 'js')"
                 >
                   JS
                 </button>
               </div>
-              <button
-                class="btn-ghost"
-                @click="copyToClipboard(activeCodeOutputText)"
-              >
-                Copy
-              </button>
+              <button class="btn-ghost" @click="copyToClipboard(activeCodeOutputText)">Copy</button>
             </div>
           </div>
           <div v-if="activeCodeOutput.error" class="wasm-error">
-            <h3>
-              {{ CODE_OUTPUT_LABELS[codeOutputTarget] }} Compilation Error
-            </h3>
+            <h3>{{ CODE_OUTPUT_LABELS[codeOutputTarget] }} Compilation Error</h3>
             <pre>{{ activeCodeOutput.error }}</pre>
           </div>
           <template v-else>
@@ -261,9 +227,7 @@ onUnmounted(() => {
               v-else
               :key="`${activeCodeHighlightKey}-main`"
               :code="activeCodeOutput.formattedCode || activeCodeOutput.code"
-              :language="
-                activeCodeOutput.isTypeScript ? 'typescript' : 'javascript'
-              "
+              :language="activeCodeOutput.isTypeScript ? 'typescript' : 'javascript'"
               :theme
               show-line-numbers
             />
@@ -286,12 +250,7 @@ onUnmounted(() => {
                 <span class="style-meta">
                   <span class="badge">template {{ index + 1 }}</span>
                 </span>
-                <CodeHighlight
-                  :code="template"
-                  language="javascript"
-                  :theme
-                  show-line-numbers
-                />
+                <CodeHighlight :code="template" language="javascript" :theme show-line-numbers />
               </div>
             </div>
           </template>
@@ -314,31 +273,17 @@ onUnmounted(() => {
                 <input v-model="astCollapsed" type="checkbox" />
                 <span>Compact</span>
               </label>
-              <button
-                class="btn-ghost btn-small"
-                @click="copyToClipboard(astJson)"
-              >
-                Copy
-              </button>
+              <button class="btn-ghost btn-small" @click="copyToClipboard(astJson)">Copy</button>
             </div>
           </div>
-          <CodeHighlight
-            :code="astJson"
-            language="json"
-            :theme
-            show-line-numbers
-          />
+          <CodeHighlight :code="astJson" language="json" :theme show-line-numbers />
         </div>
 
         <!-- Helpers Tab -->
         <div v-else-if="activeTab === 'helpers'" class="helpers-output">
           <h4>Runtime Helpers Used ({{ output.helpers?.length ?? 0 }})</h4>
           <ul v-if="output.helpers?.length > 0" class="helpers-list">
-            <li
-              v-for="(helper, i) in output.helpers"
-              :key="i"
-              class="helper-item"
-            >
+            <li v-for="(helper, i) in output.helpers" :key="i" class="helper-item">
               <span class="helper-name">{{ helper }}</span>
             </li>
           </ul>
@@ -353,16 +298,10 @@ onUnmounted(() => {
             <h5>
               Template
               {{
-                sfcResult.descriptor.template.lang
-                  ? `(${sfcResult.descriptor.template.lang})`
-                  : ""
+                sfcResult.descriptor.template.lang ? `(${sfcResult.descriptor.template.lang})` : ""
               }}
             </h5>
-            <CodeHighlight
-              :code="sfcResult.descriptor.template.content"
-              language="html"
-              :theme
-            />
+            <CodeHighlight :code="sfcResult.descriptor.template.content" language="html" :theme />
           </div>
 
           <div v-if="sfcResult.descriptor.scriptSetup" class="sfc-block">
@@ -384,11 +323,7 @@ onUnmounted(() => {
           <div v-if="sfcResult.descriptor.script" class="sfc-block">
             <h5>
               Script
-              {{
-                sfcResult.descriptor.script.lang
-                  ? `(${sfcResult.descriptor.script.lang})`
-                  : ""
-              }}
+              {{ sfcResult.descriptor.script.lang ? `(${sfcResult.descriptor.script.lang})` : "" }}
             </h5>
             <CodeHighlight
               :code="sfcResult.descriptor.script.content"
@@ -399,11 +334,7 @@ onUnmounted(() => {
 
           <div v-if="sfcResult.descriptor.styles?.length > 0" class="sfc-block">
             <h5>Styles ({{ sfcResult.descriptor.styles?.length }})</h5>
-            <div
-              v-for="(style, i) in sfcResult.descriptor.styles"
-              :key="i"
-              class="style-block"
-            >
+            <div v-for="(style, i) in sfcResult.descriptor.styles" :key="i" class="style-block">
               <span class="style-meta">
                 <span v-if="style.scoped" class="badge">scoped</span>
                 <span v-if="style.lang" class="badge">{{ style.lang }}</span>
@@ -432,10 +363,7 @@ onUnmounted(() => {
             <div class="css-compiled">
               <h5>Compiled CSS</h5>
               <div class="code-actions">
-                <button
-                  class="btn-ghost"
-                  @click="copyToClipboard(formattedCss || cssResult.code)"
-                >
+                <button class="btn-ghost" @click="copyToClipboard(formattedCss || cssResult.code)">
                   Copy
                 </button>
               </div>
@@ -450,11 +378,7 @@ onUnmounted(() => {
             <div v-if="cssResult.cssVars?.length > 0" class="css-vars">
               <h5>CSS Variables (v-bind)</h5>
               <ul class="helpers-list">
-                <li
-                  v-for="(v, i) in cssResult.cssVars"
-                  :key="i"
-                  class="helper-item"
-                >
+                <li v-for="(v, i) in cssResult.cssVars" :key="i" class="helper-item">
                   <span class="helper-name">{{ v }}</span>
                 </li>
               </ul>
@@ -462,12 +386,9 @@ onUnmounted(() => {
 
             <div v-if="cssResult.errors?.length > 0" class="css-errors">
               <h5>Errors</h5>
-              <pre
-                v-for="(err, i) in cssResult.errors"
-                :key="i"
-                class="error-message"
-                >{{ err }}</pre
-              >
+              <pre v-for="(err, i) in cssResult.errors" :key="i" class="error-message">{{
+                err
+              }}</pre>
             </div>
           </template>
           <p v-else class="no-css">No styles in this SFC</p>
@@ -481,38 +402,23 @@ onUnmounted(() => {
           <h4>Script Setup Bindings</h4>
 
           <div class="bindings-summary">
-            <div
-              v-for="(count, type) in bindingsSummary"
-              :key="type"
-              class="summary-card"
-            >
+            <div v-for="(count, type) in bindingsSummary" :key="type" class="summary-card">
               <span class="summary-count">{{ count }}</span>
               <span :class="['summary-type', `type-${type}`]">{{ type }}</span>
             </div>
           </div>
 
           <div class="bindings-groups">
-            <div
-              v-for="(vars, type) in groupedBindings"
-              :key="type"
-              class="binding-group"
-            >
+            <div v-for="(vars, type) in groupedBindings" :key="type" class="binding-group">
               <div :class="['group-header', `type-${type}`]">
-                <span class="group-icon">{{
-                  getBindingIcon(type as string)
-                }}</span>
-                <span class="group-title">{{
-                  getBindingLabel(type as string)
-                }}</span>
+                <span class="group-icon">{{ getBindingIcon(type as string) }}</span>
+                <span class="group-title">{{ getBindingLabel(type as string) }}</span>
                 <span class="group-count">{{ vars.length }}</span>
               </div>
               <div class="group-vars">
-                <span
-                  v-for="v in vars"
-                  :key="v"
-                  :class="['var-chip', `type-${type}`]"
-                  >{{ v }}</span
-                >
+                <span v-for="v in vars" :key="v" :class="['var-chip', `type-${type}`]">{{
+                  v
+                }}</span>
               </div>
             </div>
           </div>
@@ -550,24 +456,15 @@ onUnmounted(() => {
               class="token-item"
               :style="{ '--token-color': getTokenTypeColor(token.type) }"
             >
-              <span
-                class="token-badge"
-                :style="{ background: getTokenTypeColor(token.type) }"
-              >
+              <span class="token-badge" :style="{ background: getTokenTypeColor(token.type) }">
                 {{ getTokenTypeIcon(token.type) }}
               </span>
               <div class="token-content">
                 <div class="token-main">
-                  <span v-if="token.name" class="token-name">{{
-                    token.name
-                  }}</span>
-                  <span v-if="token.value" class="token-value-text">{{
-                    token.value
-                  }}</span>
+                  <span v-if="token.name" class="token-name">{{ token.name }}</span>
+                  <span v-if="token.value" class="token-value-text">{{ token.value }}</span>
                 </div>
-                <span class="token-location"
-                  >{{ token.line }}:{{ token.column }}</span
-                >
+                <span class="token-location">{{ token.line }}:{{ token.column }}</span>
               </div>
             </div>
           </div>
@@ -590,9 +487,7 @@ onUnmounted(() => {
                   >
                     {{ getTokenTypeIcon(String(type)) }}
                   </span>
-                  <span class="group-title">{{
-                    getTokenTypeLabel(String(type))
-                  }}</span>
+                  <span class="group-title">{{ getTokenTypeLabel(String(type)) }}</span>
                   <span class="group-count">{{ tokens.length }}</span>
                 </div>
                 <div class="group-tokens">
@@ -604,11 +499,7 @@ onUnmounted(() => {
                       '--chip-color': getTokenTypeColor(String(type)),
                     }"
                   >
-                    {{
-                      token.name ||
-                      token.value?.slice(0, 25) ||
-                      token.raw.slice(0, 25)
-                    }}
+                    {{ token.name || token.value?.slice(0, 25) || token.raw.slice(0, 25) }}
                   </span>
                   <span v-if="tokens.length > 12" class="more-indicator">
                     +{{ tokens.length - 12 }} more

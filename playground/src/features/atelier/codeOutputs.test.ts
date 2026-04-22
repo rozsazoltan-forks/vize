@@ -8,16 +8,11 @@ import type {
 import { compileCodeOutputs, getCodeOutputTargets } from "./codeOutputs";
 
 vi.mock("./formatters", () => ({
-  formatCode: vi.fn(
-    async (code: string, parser: string) => `[${parser}] ${code}`,
-  ),
+  formatCode: vi.fn(async (code: string, parser: string) => `[${parser}] ${code}`),
   transpileToJs: vi.fn(async (code: string) => `js:${code}`),
 }));
 
-function createCompileResult(
-  code: string,
-  templates?: string[],
-): CompileResult {
+function createCompileResult(code: string, templates?: string[]): CompileResult {
   return {
     code,
     preamble: "",
@@ -79,10 +74,7 @@ function createSfcResult(
       code: scriptCode,
       bindings,
     },
-    template: createCompileResult(
-      templateCode || `${scriptCode}:template`,
-      templates,
-    ),
+    template: createCompileResult(templateCode || `${scriptCode}:template`, templates),
   };
 }
 
@@ -92,9 +84,7 @@ describe("compileCodeOutputs", () => {
       createCompileResult(options.ssr ? "ssr-code" : "dom-code"),
     );
     const compileVapor = vi.fn((_: string, options: CompilerOptions) =>
-      createCompileResult(options.ssr ? "vapor-ssr-code" : "vapor-code", [
-        "tpl-a",
-      ]),
+      createCompileResult(options.ssr ? "vapor-ssr-code" : "vapor-code", ["tpl-a"]),
     );
     const compiler = {
       compile,
@@ -131,12 +121,7 @@ describe("compileCodeOutputs", () => {
   });
 
   it("exposes Vapor SSR only for template inputs", () => {
-    expect(getCodeOutputTargets("template")).toEqual([
-      "dom",
-      "ssr",
-      "vapor",
-      "vaporSsr",
-    ]);
+    expect(getCodeOutputTargets("template")).toEqual(["dom", "ssr", "vapor", "vaporSsr"]);
     expect(getCodeOutputTargets("sfc")).toEqual(["dom", "ssr", "vapor"]);
   });
 
@@ -189,25 +174,17 @@ describe("compileCodeOutputs", () => {
     expect(outputs.vapor.code).toContain("_toDisplayString(doubled.value)");
     expect(outputs.vapor.templates).toEqual(["tpl-vapor"]);
     expect(outputs.vaporSsr.code).toBe("");
-    expect(compileSfc).toHaveBeenNthCalledWith(
-      1,
-      "<template><div /></template>",
-      {
-        mode: "module",
-        scriptExt: "preserve",
-        ssr: true,
-        outputMode: "vdom",
-      },
-    );
-    expect(compileSfc).toHaveBeenNthCalledWith(
-      2,
-      "<template><div /></template>",
-      {
-        mode: "module",
-        scriptExt: "preserve",
-        ssr: false,
-        outputMode: "vapor",
-      },
-    );
+    expect(compileSfc).toHaveBeenNthCalledWith(1, "<template><div /></template>", {
+      mode: "module",
+      scriptExt: "preserve",
+      ssr: true,
+      outputMode: "vdom",
+    });
+    expect(compileSfc).toHaveBeenNthCalledWith(2, "<template><div /></template>", {
+      mode: "module",
+      scriptExt: "preserve",
+      ssr: false,
+      outputMode: "vapor",
+    });
   });
 });

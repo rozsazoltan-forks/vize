@@ -9,10 +9,7 @@ import type {
 import { extractStyleBlocks, generateScopeId } from "./style.ts";
 
 const { compileSfc } = native as {
-  compileSfc: (
-    source: string,
-    options?: Record<string, unknown>,
-  ) => SfcCompileResultNapi;
+  compileSfc: (source: string, options?: Record<string, unknown>) => SfcCompileResultNapi;
 };
 
 function buildSignature(options: NormalizedVizeUnpluginOptions): string {
@@ -40,20 +37,11 @@ export function compileVueModule(
   const signature = buildSignature(options);
   const cached = cache.get(filePath);
 
-  if (
-    cached &&
-    cached.sourceHash === sourceHash &&
-    cached.signature === signature
-  ) {
+  if (cached && cached.sourceHash === sourceHash && cached.signature === signature) {
     return { compiled: cached.compiled, warnings: [] };
   }
 
-  const scopeId = generateScopeId(
-    filePath,
-    options.root,
-    options.isProduction,
-    source,
-  );
+  const scopeId = generateScopeId(filePath, options.root, options.isProduction, source);
   const hasScoped = /<style[^>]*\bscoped\b/.test(source);
   const result = compileSfc(source, {
     filename: filePath,

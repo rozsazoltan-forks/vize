@@ -28,11 +28,7 @@ export function hasFileMetadataChanged(
   previous: PrecompileFileMetadata | undefined,
   next: PrecompileFileMetadata,
 ): boolean {
-  return (
-    previous === undefined ||
-    previous.mtimeMs !== next.mtimeMs ||
-    previous.size !== next.size
-  );
+  return previous === undefined || previous.mtimeMs !== next.mtimeMs || previous.size !== next.size;
 }
 
 export function diffPrecompileFiles(
@@ -45,10 +41,7 @@ export function diffPrecompileFiles(
 
   for (const file of files) {
     const metadata = currentMetadata.get(file);
-    if (
-      !metadata ||
-      hasFileMetadataChanged(previousMetadata.get(file), metadata)
-    ) {
+    if (!metadata || hasFileMetadataChanged(previousMetadata.get(file), metadata)) {
       changedFiles.push(file);
     }
   }
@@ -113,10 +106,7 @@ export function getCompileOptionsForRequest(
 }
 
 export function syncCollectedCssForFile(
-  state: Pick<
-    VizePluginState,
-    "isProduction" | "collectedCss" | "cssAliasRules"
-  >,
+  state: Pick<VizePluginState, "isProduction" | "collectedCss" | "cssAliasRules">,
   filePath: string,
   compiled: CompiledModule | undefined,
 ): void {
@@ -223,11 +213,7 @@ export async function compileAll(state: VizePluginState): Promise<void> {
       state.precompileMetadata.set(fileResult.path, metadata);
     }
 
-    syncCollectedCssForFile(
-      state,
-      fileResult.path,
-      state.cache.get(fileResult.path),
-    );
+    syncCollectedCssForFile(state, fileResult.path, state.cache.get(fileResult.path));
   }
 
   const elapsed = (performance.now() - startTime).toFixed(2);

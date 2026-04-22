@@ -19,11 +19,8 @@ import type {
   VizeUnpluginOptions,
 } from "./types.ts";
 
-function normalizeOptions(
-  rawOptions: VizeUnpluginOptions = {},
-): NormalizedVizeUnpluginOptions {
-  const isProduction =
-    rawOptions.isProduction ?? process.env.NODE_ENV === "production";
+function normalizeOptions(rawOptions: VizeUnpluginOptions = {}): NormalizedVizeUnpluginOptions {
+  const isProduction = rawOptions.isProduction ?? process.env.NODE_ENV === "production";
   return {
     include: rawOptions.include,
     exclude: rawOptions.exclude,
@@ -45,16 +42,12 @@ function createVueDefineMap(isProduction: boolean): Record<string, string> {
   };
 }
 
-function injectWebpackVueDefines(
-  compiler: WebpackCompiler,
-  isProduction: boolean,
-): void {
+function injectWebpackVueDefines(compiler: WebpackCompiler, isProduction: boolean): void {
   const { DefinePlugin } = compiler.webpack;
   const existingDefines = new Set<string>();
 
   for (const plugin of compiler.options.plugins ?? []) {
-    const definitions = (plugin as { definitions?: Record<string, unknown> })
-      .definitions;
+    const definitions = (plugin as { definitions?: Record<string, unknown> }).definitions;
     if (!definitions) {
       continue;
     }
@@ -89,18 +82,11 @@ async function loadStyleBlock(
     return "";
   }
 
-  let compiled: CompiledModule | undefined = cache.get(
-    request.filename,
-  )?.compiled;
+  let compiled: CompiledModule | undefined = cache.get(request.filename)?.compiled;
 
   if (!compiled && fs.existsSync(request.filename)) {
     const source = fs.readFileSync(request.filename, "utf8");
-    compiled = compileVueModule(
-      request.filename,
-      source,
-      options,
-      cache,
-    ).compiled;
+    compiled = compileVueModule(request.filename, source, options, cache).compiled;
   }
 
   const block = compiled?.styles[index];
@@ -108,112 +94,93 @@ async function loadStyleBlock(
     return "";
   }
 
-  return wrapScopedPreprocessorStyle(
-    block.content,
-    request.query.scoped,
-    block.lang,
-  );
+  return wrapScopedPreprocessorStyle(block.content, request.query.scoped, block.lang);
 }
 
-export const vizeUnplugin = createUnplugin<VizeUnpluginOptions | undefined>(
-  (rawOptions = {}) => {
-    const options = normalizeOptions(rawOptions);
-    const filter = createFilter(options.include, options.exclude);
-    const cache = new Map<string, CachedCompiledModule>();
+export const vizeUnplugin = createUnplugin<VizeUnpluginOptions | undefined>((rawOptions = {}) => {
+  const options = normalizeOptions(rawOptions);
+  const filter = createFilter(options.include, options.exclude);
+  const cache = new Map<string, CachedCompiledModule>();
 
-    return {
-      name: "unplugin-vize",
+  return {
+    name: "unplugin-vize",
 
-      resolveId(id) {
-        if (isVueStyleRequest(id)) {
-          return createVirtualStyleId(id);
-        }
+    resolveId(id) {
+      if (isVueStyleRequest(id)) {
+        return createVirtualStyleId(id);
+      }
+      return null;
+    },
+
+    loadInclude(id) {
+      return isVirtualStyleId(id);
+    },
+
+    async load(id) {
+      if (!isVirtualStyleId(id)) {
         return null;
-      },
+      }
 
-      loadInclude(id) {
-        return isVirtualStyleId(id);
-      },
+      return {
+        code: await loadStyleBlock(id, options, cache),
+        map: null,
+      };
+    },
 
-      async load(id) {
-        if (!isVirtualStyleId(id)) {
-          return null;
-        }
+    transformInclude(id) {
+      const request = parseVueRequest(id);
+      return !request.query.vue && isVueFile(request.filename) && filter(request.filename);
+    },
 
-        return {
-          code: await loadStyleBlock(id, options, cache),
-          map: null,
-        };
-      },
+    async transform(code, id) {
+      if (!isVueFile(id) || !filter(id)) {
+        return null;
+      }
 
-      transformInclude(id) {
+      const { compiled, warnings } = compileVueModule(id, code, options, cache);
+      for (const warning of warnings) {
+        this.warn(`[vize] ${warning}`);
+      }
+
+      const generated = generateOutput(compiled, {
+        isProduction: options.isProduction,
+        isDev: false,
+        filePath: id,
+      });
+
+      const transformed = await stripTypeScript(id, generated, options.sourceMap);
+      return {
+        code: transformed.code,
+        map: transformed.map,
+      };
+    },
+
+    watchChange(id) {
+      if (isVueFile(id)) {
+        cache.delete(id);
+      }
+    },
+
+    webpack(compiler) {
+      injectWebpackVueDefines(compiler, options.isProduction);
+    },
+
+    esbuild: {
+      onResolveFilter: /\.vue(?:$|\?)/,
+      onLoadFilter: /\.vue(?:$|\?)/,
+      loader(_code, id) {
         const request = parseVueRequest(id);
-        return (
-          !request.query.vue &&
-          isVueFile(request.filename) &&
-          filter(request.filename)
-        );
+        if (request.query.type === "style") {
+          return request.query.module !== false ? "local-css" : "css";
+        }
+        return "js";
       },
-
-      async transform(code, id) {
-        if (!isVueFile(id) || !filter(id)) {
-          return null;
-        }
-
-        const { compiled, warnings } = compileVueModule(
-          id,
-          code,
-          options,
-          cache,
-        );
-        for (const warning of warnings) {
-          this.warn(`[vize] ${warning}`);
-        }
-
-        const generated = generateOutput(compiled, {
-          isProduction: options.isProduction,
-          isDev: false,
-          filePath: id,
-        });
-
-        const transformed = await stripTypeScript(
-          id,
-          generated,
-          options.sourceMap,
-        );
-        return {
-          code: transformed.code,
-          map: transformed.map,
+      config(buildOptions) {
+        buildOptions.define = {
+          ...createVueDefineMap(options.isProduction),
+          ...buildOptions.define,
         };
       },
-
-      watchChange(id) {
-        if (isVueFile(id)) {
-          cache.delete(id);
-        }
-      },
-
-      webpack(compiler) {
-        injectWebpackVueDefines(compiler, options.isProduction);
-      },
-
-      esbuild: {
-        onResolveFilter: /\.vue(?:$|\?)/,
-        onLoadFilter: /\.vue(?:$|\?)/,
-        loader(_code, id) {
-          const request = parseVueRequest(id);
-          if (request.query.type === "style") {
-            return request.query.module !== false ? "local-css" : "css";
-          }
-          return "js";
-        },
-        config(buildOptions) {
-          buildOptions.define = {
-            ...createVueDefineMap(options.isProduction),
-            ...buildOptions.define,
-          };
-        },
-      },
-    };
-  },
-);
+    },
+  };
+});

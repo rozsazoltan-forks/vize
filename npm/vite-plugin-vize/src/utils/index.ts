@@ -40,11 +40,7 @@ export function createFilter(
   include?: string | RegExp | (string | RegExp)[],
   exclude?: string | RegExp | (string | RegExp)[],
 ): (id: string) => boolean {
-  const includePatterns = include
-    ? Array.isArray(include)
-      ? include
-      : [include]
-    : [/\.vue$/];
+  const includePatterns = include ? (Array.isArray(include) ? include : [include]) : [/\.vue$/];
   const excludePatterns = exclude
     ? Array.isArray(exclude)
       ? exclude
@@ -75,12 +71,8 @@ export interface GenerateOutputOptions {
   filePath?: string;
 }
 
-export function generateOutput(
-  compiled: CompiledModule,
-  options: GenerateOutputOptions,
-): string {
-  const { isProduction, isDev, ssr, hmrUpdateType, extractCss, filePath } =
-    options;
+export function generateOutput(compiled: CompiledModule, options: GenerateOutputOptions): string {
+  const { isProduction, isDev, ssr, hmrUpdateType, extractCss, filePath } = options;
 
   let output = compiled.code;
 
@@ -118,11 +110,7 @@ export function generateOutput(
     }
     output += "\n_sfc_main.render = render;";
     output += "\nexport default _sfc_main;";
-  } else if (
-    !hasExportDefault &&
-    !hasSfcMainDefined &&
-    hasNamedSsrRenderExport
-  ) {
+  } else if (!hasExportDefault && !hasSfcMainDefined && hasNamedSsrRenderExport) {
     output += "\nconst _sfc_main = {};";
     if (compiled.hasScoped && compiled.scopeId) {
       output += `\n_sfc_main.__scopeId = "data-v-${compiled.scopeId}";`;
@@ -152,16 +140,10 @@ export function generateOutput(
 
       if (isCssModule(block)) {
         // CSS Modules: import as a named binding
-        const bindingName =
-          typeof block.module === "string" ? block.module : "$style";
-        params.set(
-          "module",
-          typeof block.module === "string" ? block.module : "",
-        );
+        const bindingName = typeof block.module === "string" ? block.module : "$style";
+        params.set("module", typeof block.module === "string" ? block.module : "");
         const importUrl = `${filePath}?${params.toString()}`;
-        cssModuleImports.push(
-          `import ${bindingName} from ${JSON.stringify(importUrl)};`,
-        );
+        cssModuleImports.push(`import ${bindingName} from ${JSON.stringify(importUrl)};`);
       } else {
         // Side-effect import: Vite will inject the CSS
         const importUrl = `${filePath}?${params.toString()}`;
@@ -181,8 +163,7 @@ export function generateOutput(
       const moduleBindings: { name: string; bindingName: string }[] = [];
       for (const block of compiled.styles!) {
         if (isCssModule(block)) {
-          const bindingName =
-            typeof block.module === "string" ? block.module : "$style";
+          const bindingName = typeof block.module === "string" ? block.module : "$style";
           moduleBindings.push({ name: bindingName, bindingName });
         }
       }

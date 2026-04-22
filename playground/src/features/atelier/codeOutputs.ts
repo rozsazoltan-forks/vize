@@ -13,10 +13,7 @@ export const TEMPLATE_CODE_OUTPUT_TARGETS = CODE_OUTPUT_TARGETS;
 
 export type CodeOutputTarget = (typeof CODE_OUTPUT_TARGETS)[number];
 type SecondaryCodeOutputTarget = Exclude<CodeOutputTarget, "dom">;
-type SfcSecondaryCodeOutputTarget = Exclude<
-  SecondaryCodeOutputTarget,
-  "vaporSsr"
->;
+type SfcSecondaryCodeOutputTarget = Exclude<SecondaryCodeOutputTarget, "vaporSsr">;
 
 export interface CodeOutputVariant {
   code: string;
@@ -56,12 +53,8 @@ export function createEmptyCodeOutputs(): CodeOutputs {
   };
 }
 
-export function getCodeOutputTargets(
-  inputMode: InputMode,
-): readonly CodeOutputTarget[] {
-  return inputMode === "template"
-    ? TEMPLATE_CODE_OUTPUT_TARGETS
-    : SFC_CODE_OUTPUT_TARGETS;
+export function getCodeOutputTargets(inputMode: InputMode): readonly CodeOutputTarget[] {
+  return inputMode === "template" ? TEMPLATE_CODE_OUTPUT_TARGETS : SFC_CODE_OUTPUT_TARGETS;
 }
 
 function getErrorMessage(error: unknown): string {
@@ -79,13 +72,8 @@ async function formatVariantCode(code: string, isTypeScript: boolean) {
     };
   }
 
-  const formattedCode = await formatCode(
-    code,
-    isTypeScript ? "typescript" : "babel",
-  );
-  const formattedJsCode = isTypeScript
-    ? await formatCode(await transpileToJs(code), "babel")
-    : "";
+  const formattedCode = await formatCode(code, isTypeScript ? "typescript" : "babel");
+  const formattedJsCode = isTypeScript ? await formatCode(await transpileToJs(code), "babel") : "";
 
   return {
     formattedCode,
@@ -108,10 +96,7 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function getSfcBindingExpression(
-  name: string,
-  bindingType: string,
-): string | null {
+function getSfcBindingExpression(name: string, bindingType: string): string | null {
   switch (bindingType) {
     case "props":
     case "props-aliased":
@@ -156,10 +141,7 @@ function normalizeSfcTemplateCode(result: SfcCompileResult): string {
     if (expression.includes("_unref(")) {
       needsUnrefImport = true;
     }
-    normalized = normalized.replace(
-      new RegExp(`_ctx\\.${escapeRegExp(name)}\\b`, "g"),
-      expression,
-    );
+    normalized = normalized.replace(new RegExp(`_ctx\\.${escapeRegExp(name)}\\b`, "g"), expression);
   }
 
   if (needsUnrefImport && !normalized.includes("unref as _unref")) {
@@ -169,14 +151,9 @@ function normalizeSfcTemplateCode(result: SfcCompileResult): string {
   return normalized;
 }
 
-async function buildTemplateVariant(
-  result: CompileResult,
-): Promise<CodeOutputVariant> {
+async function buildTemplateVariant(result: CompileResult): Promise<CodeOutputVariant> {
   const code = result.code || "";
-  const { formattedCode, formattedJsCode } = await formatVariantCode(
-    code,
-    false,
-  );
+  const { formattedCode, formattedJsCode } = await formatVariantCode(code, false);
   return {
     code,
     formattedCode,
@@ -187,15 +164,10 @@ async function buildTemplateVariant(
   };
 }
 
-async function buildSfcScriptVariant(
-  result: SfcCompileResult,
-): Promise<CodeOutputVariant> {
+async function buildSfcScriptVariant(result: SfcCompileResult): Promise<CodeOutputVariant> {
   const code = result.script?.code || result.template?.code || "";
   const isTypeScript = isSfcTypeScript(result);
-  const { formattedCode, formattedJsCode } = await formatVariantCode(
-    code,
-    isTypeScript,
-  );
+  const { formattedCode, formattedJsCode } = await formatVariantCode(code, isTypeScript);
   return {
     code,
     formattedCode,
@@ -229,14 +201,9 @@ async function compileTemplateVariant(
   }
 }
 
-async function buildSfcTemplateVariant(
-  result: SfcCompileResult,
-): Promise<CodeOutputVariant> {
+async function buildSfcTemplateVariant(result: SfcCompileResult): Promise<CodeOutputVariant> {
   const code = normalizeSfcTemplateCode(result);
-  const { formattedCode, formattedJsCode } = await formatVariantCode(
-    code,
-    false,
-  );
+  const { formattedCode, formattedJsCode } = await formatVariantCode(code, false);
   return {
     code,
     formattedCode,

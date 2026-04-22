@@ -94,8 +94,7 @@ function restoreTextNodes(html: string, texts: string[]): string {
   let restored = html;
 
   for (let index = 0; index < texts.length; index += 1) {
-    const placeholder =
-      TEXT_PLACEHOLDER_PREFIX + index + TEXT_PLACEHOLDER_SUFFIX;
+    const placeholder = TEXT_PLACEHOLDER_PREFIX + index + TEXT_PLACEHOLDER_SUFFIX;
     restored = restored.replaceAll(placeholder, texts[index]);
   }
 

@@ -8,10 +8,7 @@ import { getBoundaryPlaceholderCode } from "./load.ts";
 import { loadHook } from "./load.ts";
 import { toVirtualId } from "../virtual.ts";
 
-const ssrClientPlaceholder = getBoundaryPlaceholderCode(
-  "/src/Foo.client.vue",
-  true,
-);
+const ssrClientPlaceholder = getBoundaryPlaceholderCode("/src/Foo.client.vue", true);
 assert.ok(ssrClientPlaceholder, "SSR should stub .client.vue components");
 assert.match(
   ssrClientPlaceholder,
@@ -19,14 +16,8 @@ assert.match(
   "SSR .client.vue placeholder should render a simple div",
 );
 
-const clientServerPlaceholder = getBoundaryPlaceholderCode(
-  "/src/Foo.server.vue",
-  false,
-);
-assert.ok(
-  clientServerPlaceholder,
-  "Client build should stub .server.vue components",
-);
+const clientServerPlaceholder = getBoundaryPlaceholderCode("/src/Foo.server.vue", false);
+assert.ok(clientServerPlaceholder, "Client build should stub .server.vue components");
 assert.match(
   clientServerPlaceholder,
   /ServerPlaceholder/,
@@ -93,10 +84,7 @@ export default _sfc_main`,
 };
 
 const firstLoad = loadHook(hmrState, toVirtualId(realPath), { ssr: false });
-assert.ok(
-  firstLoad && typeof firstLoad === "object",
-  "Virtual module should load as code object",
-);
+assert.ok(firstLoad && typeof firstLoad === "object", "Virtual module should load as code object");
 assert.match(
   firstLoad.code,
   /__hmrUpdateType = "template-only"/,
@@ -196,11 +184,7 @@ assert.match(
   "Client loads should read from the client compilation cache",
 );
 
-const ssrEnvironmentLoad = loadHook(
-  environmentState,
-  toVirtualId(envPath, true),
-  { ssr: true },
-);
+const ssrEnvironmentLoad = loadHook(environmentState, toVirtualId(envPath, true), { ssr: true });
 assert.ok(
   ssrEnvironmentLoad && typeof ssrEnvironmentLoad === "object",
   "SSR environment loads should succeed",
@@ -241,10 +225,7 @@ const cssState: VizePluginState = {
 };
 
 const clientCssLoad = loadHook(cssState, toVirtualId(cssPath), { ssr: false });
-assert.ok(
-  clientCssLoad && typeof clientCssLoad === "object",
-  "Client CSS load should succeed",
-);
+assert.ok(clientCssLoad && typeof clientCssLoad === "object", "Client CSS load should succeed");
 assert.match(
   clientCssLoad.code,
   /__vize_css__/,
@@ -254,10 +235,7 @@ assert.match(
 const ssrCssLoad = loadHook(cssState, toVirtualId(cssPath, true), {
   ssr: true,
 });
-assert.ok(
-  ssrCssLoad && typeof ssrCssLoad === "object",
-  "SSR CSS load should succeed",
-);
+assert.ok(ssrCssLoad && typeof ssrCssLoad === "object", "SSR CSS load should succeed");
 assert.doesNotMatch(
   ssrCssLoad.code,
   /__vize_css__/,
@@ -329,13 +307,9 @@ const onDemandProdState: VizePluginState = {
   extractCss: true,
 };
 
-const onDemandProdLoad = loadHook(
-  onDemandProdState,
-  toVirtualId(onDemandProdPath),
-  {
-    ssr: false,
-  },
-);
+const onDemandProdLoad = loadHook(onDemandProdState, toVirtualId(onDemandProdPath), {
+  ssr: false,
+});
 assert.ok(
   onDemandProdLoad && typeof onDemandProdLoad === "object",
   "Production on-demand loads should still compile successfully",

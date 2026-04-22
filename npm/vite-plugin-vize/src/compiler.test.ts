@@ -74,11 +74,7 @@ assert.equal(
   0,
   "Batch compilation should stay clean for the SSR regression",
 );
-assert.equal(
-  batchResult.results.length,
-  1,
-  "Batch compilation should return a single file result",
-);
+assert.equal(batchResult.results.length, 1, "Batch compilation should return a single file result");
 assert.match(
   batchResult.results[0]?.code ?? "",
   /\$setup\.Primitive/,

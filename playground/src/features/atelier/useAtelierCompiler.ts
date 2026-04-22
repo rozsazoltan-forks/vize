@@ -18,14 +18,7 @@ import {
 import { mapToObject, filterAstProperties } from "./astHelpers";
 import { useClipboard } from "../../utils/useClipboard";
 
-type TabType =
-  | "code"
-  | "ast"
-  | "bindings"
-  | "tokens"
-  | "helpers"
-  | "sfc"
-  | "css";
+type TabType = "code" | "ast" | "bindings" | "tokens" | "helpers" | "sfc" | "css";
 
 export function useAtelierCompiler(getCompiler: () => WasmModule | null) {
   const { copyToClipboard } = useClipboard();
@@ -55,28 +48,18 @@ export function useAtelierCompiler(getCompiler: () => WasmModule | null) {
   const codeOutputTarget = ref<CodeOutputTarget>("dom");
   const codeOutputs = ref(createEmptyCodeOutputs());
   const codeOutputVersion = ref(0);
-  const activeCodeOutput = computed(
-    () => codeOutputs.value[codeOutputTarget.value],
-  );
-  const availableCodeOutputTargets = computed(() =>
-    getCodeOutputTargets(inputMode.value),
-  );
+  const activeCodeOutput = computed(() => codeOutputs.value[codeOutputTarget.value]);
+  const availableCodeOutputTargets = computed(() => getCodeOutputTargets(inputMode.value));
   const astHideLoc = ref(true);
   const astHideSource = ref(true);
   const astCollapsed = ref(false);
 
-  const editorLanguage = computed(() =>
-    inputMode.value === "sfc" ? "vue" : "html",
-  );
+  const editorLanguage = computed(() => (inputMode.value === "sfc" ? "vue" : "html"));
 
   const astJson = computed(() => {
     if (!output.value) return "{}";
     const ast = mapToObject(output.value.ast);
-    const filtered = filterAstProperties(
-      ast,
-      astHideLoc.value,
-      astHideSource.value,
-    );
+    const filtered = filterAstProperties(ast, astHideLoc.value, astHideSource.value);
     return JSON.stringify(filtered, null, astCollapsed.value ? 0 : 2);
   });
 
@@ -101,10 +84,7 @@ export function useAtelierCompiler(getCompiler: () => WasmModule | null) {
     return groups;
   });
 
-  async function compileCssFromSfcResult(
-    compiler: WasmModule,
-    result: SfcCompileResult | null,
-  ) {
+  async function compileCssFromSfcResult(compiler: WasmModule, result: SfcCompileResult | null) {
     if (!result?.descriptor?.styles?.length) {
       cssResult.value = null;
       formattedCss.value = "";
@@ -114,9 +94,7 @@ export function useAtelierCompiler(getCompiler: () => WasmModule | null) {
     const allCss = result.descriptor.styles
       .map((style: { content: string }) => style.content)
       .join("\n");
-    const hasScoped = result.descriptor.styles.some(
-      (style: { scoped?: boolean }) => style.scoped,
-    );
+    const hasScoped = result.descriptor.styles.some((style: { scoped?: boolean }) => style.scoped);
     const css = compiler.compileCss(allCss, {
       ...cssOptions.value,
       scoped: hasScoped || cssOptions.value.scoped,

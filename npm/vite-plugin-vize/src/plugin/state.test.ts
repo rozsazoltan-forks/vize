@@ -35,10 +35,7 @@ assert.equal(
   ),
   true,
 );
-assert.equal(
-  hasFileMetadataChanged(undefined, currentMetadata.get("/src/new.vue")!),
-  true,
-);
+assert.equal(hasFileMetadataChanged(undefined, currentMetadata.get("/src/new.vue")!), true);
 
 const diff = diffPrecompileFiles(
   ["/src/unchanged.vue", "/src/changed.vue", "/src/new.vue"],
