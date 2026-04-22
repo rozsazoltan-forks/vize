@@ -52,7 +52,7 @@ export MOON_HOME="${moonHome}"
 }
 
 function smokeTestMoon() {
-  const result = spawnSync(moonExe, ["run", "-q", "--target", "native", "-", "--"], {
+  const result = spawnSync(moonExe, ["run", "-q", "--target", "js", "-", "--"], {
     stdio: ["pipe", "inherit", "inherit"],
     env: {
       ...process.env,
@@ -91,20 +91,10 @@ if (os.type() === "Windows_NT") {
       MOON_HOME: moonHome,
     },
   );
-  run(
-    "pwsh",
-    [
-      "-NoProfile",
-      "-ExecutionPolicy",
-      "Bypass",
-      "-File",
-      moonInstallerScript,
-    ],
-    {
-      ...process.env,
-      MOON_HOME: moonHome,
-    },
-  );
+  run("pwsh", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", moonInstallerScript], {
+    ...process.env,
+    MOON_HOME: moonHome,
+  });
 } else {
   run("bash", ["-lc", "curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash"], {
     ...process.env,

@@ -229,7 +229,10 @@ async fn run_app() -> Int {
     let mut attempt = 1
     let mut published = false
     while attempt <= max_attempts {
-      let publish_exit = @process.run("cargo", ["publish", "-p", crate_name])
+      let (publish_exit, _, _) = @process.collect_output(
+        "cargo",
+        ["publish", "-p", crate_name],
+      )
       if publish_exit == 0 {
         published = true
         break
@@ -237,6 +240,13 @@ async fn run_app() -> Int {
       if crate_is_published(crate_name, version) {
         println(
           "\{crate_name} v\{version} was published despite a non-zero cargo publish exit.",
+        )
+        published = true
+        break
+      }
+      if crate_is_resolvable(crate_name, version) {
+        println(
+          "\{crate_name} v\{version} is already resolvable despite a non-zero cargo publish exit.",
         )
         published = true
         break

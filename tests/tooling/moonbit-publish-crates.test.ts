@@ -125,3 +125,48 @@ test("publish_crates runs as a native MoonBit script", () => {
     rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+test("publish_crates treats a non-zero cargo publish exit as success when the crate is already resolvable", () => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "moonbit-publish-crates-resolvable-"));
+  const binDir = path.join(tempDir, "bin");
+  const cargoLogPath = path.join(tempDir, "cargo.log");
+
+  try {
+    fs.mkdirSync(binDir, { recursive: true });
+    writeFakeCommand(
+      binDir,
+      "cargo",
+      [
+        "const fs = require('node:fs');",
+        "const args = process.argv.slice(2);",
+        "fs.appendFileSync(process.env.CARGO_LOG, args.join(' ') + '\\n');",
+        "if (args[0] === 'publish' && args[2] === 'vize_carton') process.exit(1);",
+        "if (args[0] === 'publish' || args[0] === 'info') process.exit(0);",
+        "process.exit(1);",
+      ].join("\n"),
+    );
+    writeFakeCommand(
+      binDir,
+      "curl",
+      ["process.stdout.write(JSON.stringify({ versions: [] }));", "process.exit(0);"].join("\n"),
+    );
+
+    const result = runMoonScript("publish_crates", [], {
+      cwd: repoRoot,
+      env: {
+        PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
+        CARGO_LOG: cargoLogPath,
+        PUBLISH_RETRY_LIMIT: "1",
+        PUBLISH_RETRY_DELAY: "1",
+      },
+    });
+
+    assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`.trim());
+    assert.match(result.stdout, /already resolvable despite a non-zero cargo publish exit/i);
+    const logLines = fs.readFileSync(cargoLogPath, "utf8").trim().split("\n");
+    assert.equal(logLines[0], "publish -p vize_carton");
+    assert.match(logLines[1] ?? "", /^info vize_carton@/);
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});

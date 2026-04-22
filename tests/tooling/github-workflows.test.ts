@@ -41,6 +41,13 @@ test("setup-moonbit defines explicit Windows and Unix execution paths", () => {
   assert.match(action, /shell: bash/);
 });
 
+test("setup-moonbit smoke test uses the JavaScript target to avoid platform-specific native toolchain assumptions", () => {
+  const installer = readRepoFile(".github", "actions", "setup-moonbit", "install-moonbit.mjs");
+
+  assert.match(installer, /\["run", "-q", "--target", "js", "-", "--"\]/);
+  assert.doesNotMatch(installer, /\["run", "-q", "--target", "native", "-", "--"\]/);
+});
+
 test("release workflow does not pin a separate hard-coded Node version for VS Code publishing", () => {
   const workflow = readRepoFile(".github", "workflows", "release.yml");
 
