@@ -82,6 +82,24 @@ test("release workflow configures npm auth fallback for every npm publish job", 
   assert.match(workflow, /tools\/moon\/scripts\/github\/configure_npm_auth\.mbtx/);
 });
 
+test("release workflow bundles fresco-native binaries into the root package instead of publishing platform packages", () => {
+  const workflow = readRepoFile(".github", "workflows", "release.yml");
+  const frescoJobStart = workflow.indexOf("\n  release-npm-fresco-native:\n");
+  const nextJobStart = workflow.indexOf("\n  # Build and publish WASM package", frescoJobStart);
+  const frescoJob = workflow.slice(frescoJobStart, nextJobStart);
+
+  assert.match(
+    frescoJob,
+    /Clean bundled native binaries[\s\S]*tools\/moon\/scripts\/github\/clean_node_binaries\.mbtx/,
+  );
+  assert.match(
+    frescoJob,
+    /Stage bundled native binaries[\s\S]*tools\/moon\/scripts\/github\/collect_native_artifacts\.mbtx/,
+  );
+  assert.doesNotMatch(frescoJob, /napi create-npm-dirs/);
+  assert.doesNotMatch(frescoJob, /publish_npm_package_dirs\.mbtx/);
+});
+
 test("cargo config forces the bundled Rust linker for Windows MSVC targets", () => {
   const cargoConfig = readRepoFile(".cargo", "config.toml");
 

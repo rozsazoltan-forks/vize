@@ -412,23 +412,11 @@ jobs:
           pattern: fresco-bindings-*
           path: npm/fresco-native/artifacts
 
-      - name: Create npm platform directories
-        working-directory: npm/fresco-native
-        run: vp exec napi create-npm-dirs
+      - name: Clean bundled native binaries
+        run: moon run --target native - -- npm/fresco-native < tools/moon/scripts/github/clean_node_binaries.mbtx
 
-      - name: Move artifacts
-        working-directory: npm/fresco-native
-        run: vp exec napi artifacts --output-dir artifacts
-
-      - name: Prepare for publish
-        working-directory: npm/fresco-native
-        run: vp exec napi pre-publish -t npm --no-gh-release --skip-optional-publish
-
-      - name: List packages
-        run: ls -R npm/fresco-native/npm/
-
-      - name: Publish platform packages
-        run: moon run --target native - -- npm/fresco-native/npm --provenance < tools/moon/scripts/publish_npm_package_dirs.mbtx
+      - name: Stage bundled native binaries
+        run: moon run --target native - -- npm/fresco-native/artifacts npm/fresco-native fresco-native < tools/moon/scripts/github/collect_native_artifacts.mbtx
 
       - name: Publish
         run: moon run --target native - -- npm/fresco-native --provenance < tools/moon/scripts/publish_npm_package.mbtx

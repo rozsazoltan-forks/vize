@@ -142,3 +142,15 @@ test("vize package delegates rule type generation to the workspace MoonBit task"
     "vp run --workspace-root generate:rule-types && vp pack",
   );
 });
+
+test("fresco-native publishes bundled binaries directly from the root package", () => {
+  const frescoNativePackage = JSON.parse(
+    fs.readFileSync(path.join(root, "npm/fresco-native/package.json"), "utf-8"),
+  ) as {
+    files?: string[];
+    scripts?: Record<string, string>;
+  };
+
+  assert.deepEqual(frescoNativePackage.files, ["index.js", "index.d.ts", "*.node"]);
+  assert.equal(frescoNativePackage.scripts?.prepublishOnly, undefined);
+});
