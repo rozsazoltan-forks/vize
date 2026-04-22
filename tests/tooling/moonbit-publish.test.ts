@@ -72,6 +72,124 @@ test("inject_native_optional_deps updates only native optional dependency pins",
   }
 });
 
+test("publish_npm_package normalizes workspace and catalog dependency specs before publishing", () => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "moonbit-publish-normalize-"));
+  const repoDir = path.join(tempDir, "repo");
+  const packageDir = path.join(repoDir, "npm", "vite-plugin-vize");
+  const binDir = path.join(tempDir, "bin");
+  const statePath = path.join(tempDir, "vp-state.json");
+  const manifestLogPath = path.join(tempDir, "manifest.json");
+
+  try {
+    fs.mkdirSync(packageDir, { recursive: true });
+    fs.mkdirSync(path.join(repoDir, "npm", "vize-native"), { recursive: true });
+    fs.mkdirSync(path.join(repoDir, "npm", "vize"), { recursive: true });
+    fs.mkdirSync(binDir, { recursive: true });
+    writeFileSync(
+      path.join(repoDir, "pnpm-workspace.yaml"),
+      [
+        "packages:",
+        '  - "npm/*"',
+        "",
+        "catalogs:",
+        "  repo-tooling:",
+        '    tinyglobby: "0.2.16"',
+        "  vite-stack:",
+        '    vite: "npm:@voidzero-dev/vite-plus-core@0.1.19"',
+        "",
+      ].join("\n"),
+    );
+    writeFileSync(
+      path.join(repoDir, "npm", "vize-native", "package.json"),
+      `${JSON.stringify({ name: "@vizejs/native", version: "0.57.0" }, null, 2)}\n`,
+    );
+    writeFileSync(
+      path.join(repoDir, "npm", "vize", "package.json"),
+      `${JSON.stringify({ name: "vize", version: "0.57.0" }, null, 2)}\n`,
+    );
+    writeFileSync(
+      path.join(packageDir, "package.json"),
+      `${JSON.stringify(
+        {
+          name: "@vizejs/vite-plugin",
+          version: "0.57.0",
+          dependencies: {
+            "@vizejs/native": "workspace:*",
+            tinyglobby: "catalog:repo-tooling",
+            vize: "workspace:*",
+          },
+          peerDependencies: {
+            vite: "catalog:vite-stack",
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    writeFakeCommand(
+      binDir,
+      "vp",
+      [
+        "const fs = require('node:fs');",
+        "const args = process.argv.slice(2);",
+        "const state = fs.existsSync(process.env.VP_STATE_PATH)",
+        "  ? JSON.parse(fs.readFileSync(process.env.VP_STATE_PATH, 'utf8'))",
+        "  : { published: false };",
+        "if (args[0] === 'pm' && args[1] === 'publish') {",
+        "  fs.writeFileSync(",
+        "    process.env.MANIFEST_LOG_PATH,",
+        "    fs.readFileSync('package.json', 'utf8'),",
+        "  );",
+        "  state.published = true;",
+        "  fs.writeFileSync(process.env.VP_STATE_PATH, JSON.stringify(state));",
+        "  process.exit(0);",
+        "}",
+        "if (args[0] === 'pm' && args[1] === 'view' && args[3] === 'version') {",
+        "  if (state.published) {",
+        "    process.stdout.write(JSON.stringify('0.57.0'));",
+        "    process.exit(0);",
+        "  }",
+        "  process.exit(1);",
+        "}",
+        "if (args[0] === 'pm' && args[1] === 'view' && args[3] === 'dist-tags') {",
+        "  if (state.published) {",
+        "    process.stdout.write(JSON.stringify({ latest: '0.57.0' }));",
+        "    process.exit(0);",
+        "  }",
+        "  process.exit(1);",
+        "}",
+        "process.exit(1);",
+      ].join("\n"),
+    );
+
+    const result = runMoonScript("publish_npm_package", [packageDir], {
+      env: {
+        PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
+        VP_STATE_PATH: statePath,
+        MANIFEST_LOG_PATH: manifestLogPath,
+        PUBLISH_RESOLUTION_RETRY_LIMIT: "1",
+        PUBLISH_RESOLUTION_RETRY_DELAY: "1",
+      },
+    });
+    assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`.trim());
+
+    const manifest = JSON.parse(fs.readFileSync(manifestLogPath, "utf8")) as {
+      dependencies: Record<string, string>;
+      peerDependencies: Record<string, string>;
+    };
+    assert.deepEqual(manifest.dependencies, {
+      "@vizejs/native": "0.57.0",
+      tinyglobby: "0.2.16",
+      vize: "0.57.0",
+    });
+    assert.deepEqual(manifest.peerDependencies, {
+      vite: "npm:@voidzero-dev/vite-plus-core@0.1.19",
+    });
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
 test("publish_npm_package computes the tag and forwards provenance to vp", () => {
   const tempDir = mkdtempSync(path.join(tmpdir(), "moonbit-publish-npm-"));
   const packageDir = path.join(tempDir, "pkg");

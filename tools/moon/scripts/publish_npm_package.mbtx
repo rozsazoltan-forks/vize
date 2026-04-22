@@ -10,7 +10,9 @@
 /// 3. Runs `vp pm publish` with retry/backoff when needed.
 /// 4. Treats "publish returned non-zero but the version is now visible" as a
 ///    success, because that usually means the server-side publish completed.
-/// 5. Waits for both the published version and the expected dist-tag to become
+/// 5. Normalizes publish manifests so detached release artifacts do not retain
+///    unresolved `workspace:*` or `catalog:*` dependency specs.
+/// 6. Waits for both the published version and the expected dist-tag to become
 ///    readable before reporting success.
 ///
 /// This makes the script suitable for trusted publishing flows where the most
@@ -69,6 +71,27 @@ fn resolve_path(value : String) -> String {
 fn join_path(base : String, child : String) -> String {
   let path : @path.Path = base
   path.join(child).to_string()
+}
+
+///|
+fn safe_path_exists(path : String) -> Bool {
+  @xfs.path_exists(path)
+}
+
+///|
+fn find_repo_root(start : String) -> String? {
+  let current : @path.Path = start
+  let current_path = current.resolve().to_string()
+  if safe_path_exists(join_path(current_path, "pnpm-workspace.yaml")) &&
+    safe_path_exists(join_path(current_path, "npm")) {
+    return Some(current_path)
+  }
+  let parent = current.dirname().to_string()
+  if parent == current_path {
+    None
+  } else {
+    find_repo_root(parent)
+  }
 }
 
 ///|
@@ -161,6 +184,61 @@ fn tool_bin(env_name : String, fallback : String) -> String {
     Some(value) if value != "" => value
     _ => fallback
   }
+}
+
+///|
+fn shell_quote(value : String) -> String {
+  "'" + value.replace_all(old="'", new="'\"'\"'") + "'"
+}
+
+///|
+fn child_script_command(
+  moon_bin : String,
+  script_path : String,
+  args : Array[String],
+) -> String {
+  let parts = [
+    shell_quote(moon_bin),
+    "run",
+    "-q",
+    "--target",
+    "native",
+    "-",
+    "--",
+  ]
+  for arg in args {
+    parts.push(shell_quote(arg))
+  }
+  parts.join(" ") + " < " + shell_quote(script_path)
+}
+
+///|
+/// Resolves workspace and catalog dependency protocols before publishing.
+///
+/// Release artifacts are published from downloaded directories rather than a
+/// fully installed workspace, so we proactively rewrite protocol-based version
+/// specs to concrete npm-compatible strings. This keeps the publish path
+/// deterministic and removes a class of release-only pnpm failures.
+async fn prepare_publish_manifest(directory : String) -> Int {
+  let start_dir = match @sys.get_env_var("VIZE_REPO_ROOT") {
+    Some(value) if value != "" => resolve_path(value)
+    _ => resolve_path(@env.current_dir().unwrap_or("."))
+  }
+  let repo_root = match find_repo_root(start_dir) {
+    Some(path) => path
+    None => return 0
+  }
+  let moon_bin = tool_bin("MOON_BIN", "moon")
+  let script_path = join_path(repo_root, "tools/moon/scripts/prepare_npm_publish_manifest.mbtx")
+  let exit_code = @process.run(
+    "sh",
+    ["-c", child_script_command(moon_bin, script_path, [directory])],
+    cwd=repo_root,
+  )
+  if exit_code != 0 {
+    @stdio.stderr.write("Failed to prepare npm publish manifest for \{directory}\n")
+  }
+  exit_code
 }
 
 ///|
@@ -344,6 +422,10 @@ async fn run_app() -> Int {
   }
 
   let package_json_path = join_path(directory, "package.json")
+  let prepare_exit_code = prepare_publish_manifest(directory)
+  if prepare_exit_code != 0 {
+    return prepare_exit_code
+  }
   let package_json = match read_package_json(package_json_path) {
     Some(json) => json
     None => {

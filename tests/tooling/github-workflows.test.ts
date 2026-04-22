@@ -73,6 +73,15 @@ test("release workflow overwrites existing GitHub release assets when a tag is r
   assert.match(workflow, /uses: softprops\/action-gh-release@v2[\s\S]*overwrite_files:\s*true/);
 });
 
+test("release workflow configures npm auth fallback for every npm publish job", () => {
+  const workflow = readRepoFile(".github", "workflows", "release.yml");
+  const fallbackSteps = [...workflow.matchAll(/- name: Configure npm auth fallback/g)];
+
+  assert.equal(fallbackSteps.length, 13);
+  assert.match(workflow, /NPM_TOKEN:\s*\$\{\{\s*secrets\.NPM_TOKEN\s*\}\}/);
+  assert.match(workflow, /tools\/moon\/scripts\/github\/configure_npm_auth\.mbtx/);
+});
+
 test("cargo config forces the bundled Rust linker for Windows MSVC targets", () => {
   const cargoConfig = readRepoFile(".cargo", "config.toml");
 
