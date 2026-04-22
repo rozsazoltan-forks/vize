@@ -69,3 +69,24 @@ test("release workflow overwrites existing GitHub release assets when a tag is r
 
   assert.match(workflow, /uses: softprops\/action-gh-release@v2[\s\S]*overwrite_files:\s*true/);
 });
+
+test("release workflow runs GitHub helper scripts with the JavaScript target on Windows runners", () => {
+  const workflow = readRepoFile(".github", "workflows", "release.yml");
+
+  assert.match(
+    workflow,
+    /build-cli:[\s\S]*MOON_HELPER_TARGET:\s*\$\{\{ runner\.os == 'Windows' && 'js' \|\| 'native' \}\}/,
+  );
+  assert.match(
+    workflow,
+    /build-native-all:[\s\S]*MOON_HELPER_TARGET:\s*\$\{\{ runner\.os == 'Windows' && 'js' \|\| 'native' \}\}/,
+  );
+  assert.match(
+    workflow,
+    /Create archive \(Windows\)[\s\S]*moon run --target \$\{\{ env\.MOON_HELPER_TARGET \}\}/,
+  );
+  assert.match(
+    workflow,
+    /Build vize-native[\s\S]*moon run --target \$\{\{ env\.MOON_HELPER_TARGET \}\}/,
+  );
+});
