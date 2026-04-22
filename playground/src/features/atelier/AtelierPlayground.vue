@@ -37,6 +37,7 @@ const {
   formattedCss,
   codeViewMode,
   codeOutputTarget,
+  availableCodeOutputTargets,
   codeOutputVersion,
   activeCodeOutput,
   astHideLoc,
@@ -182,22 +183,12 @@ onUnmounted(() => {
             <div class="code-header-actions">
               <div class="code-mode-toggle">
                 <button
-                  :class="['toggle-btn', { active: codeOutputTarget === 'dom' }]"
-                  @click="codeOutputTarget = 'dom'"
+                  v-for="target in availableCodeOutputTargets"
+                  :key="target"
+                  :class="['toggle-btn', { active: codeOutputTarget === target }]"
+                  @click="codeOutputTarget = target"
                 >
-                  VDOM
-                </button>
-                <button
-                  :class="['toggle-btn', { active: codeOutputTarget === 'ssr' }]"
-                  @click="codeOutputTarget = 'ssr'"
-                >
-                  SSR
-                </button>
-                <button
-                  :class="['toggle-btn', { active: codeOutputTarget === 'vapor' }]"
-                  @click="codeOutputTarget = 'vapor'"
-                >
-                  Vapor
+                  {{ CODE_OUTPUT_LABELS[target] }}
                 </button>
               </div>
               <div class="code-mode-toggle code-view-toggle">
@@ -241,7 +232,11 @@ onUnmounted(() => {
               show-line-numbers
             />
             <div
-              v-if="activeCodeOutput.templates.length > 0 && codeOutputTarget !== 'vapor'"
+              v-if="
+                activeCodeOutput.templates.length > 0 &&
+                codeOutputTarget !== 'vapor' &&
+                codeOutputTarget !== 'vaporSsr'
+              "
               class="sfc-block"
             >
               <p class="section-label">

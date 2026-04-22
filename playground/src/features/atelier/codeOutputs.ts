@@ -7,9 +7,13 @@ import type {
 } from "../../wasm/index";
 import { formatCode, transpileToJs } from "./formatters";
 
-export const CODE_OUTPUT_TARGETS = ["dom", "ssr", "vapor"] as const;
+export const CODE_OUTPUT_TARGETS = ["dom", "ssr", "vapor", "vaporSsr"] as const;
+export const SFC_CODE_OUTPUT_TARGETS = ["dom", "ssr", "vapor"] as const;
+export const TEMPLATE_CODE_OUTPUT_TARGETS = CODE_OUTPUT_TARGETS;
 
 export type CodeOutputTarget = (typeof CODE_OUTPUT_TARGETS)[number];
+type SecondaryCodeOutputTarget = Exclude<CodeOutputTarget, "dom">;
+type SfcSecondaryCodeOutputTarget = Exclude<SecondaryCodeOutputTarget, "vaporSsr">;
 
 export interface CodeOutputVariant {
   code: string;
@@ -26,6 +30,7 @@ export const CODE_OUTPUT_LABELS: Record<CodeOutputTarget, string> = {
   dom: "VDOM",
   ssr: "SSR",
   vapor: "Vapor",
+  vaporSsr: "Vapor SSR",
 };
 
 function createEmptyCodeOutputVariant(): CodeOutputVariant {
@@ -44,7 +49,12 @@ export function createEmptyCodeOutputs(): CodeOutputs {
     dom: createEmptyCodeOutputVariant(),
     ssr: createEmptyCodeOutputVariant(),
     vapor: createEmptyCodeOutputVariant(),
+    vaporSsr: createEmptyCodeOutputVariant(),
   };
+}
+
+export function getCodeOutputTargets(inputMode: InputMode): readonly CodeOutputTarget[] {
+  return inputMode === "template" ? TEMPLATE_CODE_OUTPUT_TARGETS : SFC_CODE_OUTPUT_TARGETS;
 }
 
 function getErrorMessage(error: unknown): string {
@@ -172,12 +182,12 @@ async function compileTemplateVariant(
   compiler: WasmModule,
   source: string,
   options: CompilerOptions,
-  target: Exclude<CodeOutputTarget, "dom">,
+  target: SecondaryCodeOutputTarget,
 ): Promise<CodeOutputVariant> {
   try {
     const result =
-      target === "vapor"
-        ? compiler.compileVapor(source, { ...options, ssr: false })
+      target === "vapor" || target === "vaporSsr"
+        ? compiler.compileVapor(source, { ...options, ssr: target === "vaporSsr" })
         : compiler.compile(source, { ...options, ssr: true });
     return await buildTemplateVariant(result);
   } catch (error) {
@@ -205,7 +215,7 @@ async function compileSfcVariant(
   compiler: WasmModule,
   source: string,
   options: CompilerOptions,
-  target: Exclude<CodeOutputTarget, "dom">,
+  target: SfcSecondaryCodeOutputTarget,
 ): Promise<CodeOutputVariant> {
   try {
     const outputMode = target === "ssr" ? "vdom" : "vapor";
@@ -261,12 +271,14 @@ export async function compileCodeOutputs({
     outputs.dom = await buildTemplateVariant(baseOutput);
   }
 
-  const [ssr, vapor] = await Promise.all([
+  const [ssr, vapor, vaporSsr] = await Promise.all([
     compileTemplateVariant(compiler, source, options, "ssr"),
     compileTemplateVariant(compiler, source, options, "vapor"),
+    compileTemplateVariant(compiler, source, options, "vaporSsr"),
   ]);
 
   outputs.ssr = ssr;
   outputs.vapor = vapor;
+  outputs.vaporSsr = vaporSsr;
   return outputs;
 }

@@ -5,7 +5,7 @@ import type {
   SfcCompileResult,
   WasmModule,
 } from "../../wasm/index";
-import { compileCodeOutputs } from "./codeOutputs";
+import { compileCodeOutputs, getCodeOutputTargets } from "./codeOutputs";
 
 vi.mock("./formatters", () => ({
   formatCode: vi.fn(async (code: string, parser: string) => `[${parser}] ${code}`),
@@ -79,7 +79,7 @@ function createSfcResult(
 }
 
 describe("compileCodeOutputs", () => {
-  it("compiles template outputs for SSR and Vapor variants", async () => {
+  it("compiles template outputs for SSR, Vapor, and Vapor SSR variants", async () => {
     const compile = vi.fn((_: string, options: CompilerOptions) =>
       createCompileResult(options.ssr ? "ssr-code" : "dom-code"),
     );
@@ -103,9 +103,17 @@ describe("compileCodeOutputs", () => {
     expect(outputs.dom.code).toBe("dom-code");
     expect(outputs.ssr.code).toBe("ssr-code");
     expect(outputs.vapor.code).toBe("vapor-code");
+    expect(outputs.vaporSsr.code).toBe("vapor-ssr-code");
     expect(outputs.vapor.templates).toEqual(["tpl-a"]);
+    expect(outputs.vaporSsr.templates).toEqual(["tpl-a"]);
     expect(compile).toHaveBeenNthCalledWith(1, "<div />", { mode: "module", ssr: true });
     expect(compileVapor).toHaveBeenNthCalledWith(1, "<div />", { mode: "module", ssr: false });
+    expect(compileVapor).toHaveBeenNthCalledWith(2, "<div />", { mode: "module", ssr: true });
+  });
+
+  it("exposes Vapor SSR only for template inputs", () => {
+    expect(getCodeOutputTargets("template")).toEqual(["dom", "ssr", "vapor", "vaporSsr"]);
+    expect(getCodeOutputTargets("sfc")).toEqual(["dom", "ssr", "vapor"]);
   });
 
   it("normalizes SFC SSR and Vapor template outputs using script setup bindings", async () => {
@@ -156,6 +164,7 @@ describe("compileCodeOutputs", () => {
     expect(outputs.vapor.code).toContain("_toDisplayString(count)");
     expect(outputs.vapor.code).toContain("_toDisplayString(doubled.value)");
     expect(outputs.vapor.templates).toEqual(["tpl-vapor"]);
+    expect(outputs.vaporSsr.code).toBe("");
     expect(compileSfc).toHaveBeenNthCalledWith(1, "<template><div /></template>", {
       mode: "module",
       scriptExt: "preserve",
