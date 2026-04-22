@@ -30,6 +30,14 @@ test("deploy-docs deploy job installs MoonBit before running script-mode helpers
   assert.ok(setupIndex < moonRunIndex);
 });
 
+test("deploy-docs deploy job keeps a full checkout so local actions and scripts remain available", () => {
+  const workflow = readRepoFile(".github", "workflows", "deploy-docs.yml");
+  const deployJob = workflow.slice(workflow.indexOf("\n  deploy:\n"));
+
+  assert.match(deployJob, /- uses: actions\/checkout@v4/);
+  assert.doesNotMatch(deployJob, /sparse-checkout:/);
+});
+
 test("WASM build jobs install MoonBit before invoking moon run", () => {
   const cases = [
     {
