@@ -56,6 +56,11 @@ fn safe_path_exists(path : String) -> Bool {
 }
 
 ///|
+fn is_git_ignored(path : String) -> Bool {
+  @process.run("git", ["check-ignore", "-q", path]) == 0
+}
+
+///|
 fn safe_is_dir(path : String) -> Bool {
   try {
     @xfs.is_dir(path)
@@ -614,7 +619,7 @@ async fn run_app() -> Int {
 
   println("Updating READMEs...")
   let root_readme = "README.md"
-  if safe_path_exists(root_readme) {
+  if safe_path_exists(root_readme) && !is_git_ignored(root_readme) {
     let content = match read_file_to_string(root_readme) {
       Some(content) => content
       None => {
@@ -638,6 +643,9 @@ async fn run_app() -> Int {
     }
     let readme_path = join_path(package_dir, "README.md")
     if !safe_path_exists(readme_path) {
+      continue
+    }
+    if is_git_ignored(readme_path) {
       continue
     }
     let content = match read_file_to_string(readme_path) {
