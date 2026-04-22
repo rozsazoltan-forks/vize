@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import {
   diffPrecompileFiles,
+  getCompileOptionsForRequest,
   hasFileMetadataChanged,
   syncCollectedCssForFile,
   type PrecompileFileMetadata,
@@ -43,6 +44,38 @@ const diff = diffPrecompileFiles(
 );
 assert.deepEqual(diff.changedFiles, ["/src/changed.vue", "/src/new.vue"]);
 assert.deepEqual(diff.deletedFiles, ["/src/removed.vue"]);
+
+assert.deepEqual(
+  getCompileOptionsForRequest(
+    {
+      isProduction: false,
+      mergedOptions: { vapor: true },
+    },
+    false,
+  ),
+  {
+    sourceMap: true,
+    ssr: false,
+    vapor: true,
+  },
+  "Client requests should keep Vapor enabled when the plugin is configured for it",
+);
+
+assert.deepEqual(
+  getCompileOptionsForRequest(
+    {
+      isProduction: true,
+      mergedOptions: { vapor: true },
+    },
+    true,
+  ),
+  {
+    sourceMap: false,
+    ssr: true,
+    vapor: false,
+  },
+  "SSR requests should continue to use the VDOM compiler while client builds hydrate with Vapor",
+);
 
 const cssState = {
   isProduction: true,

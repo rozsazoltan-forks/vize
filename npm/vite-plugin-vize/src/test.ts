@@ -1,4 +1,5 @@
 import "./hmr.test.ts";
+import "./compiler.test.ts";
 import "./utils.test.ts";
 import "./plugin/compat.test.ts";
 import "./plugin/load.test.ts";
