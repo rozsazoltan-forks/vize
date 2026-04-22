@@ -1,9 +1,15 @@
 name: Setup MoonBit
-description: Install the MoonBit native toolchain on Linux GitHub runners
+description: Install the MoonBit native toolchain on GitHub-hosted runners
 
 runs:
   using: composite
   steps:
-    - name: Install MoonBit
+    - name: Install MoonBit (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: node .github/actions/setup-moonbit/install-moonbit.mjs
+
+    - name: Install MoonBit (Unix)
+      if: runner.os != 'Windows'
       shell: bash
       run: node .github/actions/setup-moonbit/install-moonbit.mjs

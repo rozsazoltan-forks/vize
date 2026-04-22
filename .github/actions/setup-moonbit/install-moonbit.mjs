@@ -18,6 +18,7 @@ const moonBin = path.join(moonHome, "bin");
 const moonExe = path.join(moonBin, os.type() === "Windows_NT" ? "moon.exe" : "moon");
 const shimDir = path.join(runnerTemp, "moonbit-shims");
 const shimMoon = path.join(shimDir, os.type() === "Windows_NT" ? "moon.cmd" : "moon");
+const moonInstallerScript = path.join(runnerTemp, "moonbit-install.ps1");
 
 function run(command, args, env) {
   const result = spawnSync(command, args, {
@@ -77,13 +78,27 @@ async fn main {
 
 if (os.type() === "Windows_NT") {
   run(
-    "powershell",
+    "pwsh",
     [
       "-NoProfile",
       "-ExecutionPolicy",
       "Bypass",
       "-Command",
-      "Invoke-Expression ((Invoke-WebRequest -UseBasicParsing 'https://cli.moonbitlang.com/install/powershell.ps1').Content)",
+      `Invoke-WebRequest -UseBasicParsing 'https://cli.moonbitlang.com/install/powershell.ps1' -OutFile "${moonInstallerScript}"`,
+    ],
+    {
+      ...process.env,
+      MOON_HOME: moonHome,
+    },
+  );
+  run(
+    "pwsh",
+    [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      moonInstallerScript,
     ],
     {
       ...process.env,
