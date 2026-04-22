@@ -362,21 +362,28 @@ test("publish_vscode_extension adds pre-release when NPM_TAG is not latest", () 
   const binDir = path.join(tempDir, "bin");
   const argsLogPath = path.join(tempDir, "vp-args.log");
   const vsixPath = path.join(tempDir, "vize.vsix");
+  const packageJsonPath = path.join(tempDir, "package.json");
 
   try {
     fs.mkdirSync(binDir, { recursive: true });
     writeFileSync(vsixPath, "placeholder");
+    writeFileSync(
+      packageJsonPath,
+      `${JSON.stringify({ publisher: "ubugeeei", name: "vize", version: "0.57.0" }, null, 2)}\n`,
+    );
     writeFakeCommand(
       binDir,
       "vp",
       [
         "const fs = require('node:fs');",
-        "fs.writeFileSync(process.env.VP_ARGS_LOG, process.argv.slice(2).join('\\n'));",
+        "const args = process.argv.slice(2);",
+        "if (args[0] === 'dlx' && args[3] === 'vsce' && args[4] === 'show') process.exit(1);",
+        "fs.writeFileSync(process.env.VP_ARGS_LOG, args.join('\\n'));",
         "process.exit(0);",
       ].join("\n"),
     );
 
-    const result = runMoonScript("publish_vscode_extension", [vsixPath], {
+    const result = runMoonScript("publish_vscode_extension", [vsixPath, packageJsonPath], {
       env: {
         NPM_TAG: "rc",
         PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
@@ -395,6 +402,55 @@ test("publish_vscode_extension adds pre-release when NPM_TAG is not latest", () 
       vsixPath,
       "--pre-release",
     ]);
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("publish_vscode_extension skips publish when the Marketplace already has the version", () => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "moonbit-publish-vsix-skip-"));
+  const binDir = path.join(tempDir, "bin");
+  const argsLogPath = path.join(tempDir, "vp-args.log");
+  const vsixPath = path.join(tempDir, "vize.vsix");
+  const packageJsonPath = path.join(tempDir, "package.json");
+
+  try {
+    fs.mkdirSync(binDir, { recursive: true });
+    writeFileSync(vsixPath, "placeholder");
+    writeFileSync(
+      packageJsonPath,
+      `${JSON.stringify({ publisher: "ubugeeei", name: "vize", version: "0.57.0" }, null, 2)}\n`,
+    );
+    writeFakeCommand(
+      binDir,
+      "vp",
+      [
+        "const fs = require('node:fs');",
+        "const args = process.argv.slice(2);",
+        "fs.appendFileSync(process.env.VP_ARGS_LOG, `${args.join(' ')}\\n`);",
+        "if (args[0] === 'dlx' && args[3] === 'vsce' && args[4] === 'show') {",
+        "  process.stdout.write(JSON.stringify({ versions: [{ version: '0.57.0' }] }));",
+        "  process.exit(0);",
+        "}",
+        "if (args[0] === 'dlx' && args[3] === 'vsce' && args[4] === 'publish') process.exit(99);",
+        "process.exit(1);",
+      ].join("\n"),
+    );
+
+    const result = runMoonScript("publish_vscode_extension", [vsixPath, packageJsonPath], {
+      env: {
+        PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
+        VP_ARGS_LOG: argsLogPath,
+      },
+    });
+
+    assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`.trim());
+    assert.match(result.stdout, /already published/i);
+    const loggedArgs = fs.readFileSync(argsLogPath, "utf8").trim().split("\n");
+    assert.equal(
+      loggedArgs.some((line) => line.includes("vsce publish")),
+      false,
+    );
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

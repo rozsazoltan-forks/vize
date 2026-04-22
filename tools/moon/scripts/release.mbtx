@@ -419,23 +419,36 @@ fn stage_files(files : Array[String]) -> Array[String] {
 /// all synchronized manifests, creates the release commit, tags it, and pushes
 /// both the branch and the tag so the tag-triggered publishing workflow can
 /// take over.
+///
+/// When `--force-tag` is passed, an existing release tag is rewritten and
+/// force-pushed. This is useful when the release workflow itself needs a fix
+/// and the same release version must be re-driven through GitHub Actions
+/// without publishing duplicate packages.
 async fn run_app() -> Int {
   let args = cli_args()
   if args.is_empty() {
     @stdio.stderr.write(
-      "Usage: moon run --target native - -- <patch|minor|major|alpha|beta|rc|release> [-y] < tools/moon/scripts/release.mbtx\n",
+      "Usage: moon run --target native - -- <patch|minor|major|alpha|beta|rc|release> [-y] [--force-tag] < tools/moon/scripts/release.mbtx\n",
     )
     return 1
   }
 
   let bump = args[0]
   let mut auto_confirm = false
+  let mut force_tag = false
   for i in 1..<args.length() {
+    if args[i] == "-y" {
+      auto_confirm = true
+      continue
+    }
+    if args[i] == "--force-tag" {
+      force_tag = true
+      continue
+    }
     if args[i] != "-y" {
       @stdio.stderr.write("Unknown release arguments\n")
       return 1
     }
-    auto_confirm = true
   }
 
   let cargo_toml_path = "Cargo.toml"
@@ -497,9 +510,12 @@ async fn run_app() -> Int {
   }
 
   let (tag_exit, _, _) = @process.collect_output("git", ["rev-parse", tag])
-  if tag_exit == 0 {
+  if tag_exit == 0 && !force_tag {
     @stdio.stderr.write("Error: Tag \{tag} already exists.\n")
     return 1
+  }
+  if tag_exit == 0 && force_tag {
+    println("Tag \{tag} already exists and will be force-updated.")
   }
 
   println("Updating Cargo.toml...")
@@ -656,7 +672,12 @@ async fn run_app() -> Int {
   }
 
   println("Creating tag \{tag}...")
-  if @process.run("git", ["tag", "-a", tag, "-m", "Release \{new_version}"]) != 0 {
+  let git_tag_args = if force_tag {
+    ["tag", "-fa", tag, "-m", "Release \{new_version}"]
+  } else {
+    ["tag", "-a", tag, "-m", "Release \{new_version}"]
+  }
+  if @process.run("git", git_tag_args) != 0 {
     @stdio.stderr.write("Failed to create the git tag\n")
     return 1
   }
@@ -666,7 +687,12 @@ async fn run_app() -> Int {
     @stdio.stderr.write("Failed to push main\n")
     return 1
   }
-  if @process.run("git", ["push", "origin", tag]) != 0 {
+  let git_push_tag_args = if force_tag {
+    ["push", "--force", "origin", "refs/tags/" + tag]
+  } else {
+    ["push", "origin", tag]
+  }
+  if @process.run("git", git_push_tag_args) != 0 {
     @stdio.stderr.write("Failed to push the release tag\n")
     return 1
   }
