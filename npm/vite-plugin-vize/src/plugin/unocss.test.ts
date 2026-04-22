@@ -8,6 +8,8 @@ import { patchUnoCssBridge } from "./unocss.ts";
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "vize-unocss-"));
 const sourcePath = path.join(tempRoot, "App.vue");
 const virtualId = `\0${sourcePath}.ts`;
+const queriedClientVirtualId = `${virtualId}?macro=true`;
+const queriedSsrVirtualId = `\0vize-ssr:${sourcePath}.ts?vue&type=template`;
 
 fs.writeFileSync(
   sourcePath,
@@ -79,6 +81,52 @@ fs.writeFileSync(
   plugins[0]!.transform!("export default {}", virtualId);
 
   assert.equal(callCount, 1);
+}
+
+{
+  let receivedCode = "";
+  let receivedId = "";
+
+  const plugins = [
+    {
+      name: "unocss:global:build",
+      transform(code: string, id: string) {
+        receivedCode = code;
+        receivedId = id;
+        return null;
+      },
+    },
+  ];
+
+  patchUnoCssBridge(plugins);
+  plugins[0]!.transform!("export default {}", queriedClientVirtualId);
+
+  assert.equal(receivedId, `${sourcePath}?macro=true`);
+  assert.match(receivedCode, /export default \{\}/);
+  assert.match(receivedCode, /flex="~ col gap-2"/);
+}
+
+{
+  let receivedCode = "";
+  let receivedId = "";
+
+  const plugins = [
+    {
+      name: "unocss:global:build",
+      transform(code: string, id: string) {
+        receivedCode = code;
+        receivedId = id;
+        return null;
+      },
+    },
+  ];
+
+  patchUnoCssBridge(plugins);
+  plugins[0]!.transform!("export default {}", queriedSsrVirtualId);
+
+  assert.equal(receivedId, `${sourcePath}?vue&type=template`);
+  assert.match(receivedCode, /export default \{\}/);
+  assert.match(receivedCode, /text="sm slate-700"/);
 }
 
 console.log("✅ vite-plugin-vize UnoCSS bridge tests passed!");
