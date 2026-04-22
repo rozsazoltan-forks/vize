@@ -17,7 +17,9 @@ const moonHome = path.join(runnerTemp, "moonbit");
 const moonBin = path.join(moonHome, "bin");
 const moonExe = path.join(moonBin, os.type() === "Windows_NT" ? "moon.exe" : "moon");
 const shimDir = path.join(runnerTemp, "moonbit-shims");
-const shimMoon = path.join(shimDir, os.type() === "Windows_NT" ? "moon.cmd" : "moon");
+const shimMoonCmd = path.join(shimDir, "moon.cmd");
+const shimMoonShell = path.join(shimDir, "moon");
+const shimMoon = os.type() === "Windows_NT" ? shimMoonCmd : shimMoonShell;
 const moonInstallerScript = path.join(runnerTemp, "moonbit-install.ps1");
 
 function run(command, args, env) {
@@ -35,20 +37,29 @@ function ensureMoonShim() {
   fs.mkdirSync(shimDir, { recursive: true });
   if (os.type() === "Windows_NT") {
     fs.writeFileSync(
-      shimMoon,
+      shimMoonCmd,
       `@echo off\r\nset "MOON_HOME=${moonHome.replaceAll("\\", "\\\\")}"\r\n"${moonExe.replaceAll("\\", "\\\\")}" %*\r\n`,
     );
+    fs.writeFileSync(
+      shimMoonShell,
+      `#!/usr/bin/env bash
+set -euo pipefail
+export MOON_HOME="${moonHome.replaceAll("\\", "/")}"
+"${moonExe.replaceAll("\\", "/")}" "$@"
+`,
+    );
+    fs.chmodSync(shimMoonShell, 0o755);
     return;
   }
   fs.writeFileSync(
-    shimMoon,
+    shimMoonShell,
     `#!/usr/bin/env bash
 set -euo pipefail
 export MOON_HOME="${moonHome}"
 "${moonExe}" "$@"
 `,
   );
-  fs.chmodSync(shimMoon, 0o755);
+  fs.chmodSync(shimMoonShell, 0o755);
 }
 
 function smokeTestMoon() {

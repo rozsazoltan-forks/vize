@@ -48,6 +48,15 @@ test("setup-moonbit smoke test uses the JavaScript target to avoid platform-spec
   assert.doesNotMatch(installer, /\["run", "-q", "--target", "native", "-", "--"\]/);
 });
 
+test("setup-moonbit writes both command and shell shims on Windows so bash steps can resolve moon", () => {
+  const installer = readRepoFile(".github", "actions", "setup-moonbit", "install-moonbit.mjs");
+
+  assert.match(installer, /const shimMoonCmd = path\.join\(shimDir, "moon\.cmd"\);/);
+  assert.match(installer, /const shimMoonShell = path\.join\(shimDir, "moon"\);/);
+  assert.match(installer, /fs\.writeFileSync\(\s*shimMoonCmd,/);
+  assert.match(installer, /fs\.writeFileSync\(\s*shimMoonShell,/);
+});
+
 test("release workflow does not pin a separate hard-coded Node version for VS Code publishing", () => {
   const workflow = readRepoFile(".github", "workflows", "release.yml");
 
