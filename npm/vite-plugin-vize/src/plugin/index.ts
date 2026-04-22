@@ -23,6 +23,7 @@ import { resolveIdHook } from "./resolve.ts";
 import { loadHook, transformHook } from "./load.ts";
 import { handleHotUpdateHook, handleGenerateBundleHook } from "./hmr.ts";
 import { createVueCompatPlugin, createPostTransformPlugin } from "./compat.ts";
+import { patchUnoCssBridge } from "./unocss.ts";
 
 export type { VizePluginState } from "./state.ts";
 
@@ -174,6 +175,7 @@ export function vize(options: VizeOptions = {}): Plugin[] {
         ssr: options.ssr ?? compilerConfig.ssr ?? false,
         sourceMap: options.sourceMap ?? compilerConfig.sourceMap,
         vapor: options.vapor ?? compilerConfig.vapor ?? false,
+        customRenderer: options.customRenderer ?? compilerConfig.customRenderer ?? false,
         include: options.include ?? viteConfig.include,
         exclude: options.exclude ?? viteConfig.exclude,
         scanPatterns: options.scanPatterns ?? viteConfig.scanPatterns,
@@ -199,7 +201,10 @@ export function vize(options: VizeOptions = {}): Plugin[] {
         if (typeof alias.find !== "string" || typeof alias.replacement !== "string") {
           continue;
         }
-        state.cssAliasRules.push({ find: alias.find, replacement: alias.replacement });
+        state.cssAliasRules.push({
+          find: alias.find,
+          replacement: alias.replacement,
+        });
       }
       // Prefer longer alias keys first
       state.cssAliasRules.sort((a, b) => b.find.length - a.find.length);
@@ -211,6 +216,12 @@ export function vize(options: VizeOptions = {}): Plugin[] {
         "dist/**",
         ".git/**",
       ];
+      patchUnoCssBridge(
+        resolvedConfig.plugins as Array<{
+          name?: string;
+          transform?: Function;
+        }>,
+      );
       state.initialized = true;
     },
 

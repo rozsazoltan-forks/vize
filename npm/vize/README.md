@@ -9,10 +9,12 @@ For Vite integration, pair it with `@vizejs/vite-plugin`.
 For the full Rust-native CLI (`build`, `fmt`, `check`, `lsp`, `ide`), install the Rust `vize`
 binary with `cargo install vize`.
 
+Need `vp` first? Install Vite+ once from the [Vite+ install guide](https://viteplus.dev/guide/install).
+
 ## Installation
 
 ```bash
-pnpm add -D vize
+vp install -D vize
 ```
 
 ## CLI
@@ -20,8 +22,8 @@ pnpm add -D vize
 The npm CLI currently exposes `lint`:
 
 ```bash
-pnpm exec vize lint src
-pnpm exec vize lint --preset opinionated --help-level short src
+vp exec vize lint src
+vp exec vize lint --preset opinionated --help-level short src
 ```
 
 Shared config discovery is supported for the npm CLI:

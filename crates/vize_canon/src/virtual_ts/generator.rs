@@ -99,7 +99,9 @@ pub fn generate_virtual_ts_with_offsets(
     // Type declarations (interface, type, enum) must be at module level so they
     // are accessible from `export type Props = ...` outside __setup().
     ts.push_str("// ========== Module Scope (imports) ==========\n");
-    ts.push_str("type __EmitFn<T> = T extends (...args: any[]) => any ? T : (<K extends keyof T>(event: K, ...args: T[K] extends any[] ? T[K] : any[]) => void);\n");
+    ts.push_str("type __EmitShape<T> = T extends (...args: any[]) => any ? T : T extends Record<string, any> ? { [K in keyof T]: T[K] extends (...args: infer A) => any ? A : T[K] extends any[] ? T[K] : any[]; } : Record<string, any[]>;\n");
+    ts.push_str("type __EmitArgs<T, K extends keyof T> = T[K] extends any[] ? T[K] : any[];\n");
+    ts.push_str("type __EmitFn<T> = __EmitShape<T> extends (...args: any[]) => any ? __EmitShape<T> : (<K extends keyof __EmitShape<T>>(event: K, ...args: __EmitArgs<__EmitShape<T>, K>) => void);\n");
 
     // Collect all module-level statement spans from croquis analysis
     let module_spans: Vec<(u32, u32)> = profile!("canon.virtual_ts.collect_module_spans", {
@@ -653,7 +655,9 @@ fn is_use_template_ref_binding(
     }
 
     let tail_end = (end as usize + 256).min(script.len());
-    let tail = &script[end as usize..tail_end];
+    let Some(tail) = script.get(end as usize..tail_end) else {
+        return false;
+    };
     let Some(eq_pos) = tail.find('=') else {
         return false;
     };

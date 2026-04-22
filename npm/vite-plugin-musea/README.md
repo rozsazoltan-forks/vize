@@ -4,8 +4,10 @@ Vite plugin for Musea - Vue component gallery and documentation.
 
 ## Installation
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then add the package:
+
 ```bash
-npm install @vizejs/vite-plugin-musea
+vp install -D @vizejs/vite-plugin-musea
 ```
 
 ## Usage
@@ -45,10 +47,10 @@ export default defineConfig({
 
 ```bash
 # Start dev server
-vite dev
+vp dev
 
 # Build gallery
-vite build
+vp build
 ```
 
 ## License

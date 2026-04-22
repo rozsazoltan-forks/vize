@@ -90,13 +90,38 @@ export function getEnvironmentCache(
 export function getCompileOptionsForRequest(
   state: Pick<VizePluginState, "isProduction" | "mergedOptions">,
   ssr: boolean,
-): { sourceMap: boolean; ssr: boolean; vapor: boolean } {
+): {
+  sourceMap: boolean;
+  ssr: boolean;
+  vapor: boolean;
+  customRenderer: boolean;
+} {
   return {
     sourceMap: state.mergedOptions?.sourceMap ?? !state.isProduction,
     ssr,
     // Vapor runtime is client-oriented today; use VDOM for SSR and Vapor on the client.
     vapor: !ssr && (state.mergedOptions?.vapor ?? false),
+    customRenderer: state.mergedOptions?.customRenderer ?? false,
   };
+}
+
+export function syncCollectedCssForFile(
+  state: Pick<VizePluginState, "isProduction" | "collectedCss" | "cssAliasRules">,
+  filePath: string,
+  compiled: CompiledModule | undefined,
+): void {
+  if (!compiled || !state.isProduction) {
+    return;
+  }
+
+  if (compiled.css && !hasDelegatedStyles(compiled)) {
+    state.collectedCss.set(
+      filePath,
+      resolveCssImports(compiled.css, filePath, state.cssAliasRules, false),
+    );
+  } else {
+    state.collectedCss.delete(filePath);
+  }
 }
 
 /**
@@ -163,6 +188,7 @@ export async function compileAll(state: VizePluginState): Promise<void> {
   const result = compileBatch(fileContents, state.cache, {
     ssr: false,
     vapor: state.mergedOptions.vapor ?? false,
+    customRenderer: state.mergedOptions.customRenderer ?? false,
   });
 
   for (const file of changedFiles) {
@@ -187,15 +213,7 @@ export async function compileAll(state: VizePluginState): Promise<void> {
       state.precompileMetadata.set(fileResult.path, metadata);
     }
 
-    if (state.isProduction && fileResult.css) {
-      const cached = state.cache.get(fileResult.path);
-      if (cached && !hasDelegatedStyles(cached)) {
-        state.collectedCss.set(
-          fileResult.path,
-          resolveCssImports(fileResult.css, fileResult.path, state.cssAliasRules, false),
-        );
-      }
-    }
+    syncCollectedCssForFile(state, fileResult.path, state.cache.get(fileResult.path));
   }
 
   const elapsed = (performance.now() - startTime).toFixed(2);

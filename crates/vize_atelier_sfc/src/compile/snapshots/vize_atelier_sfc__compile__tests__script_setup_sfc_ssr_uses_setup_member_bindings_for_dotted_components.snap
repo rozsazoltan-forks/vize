@@ -1,0 +1,31 @@
+---
+source: crates/vize_atelier_sfc/src/compile/tests.rs
+expression: result.code.as_str()
+---
+import { defineComponent as _defineComponent } from 'vue'
+import { ssrRenderComponent as _ssrRenderComponent } from "@vue/server-renderer"
+import { withCtx as _withCtx } from "vue"
+
+
+function ssrRender(_ctx, _push, _parent, _attrs, $props, $setup, $data, $options) {
+  _push(_ssrRenderComponent($setup.Form.Item, null, {
+    default: _withCtx((_, _push, _parent, _scopeId) => {
+      if (_push) {
+        _push(_ssrRenderComponent($setup.Input, null, null, _parent))
+      }
+    }),
+  _: 1
+  }, _parent))
+}
+import { Form, Input } from 'ant-design-vue'
+
+export default /*@__PURE__*/_defineComponent({
+  __name: 'anonymous',
+  ssrRender: ssrRender,
+  setup(__props) {
+
+
+return { Form, Input }
+}
+
+})

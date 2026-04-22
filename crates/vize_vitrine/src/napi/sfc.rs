@@ -35,6 +35,7 @@ pub struct SfcCompileOptionsNapi {
     pub source_map: Option<bool>,
     pub ssr: Option<bool>,
     pub vapor: Option<bool>,
+    pub custom_renderer: Option<bool>,
     /// Preserve TypeScript in output when true
     pub is_ts: Option<bool>,
     /// Scope ID for scoped CSS (e.g., "data-v-abc123")
@@ -66,6 +67,7 @@ pub struct SfcCompileResultNapi {
 pub struct BatchCompileOptionsNapi {
     pub ssr: Option<bool>,
     pub vapor: Option<bool>,
+    pub custom_renderer: Option<bool>,
     /// Preserve TypeScript in output when true
     pub is_ts: Option<bool>,
     pub threads: Option<u32>,
@@ -295,6 +297,7 @@ pub fn compile_sfc(
             scoped: has_scoped,
             ssr: opts.ssr.unwrap_or(false),
             is_ts,
+            custom_renderer: opts.custom_renderer.unwrap_or(false),
             compiler_options: template_compiler_options,
             ..Default::default()
         },
@@ -581,6 +584,7 @@ pub fn compile_sfc_batch_with_results(
                 scoped: actual_has_scoped,
                 ssr,
                 is_ts,
+                custom_renderer: opts.custom_renderer.unwrap_or(false),
                 compiler_options: template_compiler_options,
                 ..Default::default()
             },

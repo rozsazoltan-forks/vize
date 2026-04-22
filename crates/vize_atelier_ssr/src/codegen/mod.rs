@@ -8,7 +8,7 @@ pub(crate) mod helpers;
 
 use crate::options::SsrCompilerOptions;
 use vize_atelier_core::ast::{RootNode, RuntimeHelper, TemplateChildNode};
-use vize_carton::{cstr, Bump, FxHashSet, String, ToCompactString};
+use vize_carton::{camelize, capitalize, cstr, Bump, FxHashSet, String, ToCompactString};
 
 /// SSR codegen result
 #[derive(Debug, Default)]
@@ -169,11 +169,37 @@ impl<'a> SsrCodegenContext<'a> {
         self.core_helpers.insert(helper);
     }
 
-    pub(crate) fn is_component_in_bindings(&self, component: &str) -> bool {
-        self.options
-            .binding_metadata
-            .as_ref()
-            .is_some_and(|metadata| metadata.bindings.contains_key(component))
+    pub(crate) fn resolve_component_binding_name(&self, component: &str) -> Option<String> {
+        let metadata = self.options.binding_metadata.as_ref()?;
+
+        let resolve_base = |name: &str| {
+            if metadata.bindings.contains_key(name) {
+                return Some(name.to_compact_string());
+            }
+
+            let camel = camelize(name);
+            if metadata.bindings.contains_key(camel.as_str()) {
+                return Some(camel);
+            }
+
+            let pascal = capitalize(camel.as_str());
+            if metadata.bindings.contains_key(pascal.as_str()) {
+                return Some(pascal);
+            }
+
+            None
+        };
+
+        if let Some((base, suffix)) = component.split_once('.') {
+            let resolved_base = resolve_base(base)?;
+            let mut resolved = String::with_capacity(resolved_base.len() + suffix.len() + 1);
+            resolved.push_str(resolved_base.as_str());
+            resolved.push('.');
+            resolved.push_str(suffix);
+            return Some(resolved);
+        }
+
+        resolve_base(component)
     }
 
     /// Push raw code to the buffer

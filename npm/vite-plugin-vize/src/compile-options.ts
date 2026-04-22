@@ -5,11 +5,13 @@ export interface CompileFileOptions {
   sourceMap: boolean;
   ssr: boolean;
   vapor: boolean;
+  customRenderer?: boolean;
 }
 
 export interface CompileBatchOptions {
   ssr: boolean;
   vapor: boolean;
+  customRenderer?: boolean;
 }
 
 export function buildCompileFileOptions(
@@ -26,6 +28,7 @@ export function buildCompileFileOptions(
     sourceMap: options.sourceMap,
     ssr: options.ssr,
     vapor: options.vapor,
+    customRenderer: options.customRenderer ?? false,
     scopeId,
   };
 }
@@ -34,5 +37,6 @@ export function buildCompileBatchOptions(options: CompileBatchOptions): BatchCom
   return {
     ssr: options.ssr,
     vapor: options.vapor,
+    customRenderer: options.customRenderer ?? false,
   };
 }

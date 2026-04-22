@@ -30,10 +30,12 @@ code --install-extension dist/vize.vsix
 
 ### Development
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then:
+
 ```bash
 cd npm/vscode-vize
-pnpm install --ignore-workspace
-pnpm run build
+vp install --ignore-workspace
+vp build
 # Press F5 to launch Extension Development Host
 ```
 

@@ -41,10 +41,12 @@ code --install-extension vize-art-0.26.0.vsix
 
 ### Development
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then:
+
 ```bash
 cd npm/vscode-art
-npm install
-npm run compile
+vp install --ignore-workspace
+vp exec tsgo -p ./
 ```
 
 Then press F5 in VS Code to launch the Extension Development Host.

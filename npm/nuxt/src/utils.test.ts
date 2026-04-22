@@ -45,4 +45,16 @@ assert.equal(
   "Nuxt bridge normalization should strip only the virtual .ts suffix",
 );
 
+assert.equal(
+  normalizeVizeVirtualVueModuleId("\0/repo/app/components/Foo.vue.ts?macro=true"),
+  "/repo/app/components/Foo.vue?macro=true",
+  "Nuxt bridge normalization should preserve query strings on client virtual ids",
+);
+
+assert.equal(
+  normalizeVizeVirtualVueModuleId("\0vize-ssr:/repo/app/components/Foo.vue.ts?vue&type=template"),
+  "/repo/app/components/Foo.vue?vue&type=template",
+  "Nuxt bridge normalization should preserve query strings on SSR virtual ids",
+);
+
 console.log("✅ nuxt utils tests passed!");

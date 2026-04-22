@@ -550,6 +550,20 @@ import * as utils from './utils'
         }
     }
 
+    #[test]
+    fn test_binding_spans_stay_byte_aligned_with_unicode_comments() {
+        let source = r#"
+const before = 1
+// あいうえおかきくけこさしすせそたちつてとなにぬねの
+const heightLimit = "65vh"
+// はひふへほまみむめもやいゆえよらりるれろわをん
+"#;
+        let result = parse_script_setup(source);
+
+        let (start, end) = result.binding_spans["heightLimit"];
+        assert_eq!(&source[start as usize..end as usize], "heightLimit");
+    }
+
     // === Snapshot Tests ===
 
     #[test]

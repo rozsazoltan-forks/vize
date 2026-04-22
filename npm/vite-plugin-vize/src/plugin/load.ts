@@ -4,7 +4,12 @@ import { pathToFileURL } from "node:url";
 import type { TransformResult } from "vite";
 import { transformWithOxc } from "vite";
 
-import { getCompileOptionsForRequest, getEnvironmentCache, type VizePluginState } from "./state.ts";
+import {
+  getCompileOptionsForRequest,
+  getEnvironmentCache,
+  syncCollectedCssForFile,
+  type VizePluginState,
+} from "./state.ts";
 import { compileFile } from "../compiler.ts";
 import { generateOutput, hasDelegatedStyles } from "../utils/index.ts";
 import { resolveCssImports } from "../utils/css.ts";
@@ -170,6 +175,7 @@ export function loadHook(
     if (!compiled && fs.existsSync(realPath)) {
       state.logger.log(`load: on-demand compiling ${realPath}`);
       compiled = compileFile(realPath, cache, getCompileOptionsForRequest(state, isSsr));
+      syncCollectedCssForFile(state, realPath, compiled);
     }
 
     if (compiled) {
@@ -194,6 +200,7 @@ export function loadHook(
           generateOutput(compiled, {
             isProduction: state.isProduction,
             isDev: state.server !== null && !isSsr,
+            ssr: isSsr,
             hmrUpdateType: pendingHmrUpdateType,
             extractCss: state.extractCss,
             filePath: realPath,

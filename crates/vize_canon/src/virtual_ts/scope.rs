@@ -41,6 +41,14 @@ pub(crate) struct VForPropsContext<'a> {
     pub(crate) template_offset: u32,
 }
 
+struct EventHandlerExprContext<'a> {
+    expressions_by_scope: &'a FxHashMap<u32, Vec<&'a vize_croquis::TemplateExpression>>,
+    data: &'a EventHandlerScopeData,
+    event_type: &'a str,
+    template_offset: u32,
+    indent: &'a str,
+}
+
 /// Generate scope closures from Croquis scope chain.
 /// Uses recursive tree-based generation so nested v-for/v-slot scopes
 /// are properly contained within their parent closures.
@@ -496,11 +504,14 @@ fn generate_scope_node(
                     generate_event_handler_expressions(
                         ts,
                         mappings,
-                        ctx.expressions_by_scope,
                         scope_id,
-                        data,
-                        ctx.template_offset,
-                        &inner_indent,
+                        &EventHandlerExprContext {
+                            expressions_by_scope: ctx.expressions_by_scope,
+                            data,
+                            event_type: event_type.as_str(),
+                            template_offset: ctx.template_offset,
+                            indent: &inner_indent,
+                        },
                     )
                 );
 
@@ -514,11 +525,14 @@ fn generate_scope_node(
                     generate_event_handler_expressions(
                         ts,
                         mappings,
-                        ctx.expressions_by_scope,
                         scope_id,
-                        data,
-                        ctx.template_offset,
-                        &inner_indent,
+                        &EventHandlerExprContext {
+                            expressions_by_scope: ctx.expressions_by_scope,
+                            data,
+                            event_type,
+                            template_offset: ctx.template_offset,
+                            indent: &inner_indent,
+                        },
                     )
                 );
 
@@ -542,43 +556,76 @@ fn generate_scope_node(
 fn generate_event_handler_expressions(
     ts: &mut String,
     mappings: &mut Vec<VizeMapping>,
-    expressions_by_scope: &FxHashMap<u32, Vec<&vize_croquis::TemplateExpression>>,
     scope_id: u32,
-    data: &EventHandlerScopeData,
-    template_offset: u32,
-    indent: &str,
+    ctx: &EventHandlerExprContext<'_>,
 ) {
-    if let Some(exprs) = expressions_by_scope.get(&scope_id) {
+    if let Some(exprs) = ctx.expressions_by_scope.get(&scope_id) {
         for expr in exprs {
             let content = expr.content.as_str();
-            let is_simple_identifier = content
-                .chars()
-                .all(|c| c.is_alphanumeric() || c == '_' || c == '$');
-
-            let src_start = (template_offset + expr.start) as usize;
-            let src_end = (template_offset + expr.end) as usize;
+            let is_implicit_reference =
+                ctx.data.has_implicit_event && is_callable_handler_reference(content);
+            let src_start = (ctx.template_offset + expr.start) as usize;
+            let src_end = (ctx.template_offset + expr.end) as usize;
 
             let gen_stmt_start = ts.len();
-            if data.has_implicit_event && is_simple_identifier && !content.is_empty() {
-                append!(*ts, "{indent}({content} as (...args: any[]) => any)($event);  // handler expression\n",);
+            if is_implicit_reference {
+                let handler_name = cstr!("__vize_handler_{scope_id}_{}", expr.start);
+                append!(
+                    *ts,
+                    "{indent}const {handler_name} = ((handler: ($event: {event_type}) => unknown) => handler)(({content}));\n",
+                    indent = ctx.indent,
+                    event_type = ctx.event_type,
+                );
+                append!(
+                    *ts,
+                    "{indent}{handler_name}($event);  // handler expression\n",
+                    indent = ctx.indent,
+                );
             } else {
-                append!(*ts, "{indent}{content};  // handler expression\n");
+                append!(
+                    *ts,
+                    "{indent}{content};  // handler expression\n",
+                    indent = ctx.indent
+                );
             }
             let gen_stmt_end = ts.len();
             mappings.push(VizeMapping {
-                gen_range: generated_text_range(
-                    &ts[gen_stmt_start..gen_stmt_end],
-                    content,
-                    gen_stmt_start,
-                ),
+                gen_range: if is_implicit_reference {
+                    gen_stmt_start..gen_stmt_end
+                } else {
+                    generated_text_range(&ts[gen_stmt_start..gen_stmt_end], content, gen_stmt_start)
+                },
                 src_range: src_start..src_end,
             });
             append!(
                 *ts,
                 "{indent}// @vize-map: handler -> {src_start}:{src_end}\n",
+                indent = ctx.indent,
             );
         }
     }
+}
+
+fn is_callable_handler_reference(content: &str) -> bool {
+    let trimmed = content.trim();
+    if trimmed.is_empty() {
+        return false;
+    }
+
+    trimmed.split('.').all(is_identifier_segment)
+}
+
+fn is_identifier_segment(segment: &str) -> bool {
+    let mut chars = segment.chars();
+    let Some(first) = chars.next() else {
+        return false;
+    };
+
+    if !(first == '_' || first == '$' || first.is_alphabetic()) {
+        return false;
+    }
+
+    chars.all(|ch| ch == '_' || ch == '$' || ch.is_alphanumeric())
 }
 
 /// Recursively generate child scopes that are VFor/VSlot/EventHandler.

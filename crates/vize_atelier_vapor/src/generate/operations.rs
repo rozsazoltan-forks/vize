@@ -13,6 +13,33 @@ use vize_carton::{cstr, FxHashMap, String, ToCompactString};
 
 use super::{context::GenerateContext, generate_block, setup::is_svg_tag};
 
+fn component_resolution_var(tag: &str) -> String {
+    let mut ident = String::with_capacity(tag.len() + 11);
+    ident.push_str("_component_");
+    for ch in tag.chars() {
+        if ch.is_ascii_alphanumeric() || ch == '_' {
+            ident.push(ch);
+        } else {
+            ident.push('_');
+        }
+    }
+    ident
+}
+
+fn emit_component_resolution(ctx: &mut GenerateContext, component_var: &str, tag: &str) {
+    if let Some(binding_expr) = ctx.resolve_component_binding_expr(tag) {
+        ctx.push_line(&cstr!("const {} = {}", component_var, binding_expr));
+        return;
+    }
+
+    ctx.use_helper("resolveComponent");
+    ctx.push_line(&cstr!(
+        "const {} = _resolveComponent(\"{}\")",
+        component_var,
+        tag
+    ));
+}
+
 /// Generate operation
 pub(crate) fn generate_operation(
     ctx: &mut GenerateContext,
@@ -897,12 +924,11 @@ fn generate_create_component(
                         || inner_comp.kind == ComponentKind::Suspense)
                         && !ctx.is_component_resolved(inner_comp.tag.as_str())
                     {
-                        ctx.use_helper("resolveComponent");
-                        ctx.push_line(&cstr!(
-                            "const _component_{} = _resolveComponent(\"{}\")",
-                            inner_comp.tag,
-                            inner_comp.tag
-                        ));
+                        emit_component_resolution(
+                            ctx,
+                            component_resolution_var(inner_comp.tag.as_str()).as_str(),
+                            inner_comp.tag.as_str(),
+                        );
                         ctx.mark_component_resolved(inner_comp.tag.as_str());
                     }
                 }
@@ -933,29 +959,19 @@ fn generate_create_component(
             ("_VaporKeepAlive".to_compact_string(), "createComponent")
         }
         ComponentKind::Suspense => {
-            ctx.use_helper("resolveComponent");
             ctx.use_helper("createComponentWithFallback");
-            let comp_var: String = cstr!("_component_{}", tag);
+            let comp_var = component_resolution_var(tag.as_str());
             if !ctx.is_component_resolved(tag.as_str()) {
-                ctx.push_line(&cstr!(
-                    "const {} = _resolveComponent(\"{}\")",
-                    comp_var,
-                    tag
-                ));
+                emit_component_resolution(ctx, comp_var.as_str(), tag.as_str());
                 ctx.mark_component_resolved(tag.as_str());
             }
             (comp_var, "createComponentWithFallback")
         }
         ComponentKind::Regular => {
-            ctx.use_helper("resolveComponent");
             ctx.use_helper("createComponentWithFallback");
-            let comp_var: String = cstr!("_component_{}", tag);
+            let comp_var = component_resolution_var(tag.as_str());
             if !ctx.is_component_resolved(tag.as_str()) {
-                ctx.push_line(&cstr!(
-                    "const {} = _resolveComponent(\"{}\")",
-                    comp_var,
-                    tag
-                ));
+                emit_component_resolution(ctx, comp_var.as_str(), tag.as_str());
                 ctx.mark_component_resolved(tag.as_str());
             }
             (comp_var, "createComponentWithFallback")

@@ -28,6 +28,7 @@ function normalizeOptions(rawOptions: VizeUnpluginOptions = {}): NormalizedVizeU
     ssr: rawOptions.ssr ?? false,
     sourceMap: rawOptions.sourceMap ?? !isProduction,
     vapor: rawOptions.vapor ?? false,
+    customRenderer: rawOptions.customRenderer ?? false,
     root: rawOptions.root ?? process.cwd(),
     debug: rawOptions.debug ?? false,
   };

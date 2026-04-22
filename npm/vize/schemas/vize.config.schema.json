@@ -59,6 +59,9 @@
         "vapor": {
           "type": "boolean"
         },
+        "customRenderer": {
+          "type": "boolean"
+        },
         "ssr": {
           "type": "boolean"
         },

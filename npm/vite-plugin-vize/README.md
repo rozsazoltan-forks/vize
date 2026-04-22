@@ -12,15 +12,10 @@ High-performance native Vite plugin for Vue SFC compilation powered by [Vize](ht
 
 ## Installation
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then add the packages:
+
 ```bash
-# npm
-npm install @vizejs/vite-plugin vize
-
-# pnpm
-pnpm add @vizejs/vite-plugin vize
-
-# yarn
-yarn add @vizejs/vite-plugin vize
+vp install -D @vizejs/vite-plugin vize
 ```
 
 ## Usage

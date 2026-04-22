@@ -354,6 +354,33 @@ const inputRef = useTemplateRef<HTMLInputElement>('input')
     }
 
     #[test]
+    fn test_virtual_ts_generation_survives_unicode_script_comments() {
+        use vize_croquis::{Analyzer, AnalyzerOptions};
+
+        let script = r#"const reasgnSubMenuOpen = debounce(() => {
+  console.log(1222222222222222222222222222222);
+}, 100);
+
+// あいうえおかきくけこさしすせそたちつてとなにぬねの
+const heightLimit = "65vh";
+// はひふへほまみむめもやいゆえよらりるれろわをん
+"#;
+        let template = r#"<div>{{ heightLimit }}</div>"#;
+
+        let allocator = vize_carton::Bump::new();
+        let (root, _) = vize_armature::parse(&allocator, template);
+
+        let mut analyzer = Analyzer::with_options(AnalyzerOptions::full());
+        analyzer.analyze_script_setup(script);
+        analyzer.analyze_template(&root);
+        let summary = analyzer.finish();
+
+        let output = generate_virtual_ts(&summary, Some(script), Some(&root), 0);
+
+        assert!(output.code.contains("heightLimit"));
+    }
+
+    #[test]
     fn test_vfor_component_props_in_scope() {
         // Component inside v-for should have prop checks inside the forEach closure
         use vize_croquis::{Analyzer, AnalyzerOptions};

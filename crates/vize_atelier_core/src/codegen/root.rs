@@ -106,7 +106,7 @@ pub(super) fn generate_assets(ctx: &mut CodegenContext, root: &RootNode<'_>) {
     // Resolve components (only those not in binding metadata)
     for component in root.components.iter() {
         // Skip components that are in binding metadata (from script setup imports)
-        if ctx.is_component_in_bindings(component) {
+        if ctx.resolve_component_binding_name(component).is_some() {
             continue;
         }
 

@@ -272,15 +272,16 @@ impl<'a> SsrCodegenContext<'a> {
         self.use_ssr_helper(RuntimeHelper::SsrRenderComponent);
 
         let tag = &el.tag;
-        let uses_setup_binding = self.is_component_in_bindings(tag);
+        let setup_binding = self.resolve_component_binding_name(tag);
+        let uses_setup_binding = setup_binding.is_some();
 
         self.push_indent();
         self.push("_push(_ssrRenderComponent(");
-        if uses_setup_binding {
+        if let Some(binding_name) = setup_binding.as_deref() {
             if !self.options.inline {
                 self.push("$setup.");
             }
-            self.push(tag);
+            self.push(binding_name);
         } else {
             self.use_core_helper(RuntimeHelper::ResolveComponent);
             self.push("_resolveComponent(\"");

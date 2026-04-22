@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 import type { VizePluginState } from "./state.ts";
 import { getBoundaryPlaceholderCode } from "./load.ts";
@@ -127,7 +130,9 @@ const inlineState: VizePluginState = {
   pendingHmrUpdateTypes: new Map([[inlinePath, "template-only"]]),
 };
 
-const inlineLoad = loadHook(inlineState, toVirtualId(inlinePath), { ssr: false });
+const inlineLoad = loadHook(inlineState, toVirtualId(inlinePath), {
+  ssr: false,
+});
 assert.ok(
   inlineLoad && typeof inlineLoad === "object",
   "Inline-template virtual modules should load as code objects",
@@ -166,7 +171,9 @@ const environmentState: VizePluginState = {
   pendingHmrUpdateTypes: new Map(),
 };
 
-const clientEnvironmentLoad = loadHook(environmentState, toVirtualId(envPath), { ssr: false });
+const clientEnvironmentLoad = loadHook(environmentState, toVirtualId(envPath), {
+  ssr: false,
+});
 assert.ok(
   clientEnvironmentLoad && typeof clientEnvironmentLoad === "object",
   "Client environment loads should succeed",
@@ -186,6 +193,136 @@ assert.match(
   ssrEnvironmentLoad.code,
   /ServerCompiled/,
   "SSR loads should read from the SSR compilation cache",
+);
+
+const cssPath = "/src/SsrStyles.vue";
+const cssState: VizePluginState = {
+  ...hmrState,
+  cache: new Map([
+    [
+      cssPath,
+      {
+        code: `export default { __name: "ClientCss" }`,
+        css: ".demo { color: tomato; }",
+        scopeId: "clientcss",
+        hasScoped: false,
+        styles: [],
+      },
+    ],
+  ]),
+  ssrCache: new Map([
+    [
+      cssPath,
+      {
+        code: `export default { __name: "ServerCss" }`,
+        css: ".demo { color: tomato; }",
+        scopeId: "servercss",
+        hasScoped: false,
+        styles: [],
+      },
+    ],
+  ]),
+};
+
+const clientCssLoad = loadHook(cssState, toVirtualId(cssPath), { ssr: false });
+assert.ok(clientCssLoad && typeof clientCssLoad === "object", "Client CSS load should succeed");
+assert.match(
+  clientCssLoad.code,
+  /__vize_css__/,
+  "Client loads should keep inline CSS injection in development",
+);
+
+const ssrCssLoad = loadHook(cssState, toVirtualId(cssPath, true), {
+  ssr: true,
+});
+assert.ok(ssrCssLoad && typeof ssrCssLoad === "object", "SSR CSS load should succeed");
+assert.doesNotMatch(
+  ssrCssLoad.code,
+  /__vize_css__/,
+  "SSR loads should not inject client-only CSS runtime shims",
+);
+assert.doesNotMatch(
+  ssrCssLoad.code,
+  /document\.createElement/,
+  "SSR loads should stay free of document-based side effects",
+);
+
+const cssModulePath = "/src/ModuleButton.vue";
+const cssModuleState: VizePluginState = {
+  ...hmrState,
+  cache: new Map([
+    [
+      cssModulePath,
+      {
+        code: `const _sfc_main = { name: "ModuleButton" }
+export default _sfc_main`,
+        scopeId: "modulecss",
+        hasScoped: false,
+        styles: [
+          {
+            content: ".root { color: red; }",
+            lang: "css",
+            scoped: false,
+            module: "buttonStyles",
+            index: 0,
+          },
+        ],
+      },
+    ],
+  ]),
+  ssrCache: new Map(),
+};
+
+const cssModuleLoad = loadHook(cssModuleState, toVirtualId(cssModulePath), {
+  ssr: false,
+});
+assert.ok(
+  cssModuleLoad && typeof cssModuleLoad === "object",
+  "CSS module virtual loads should succeed",
+);
+assert.match(
+  cssModuleLoad.code,
+  /import buttonStyles from "\/src\/ModuleButton\.vue\?vue=&type=style&index=0&lang=css&module=buttonStyles";/,
+  "CSS module virtual loads should emit delegated style imports",
+);
+assert.match(
+  cssModuleLoad.code,
+  /_sfc_main\.__cssModules\["buttonStyles"\] = buttonStyles;/,
+  "CSS module bindings should be attached for normal-script output without relying on semicolons",
+);
+
+const onDemandProdDir = fs.mkdtempSync(path.join(os.tmpdir(), "vize-load-"));
+const onDemandProdPath = path.join(onDemandProdDir, "OnDemandProd.vue");
+fs.writeFileSync(
+  onDemandProdPath,
+  `<template><div class="prod">Prod</div></template><style>.prod { color: seagreen; }</style>`,
+);
+
+const onDemandProdState: VizePluginState = {
+  ...hmrState,
+  cache: new Map(),
+  ssrCache: new Map(),
+  collectedCss: new Map(),
+  isProduction: true,
+  extractCss: true,
+};
+
+const onDemandProdLoad = loadHook(onDemandProdState, toVirtualId(onDemandProdPath), {
+  ssr: false,
+});
+assert.ok(
+  onDemandProdLoad && typeof onDemandProdLoad === "object",
+  "Production on-demand loads should still compile successfully",
+);
+assert.doesNotMatch(
+  onDemandProdLoad.code,
+  /__vize_css__/,
+  "Production on-demand loads should not inline CSS when extraction is enabled",
+);
+assert.equal(
+  onDemandProdState.collectedCss.get(onDemandProdPath),
+  ".prod { color: seagreen; }",
+  "Production on-demand compilation should collect extracted CSS for generateBundle",
 );
 
 console.log("✅ vite-plugin-vize load boundary tests passed!");

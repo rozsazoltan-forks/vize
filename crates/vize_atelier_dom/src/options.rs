@@ -45,6 +45,10 @@ pub struct DomCompilerOptions {
     #[serde(default)]
     pub inline: bool,
 
+    /// Whether the template targets a custom renderer instead of the DOM.
+    #[serde(default)]
+    pub custom_renderer: bool,
+
     /// Binding metadata from script setup
     #[serde(skip)]
     pub binding_metadata: Option<BindingMetadata>,
@@ -70,6 +74,7 @@ impl Clone for DomCompilerOptions {
             source_map: self.source_map,
             comments: self.comments,
             inline: self.inline,
+            custom_renderer: self.custom_renderer,
             binding_metadata: self.binding_metadata.clone(),
             is_ts: self.is_ts,
             // Croquis is not cloneable; it will be consumed when passed to the compiler
@@ -90,6 +95,7 @@ impl Default for DomCompilerOptions {
             source_map: false,
             comments: false,
             inline: false,
+            custom_renderer: false,
             binding_metadata: None,
             is_ts: false,
             croquis: None,
