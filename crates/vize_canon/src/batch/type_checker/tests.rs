@@ -185,6 +185,130 @@ const inputRef = useTemplateRef<HTMLInputElement>('input')
 }
 
 #[test]
+fn batch_type_checker_reports_template_handler_mismatches_without_node_modules() {
+    if resolve_test_tsgo_binary().is_none() {
+        return;
+    }
+
+    let project_root = create_project_case_without_node_modules(
+        "template-handler-mismatches",
+        &[
+            (
+                "src/InlineHandlerError.vue",
+                r#"<script setup lang="ts">
+import { ref } from 'vue'
+
+const count = ref(0)
+
+function processString(value: string): void {
+  console.log(value)
+}
+</script>
+
+<template>
+  <button @click="processString(count)">Click</button>
+</template>
+"#,
+            ),
+            (
+                "src/WrongEventHandler.vue",
+                r#"<script setup lang="ts">
+function handleName(name: string): void {
+  console.log(name)
+}
+</script>
+
+<template>
+  <button @click="handleName">Click me</button>
+</template>
+"#,
+            ),
+        ],
+    );
+
+    let Some(snapshot) = snapshot_project_diagnostics(&project_root) else {
+        let _ = std::fs::remove_dir_all(&project_root);
+        return;
+    };
+
+    assert!(
+        snapshot
+            .iter()
+            .any(|(file, code, _)| { file == "src/InlineHandlerError.vue" && *code == Some(2345) }),
+        "expected InlineHandlerError.vue to report TS2345, got: {snapshot:#?}"
+    );
+    assert!(
+        snapshot.iter().any(|(file, code, message)| {
+            file == "src/WrongEventHandler.vue"
+                && *code == Some(2345)
+                && message.contains("MouseEvent")
+        }),
+        "expected WrongEventHandler.vue to report MouseEvent mismatch, got: {snapshot:#?}"
+    );
+
+    let _ = std::fs::remove_dir_all(&project_root);
+}
+
+#[test]
+fn batch_type_checker_stubs_common_vue_runtime_symbols_without_node_modules() {
+    if resolve_test_tsgo_binary().is_none() {
+        return;
+    }
+
+    let project_root = create_project_case_without_node_modules(
+        "vue-runtime-stub",
+        &[(
+            "src/UseTemplateRefError.vue",
+            r#"<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
+const inputRef = useTemplateRef<HTMLInputElement>('input')
+const count = ref(0)
+
+onMounted(() => {
+  if (inputRef.value) {
+    const num: number = inputRef.value.value
+    inputRef.value.nonExistentMethod()
+  }
+})
+</script>
+
+<template>
+  <input ref="input" />
+  <span>{{ count }}</span>
+</template>
+"#,
+        )],
+    );
+
+    let Some(snapshot) = snapshot_project_diagnostics(&project_root) else {
+        let _ = std::fs::remove_dir_all(&project_root);
+        return;
+    };
+
+    assert!(
+        snapshot.iter().all(
+            |(_, code, message)| *code != Some(2305) && !message.contains("no exported member")
+        ),
+        "unexpected vue runtime stub export diagnostic: {snapshot:#?}"
+    );
+    assert!(
+        snapshot.iter().any(|(file, code, _)| {
+            file == "src/UseTemplateRefError.vue" && *code == Some(2322)
+        }),
+        "expected template ref value mismatch to remain reported, got: {snapshot:#?}"
+    );
+    assert!(
+        snapshot.iter().any(|(file, code, _)| {
+            file == "src/UseTemplateRefError.vue" && *code == Some(2339)
+        }),
+        "expected template ref method mismatch to remain reported, got: {snapshot:#?}"
+    );
+
+    let _ = std::fs::remove_dir_all(&project_root);
+}
+
+#[test]
 fn batch_type_checker_snapshots_cross_file_vue_prop_error() {
     if resolve_test_tsgo_binary().is_none() {
         return;
@@ -397,6 +521,37 @@ fn create_project_case(name: &str, files: &[(&str, &str)]) -> PathBuf {
     let _ = std::fs::remove_dir_all(&project_root);
     std::fs::create_dir_all(&project_root).unwrap();
     link_workspace_node_modules(&project_root).unwrap();
+    write_project_tsconfig(&project_root);
+
+    for (path, source) in files {
+        let file_path = project_root.join(path);
+        if let Some(parent) = file_path.parent() {
+            std::fs::create_dir_all(parent).unwrap();
+        }
+        std::fs::write(file_path, source).unwrap();
+    }
+
+    project_root
+}
+
+fn create_project_case_without_node_modules(name: &str, files: &[(&str, &str)]) -> PathBuf {
+    let project_root = unique_case_dir(name);
+    let _ = std::fs::remove_dir_all(&project_root);
+    std::fs::create_dir_all(&project_root).unwrap();
+    write_project_tsconfig(&project_root);
+
+    for (path, source) in files {
+        let file_path = project_root.join(path);
+        if let Some(parent) = file_path.parent() {
+            std::fs::create_dir_all(parent).unwrap();
+        }
+        std::fs::write(file_path, source).unwrap();
+    }
+
+    project_root
+}
+
+fn write_project_tsconfig(project_root: &Path) {
     std::fs::write(
         project_root.join("tsconfig.json"),
         r#"{
@@ -411,16 +566,6 @@ fn create_project_case(name: &str, files: &[(&str, &str)]) -> PathBuf {
 }"#,
     )
     .unwrap();
-
-    for (path, source) in files {
-        let file_path = project_root.join(path);
-        if let Some(parent) = file_path.parent() {
-            std::fs::create_dir_all(parent).unwrap();
-        }
-        std::fs::write(file_path, source).unwrap();
-    }
-
-    project_root
 }
 
 fn snapshot_project_diagnostics(project_root: &Path) -> Option<Vec<(String, Option<u32>, String)>> {

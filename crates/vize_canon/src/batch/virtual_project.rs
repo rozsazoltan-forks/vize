@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 
 use super::error::{CorsaError, CorsaResult};
 use super::import_rewriter::ImportRewriter;
+use super::runtime_deps::materialize_runtime_dependencies;
 use super::source_map::{CompositeSourceMap, SfcBlockRange, SfcSourceMap};
 use super::SfcBlockType;
 use crate::virtual_ts::{generate_virtual_ts_with_offsets, VirtualTsOptions};
@@ -226,6 +227,11 @@ impl VirtualProject {
                 std::fs::create_dir_all(&self.virtual_root)?;
                 Ok(())
             })()
+        )?;
+
+        profile!(
+            "canon.project.runtime_deps",
+            materialize_runtime_dependencies(&self.project_root, &self.virtual_root)
         )?;
 
         profile!(

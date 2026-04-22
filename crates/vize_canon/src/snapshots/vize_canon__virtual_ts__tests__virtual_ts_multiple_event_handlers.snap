@@ -82,13 +82,15 @@ function __setup() {
 
   // @click handler
   (($event: MouseEvent) => {
-    (handleClick as (...args: any[]) => any)($event);  // handler expression
+    const __vize_handler_9_16 = ((handler: ($event: MouseEvent) => unknown) => handler)((handleClick));
+    __vize_handler_9_16($event);  // handler expression
     // @vize-map: handler -> 16:35
   })({} as MouseEvent);
 
   // @mouseenter handler
   (($event: MouseEvent) => {
-    (handleHover as (...args: any[]) => any)($event);  // handler expression
+    const __vize_handler_10_37 = ((handler: ($event: MouseEvent) => unknown) => handler)((handleHover));
+    __vize_handler_10_37($event);  // handler expression
     // @vize-map: handler -> 37:61
   })({} as MouseEvent);
 
