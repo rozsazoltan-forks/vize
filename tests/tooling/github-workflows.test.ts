@@ -75,11 +75,11 @@ test("release workflow runs GitHub helper scripts with the JavaScript target on 
 
   assert.match(
     workflow,
-    /build-cli:[\s\S]*MOON_HELPER_TARGET:\s*\$\{\{ runner\.os == 'Windows' && 'js' \|\| 'native' \}\}/,
+    /build-cli:[\s\S]*MOON_HELPER_TARGET:\s*\$\{\{ matrix\.settings\.host == 'windows-latest' && 'js' \|\| 'native' \}\}/,
   );
   assert.match(
     workflow,
-    /build-native-all:[\s\S]*MOON_HELPER_TARGET:\s*\$\{\{ runner\.os == 'Windows' && 'js' \|\| 'native' \}\}/,
+    /build-native-all:[\s\S]*MOON_HELPER_TARGET:\s*\$\{\{ matrix\.settings\.host == 'windows-latest' && 'js' \|\| 'native' \}\}/,
   );
   assert.match(
     workflow,

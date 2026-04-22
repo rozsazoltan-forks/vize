@@ -28,7 +28,7 @@ jobs:
     name: Build CLI - ${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
     env:
-      MOON_HELPER_TARGET: ${{ runner.os == 'Windows' && 'js' || 'native' }}
+      MOON_HELPER_TARGET: ${{ matrix.settings.host == 'windows-latest' && 'js' || 'native' }}
     strategy:
       fail-fast: false
       matrix:
@@ -229,7 +229,7 @@ jobs:
     name: Build Native - ${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
     env:
-      MOON_HELPER_TARGET: ${{ runner.os == 'Windows' && 'js' || 'native' }}
+      MOON_HELPER_TARGET: ${{ matrix.settings.host == 'windows-latest' && 'js' || 'native' }}
     strategy:
       fail-fast: false
       matrix:
