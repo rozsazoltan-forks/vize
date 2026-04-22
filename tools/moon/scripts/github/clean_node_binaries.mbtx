@@ -1,8 +1,6 @@
 ///|
 import {
   "moonbitlang/core/env",
-  "moonbitlang/async@0.16.8",
-  "moonbitlang/async@0.16.8/fs" @afs,
   "moonbitlang/x@0.4.41/fs" @xfs,
   "moonbitlang/x@0.4.41/path",
   "moonbitlang/x@0.4.41/sys",
@@ -25,7 +23,34 @@ fn join_path(base : String, child : String) -> String {
 }
 
 ///|
-async fn run_app() -> Int {
+fn safe_read_dir(path : String) -> Array[String] {
+  try {
+    @xfs.read_dir(path)
+  } catch {
+    _ => []
+  }
+}
+
+///|
+fn safe_is_file(path : String) -> Bool {
+  try {
+    @xfs.is_file(path)
+  } catch {
+    _ => false
+  }
+}
+
+///|
+fn safe_remove_file(path : String) -> Unit {
+  try {
+    @xfs.remove_file(path)
+  } catch {
+    _ => ()
+  }
+}
+
+///|
+fn run_app() -> Int {
   let directories = cli_args()
   if directories.is_empty() {
     println(
@@ -34,11 +59,11 @@ async fn run_app() -> Int {
     return 1
   }
   for directory in directories {
-    for entry in @xfs.read_dir(directory) {
+    for entry in safe_read_dir(directory) {
       let entry_name = entry.to_string()
       let entry_path = join_path(directory, entry_name)
-      if entry_name.ends_with(".node") && @xfs.is_file(entry_path) {
-        @afs.remove(entry_path)
+      if entry_name.has_suffix(".node") && safe_is_file(entry_path) {
+        safe_remove_file(entry_path)
       }
     }
   }
@@ -46,6 +71,6 @@ async fn run_app() -> Int {
 }
 
 ///|
-async fn main {
+fn main {
   @sys.exit(run_app())
 }

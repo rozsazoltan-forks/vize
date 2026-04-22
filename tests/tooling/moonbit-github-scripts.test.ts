@@ -67,6 +67,16 @@ test("github/clean_node_binaries removes only top-level .node files", () => {
   }
 });
 
+test("github/clean_node_binaries stays free of async filesystem imports so it works on both native and JS targets", () => {
+  const script = fs.readFileSync(
+    path.join(process.cwd(), "tools", "moon", "scripts", "github", "clean_node_binaries.mbtx"),
+    "utf8",
+  );
+
+  assert.doesNotMatch(script, /moonbitlang\/async@0\.16\.8/);
+  assert.match(script, /@xfs\.remove_file/);
+});
+
 test("github/collect_native_artifacts copies .node files and skips node_modules", () => {
   const tempDir = mkdtempSync(path.join(tmpdir(), "moonbit-collect-node-"));
   const sourceDir = path.join(tempDir, "source");
