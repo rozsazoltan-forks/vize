@@ -28,6 +28,7 @@ function createSfcResult(
     lang,
     templateCode,
     templates,
+    warnings = [],
     templateContent = "<div />",
     bindings = {
       bindings: {
@@ -41,6 +42,7 @@ function createSfcResult(
     lang?: string;
     templateCode?: string;
     templates?: string[];
+    warnings?: string[];
     templateContent?: string;
     bindings?: {
       bindings: Record<string, string>;
@@ -75,6 +77,7 @@ function createSfcResult(
       bindings,
     },
     template: createCompileResult(templateCode || `${scriptCode}:template`, templates),
+    warnings,
   };
 }
 
@@ -186,5 +189,40 @@ describe("compileCodeOutputs", () => {
       ssr: false,
       outputMode: "vapor",
     });
+  });
+
+  it("preserves SFC warnings for each rendered output target", async () => {
+    const compileSfc = vi.fn((_: string, options: CompilerOptions) => {
+      if (options.outputMode === "vapor") {
+        return createSfcResult("dom-script", {
+          templateCode: "vapor-template",
+          warnings: ["vapor warning"],
+        });
+      }
+      return createSfcResult("dom-script", {
+        templateCode: "ssr-template",
+        warnings: ["ssr warning"],
+      });
+    });
+    const compiler = {
+      compileSfc,
+    } as unknown as WasmModule;
+
+    const outputs = await compileCodeOutputs({
+      compiler,
+      inputMode: "sfc",
+      source: "<template><div /></template>",
+      options: { mode: "module" },
+      baseOutput: null,
+      baseSfcResult: createSfcResult("dom-script", {
+        templateCode: "dom-template",
+        warnings: ["dom warning"],
+      }),
+    });
+
+    expect(outputs.dom.warnings).toEqual(["dom warning"]);
+    expect(outputs.ssr.warnings).toEqual(["ssr warning"]);
+    expect(outputs.vapor.warnings).toEqual(["vapor warning"]);
+    expect(outputs.vaporSsr.warnings).toEqual([]);
   });
 });

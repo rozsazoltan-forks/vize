@@ -21,6 +21,7 @@ export interface CodeOutputVariant {
   formattedJsCode: string;
   isTypeScript: boolean;
   templates: string[];
+  warnings: string[];
   error: string | null;
 }
 
@@ -40,6 +41,7 @@ function createEmptyCodeOutputVariant(): CodeOutputVariant {
     formattedJsCode: "",
     isTypeScript: false,
     templates: [],
+    warnings: [],
     error: null,
   };
 }
@@ -160,8 +162,13 @@ async function buildTemplateVariant(result: CompileResult): Promise<CodeOutputVa
     formattedJsCode,
     isTypeScript: false,
     templates: result.templates || [],
+    warnings: [],
     error: null,
   };
+}
+
+function getSfcWarnings(result: SfcCompileResult): string[] {
+  return result.warnings || [];
 }
 
 async function buildSfcScriptVariant(result: SfcCompileResult): Promise<CodeOutputVariant> {
@@ -174,6 +181,7 @@ async function buildSfcScriptVariant(result: SfcCompileResult): Promise<CodeOutp
     formattedJsCode,
     isTypeScript,
     templates: result.template?.templates || [],
+    warnings: getSfcWarnings(result),
     error: null,
   };
 }
@@ -210,6 +218,7 @@ async function buildSfcTemplateVariant(result: SfcCompileResult): Promise<CodeOu
     formattedJsCode,
     isTypeScript: false,
     templates: result.template?.templates || [],
+    warnings: getSfcWarnings(result),
     error: null,
   };
 }

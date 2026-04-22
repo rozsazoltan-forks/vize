@@ -215,6 +215,18 @@ onUnmounted(() => {
             <pre>{{ activeCodeOutput.error }}</pre>
           </div>
           <template v-else>
+            <div v-if="activeCodeOutput.warnings.length > 0" class="wasm-warning">
+              <h3>
+                {{ CODE_OUTPUT_LABELS[codeOutputTarget] }} Warnings ({{
+                  activeCodeOutput.warnings.length
+                }})
+              </h3>
+              <pre
+                v-for="(warning, index) in activeCodeOutput.warnings"
+                :key="`${codeOutputTarget}-warning-${index}`"
+                >{{ warning }}</pre
+              >
+            </div>
             <CodeHighlight
               v-if="activeCodeOutput.isTypeScript && codeViewMode === 'js'"
               :key="`${activeCodeHighlightKey}-js`"
