@@ -40,6 +40,7 @@ use vize_atelier_sfc::{
     compile_sfc as sfc_compile, parse_sfc, CssCompileOptions, CssTargets, ScriptCompileOptions,
     SfcCompileOptions, SfcDescriptor, SfcParseOptions, StyleCompileOptions, TemplateCompileOptions,
 };
+use vize_atelier_sfc::compile_script::typescript::transform_typescript_to_js;
 use vize_atelier_ssr::compile_ssr as ssr_compile;
 use vize_atelier_vapor::{compile_vapor as vapor_compile, VaporCompilerOptions};
 
@@ -548,7 +549,7 @@ impl Compiler {
         }
 
         // Compile template if present
-        let template_result = if let Some(template) = &descriptor.template {
+        let mut template_result = if let Some(template) = &descriptor.template {
             match compile_internal(&template.content, &opts, use_vapor, None) {
                 Ok(r) => Some(r),
                 Err(e) => return Err(JsValue::from_str(&e)),
@@ -591,6 +592,18 @@ impl Compiler {
             Err(e) => return Err(JsValue::from_str(&e.message)),
         };
 
+        let script_code = if source_is_ts && !output_is_ts {
+            transform_typescript_to_js(&sfc_result.code).to_string()
+        } else {
+            sfc_result.code.to_string()
+        };
+
+        if source_is_ts && !output_is_ts {
+            if let Some(template_result) = template_result.as_mut() {
+                template_result.code = transform_typescript_to_js(&template_result.code).to_string();
+            }
+        }
+
         // Build result with compiled script code
         // Convert descriptor to owned for serialization
         let binding_metadata = sfc_result
@@ -602,7 +615,7 @@ impl Compiler {
             descriptor: descriptor_to_wasm(&descriptor),
             template: template_result,
             script: SfcScriptResult {
-                code: sfc_result.code.into(),
+                code: script_code,
                 bindings: sfc_result
                     .bindings
                     .map(|b| serde_json::to_value(&b).unwrap_or_default()),

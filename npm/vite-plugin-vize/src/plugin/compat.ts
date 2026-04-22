@@ -2,7 +2,12 @@ import type { Plugin, TransformResult } from "vite";
 import { transformWithOxc } from "vite";
 import { createRequire } from "node:module";
 
-import { getCompileOptionsForRequest, getEnvironmentCache, type VizePluginState } from "./state.ts";
+import {
+  getCompileOptionsForRequest,
+  getEnvironmentCache,
+  syncCollectedCssForFile,
+  type VizePluginState,
+} from "./state.ts";
 import { compileFile } from "../compiler.ts";
 import { generateOutput } from "../utils/index.ts";
 import { applyDefineReplacements } from "../transform.ts";
@@ -62,10 +67,12 @@ export function createPostTransformPlugin(state: VizePluginState): Plugin {
             getCompileOptionsForRequest(state, isSsr),
             code,
           );
+          syncCollectedCssForFile(state, id, compiled);
 
           const output = generateOutput(compiled, {
             isProduction: state.isProduction,
             isDev: state.server !== null,
+            ssr: isSsr,
             extractCss: state.extractCss,
             filePath: id,
           });

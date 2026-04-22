@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 import type { VizePluginState } from "./state.ts";
 import { getBoundaryPlaceholderCode } from "./load.ts";
@@ -278,6 +281,40 @@ assert.match(
   cssModuleLoad.code,
   /_sfc_main\.__cssModules\["buttonStyles"\] = buttonStyles;/,
   "CSS module bindings should be attached for normal-script output without relying on semicolons",
+);
+
+const onDemandProdDir = fs.mkdtempSync(path.join(os.tmpdir(), "vize-load-"));
+const onDemandProdPath = path.join(onDemandProdDir, "OnDemandProd.vue");
+fs.writeFileSync(
+  onDemandProdPath,
+  `<template><div class="prod">Prod</div></template><style>.prod { color: seagreen; }</style>`,
+);
+
+const onDemandProdState: VizePluginState = {
+  ...hmrState,
+  cache: new Map(),
+  ssrCache: new Map(),
+  collectedCss: new Map(),
+  isProduction: true,
+  extractCss: true,
+};
+
+const onDemandProdLoad = loadHook(onDemandProdState, toVirtualId(onDemandProdPath), {
+  ssr: false,
+});
+assert.ok(
+  onDemandProdLoad && typeof onDemandProdLoad === "object",
+  "Production on-demand loads should still compile successfully",
+);
+assert.doesNotMatch(
+  onDemandProdLoad.code,
+  /__vize_css__/,
+  "Production on-demand loads should not inline CSS when extraction is enabled",
+);
+assert.equal(
+  onDemandProdState.collectedCss.get(onDemandProdPath),
+  ".prod { color: seagreen; }",
+  "Production on-demand compilation should collect extracted CSS for generateBundle",
 );
 
 console.log("✅ vite-plugin-vize load boundary tests passed!");

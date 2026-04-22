@@ -99,6 +99,25 @@ export function getCompileOptionsForRequest(
   };
 }
 
+export function syncCollectedCssForFile(
+  state: Pick<VizePluginState, "isProduction" | "collectedCss" | "cssAliasRules">,
+  filePath: string,
+  compiled: CompiledModule | undefined,
+): void {
+  if (!compiled || !state.isProduction) {
+    return;
+  }
+
+  if (compiled.css && !hasDelegatedStyles(compiled)) {
+    state.collectedCss.set(
+      filePath,
+      resolveCssImports(compiled.css, filePath, state.cssAliasRules, false),
+    );
+  } else {
+    state.collectedCss.delete(filePath);
+  }
+}
+
 /**
  * Pre-compile all Vue files matching scan patterns.
  */
@@ -187,15 +206,7 @@ export async function compileAll(state: VizePluginState): Promise<void> {
       state.precompileMetadata.set(fileResult.path, metadata);
     }
 
-    if (state.isProduction && fileResult.css) {
-      const cached = state.cache.get(fileResult.path);
-      if (cached && !hasDelegatedStyles(cached)) {
-        state.collectedCss.set(
-          fileResult.path,
-          resolveCssImports(fileResult.css, fileResult.path, state.cssAliasRules, false),
-        );
-      }
-    }
+    syncCollectedCssForFile(state, fileResult.path, state.cache.get(fileResult.path));
   }
 
   const elapsed = (performance.now() - startTime).toFixed(2);
