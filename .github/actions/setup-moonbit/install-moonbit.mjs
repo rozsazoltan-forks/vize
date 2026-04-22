@@ -63,7 +63,12 @@ export MOON_HOME="${moonHome}"
 }
 
 function smokeTestMoon() {
-  const result = spawnSync(moonExe, ["run", "-q", "--target", "js", "-", "--"], {
+  const smokeTestCommand =
+    os.type() === "Windows_NT"
+      ? { command: "cmd", args: ["/C", "echo", "moonbit-setup-ok"] }
+      : { command: "sh", args: ["-lc", "printf moonbit-setup-ok"] };
+
+  const result = spawnSync(moonExe, ["run", "-q", "--target", "native", "-", "--"], {
     stdio: ["pipe", "inherit", "inherit"],
     env: {
       ...process.env,
@@ -73,12 +78,18 @@ function smokeTestMoon() {
     input: `///|
 import {
   "moonbitlang/async@0.16.8",
+  "moonbitlang/async@0.16.8/process",
   "moonbitlang/x@0.4.41/sys",
 }
 
 ///|
 async fn main {
-  println("moonbit-setup-ok")
+  let exit_code = @process.run(${JSON.stringify(smokeTestCommand.command)}, [${smokeTestCommand.args
+    .map((arg) => JSON.stringify(arg))
+    .join(", ")}])
+  if exit_code != 0 {
+    @sys.exit(exit_code)
+  }
 }
 `,
   });

@@ -4,6 +4,12 @@ description: Install the MoonBit native toolchain on GitHub-hosted runners
 runs:
   using: composite
   steps:
+    - name: Setup MSVC toolchain (Windows)
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: amd64
+
     - name: Install MoonBit (Windows)
       if: runner.os == 'Windows'
       shell: pwsh

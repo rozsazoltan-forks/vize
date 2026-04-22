@@ -33,6 +33,8 @@ test("deploy-docs deploy job installs MoonBit before running script-mode helpers
 test("setup-moonbit defines explicit Windows and Unix execution paths", () => {
   const action = readRepoFile(".github", "actions", "setup-moonbit", "action.yml");
 
+  assert.match(action, /Setup MSVC toolchain \(Windows\)/);
+  assert.match(action, /uses: ilammy\/msvc-dev-cmd@v1/);
   assert.match(action, /Install MoonBit \(Windows\)/);
   assert.match(action, /if: runner\.os == 'Windows'/);
   assert.match(action, /shell: pwsh/);
@@ -41,11 +43,12 @@ test("setup-moonbit defines explicit Windows and Unix execution paths", () => {
   assert.match(action, /shell: bash/);
 });
 
-test("setup-moonbit smoke test uses the JavaScript target to avoid platform-specific native toolchain assumptions", () => {
+test("setup-moonbit smoke test validates the native async process runtime", () => {
   const installer = readRepoFile(".github", "actions", "setup-moonbit", "install-moonbit.mjs");
 
-  assert.match(installer, /\["run", "-q", "--target", "js", "-", "--"\]/);
-  assert.doesNotMatch(installer, /\["run", "-q", "--target", "native", "-", "--"\]/);
+  assert.match(installer, /\["run", "-q", "--target", "native", "-", "--"\]/);
+  assert.match(installer, /"moonbitlang\/async@0\.16\.8\/process"/);
+  assert.match(installer, /@process\.run/);
 });
 
 test("setup-moonbit writes both command and shell shims on Windows so bash steps can resolve moon", () => {
@@ -70,23 +73,17 @@ test("release workflow overwrites existing GitHub release assets when a tag is r
   assert.match(workflow, /uses: softprops\/action-gh-release@v2[\s\S]*overwrite_files:\s*true/);
 });
 
-test("release workflow runs GitHub helper scripts with the JavaScript target on Windows runners", () => {
+test("release workflow runs GitHub helper scripts with the native target on every runner", () => {
   const workflow = readRepoFile(".github", "workflows", "release.yml");
 
+  assert.doesNotMatch(workflow, /MOON_HELPER_TARGET/);
   assert.match(
     workflow,
-    /build-cli:[\s\S]*MOON_HELPER_TARGET:\s*\$\{\{ matrix\.settings\.host == 'windows-latest' && 'js' \|\| 'native' \}\}/,
+    /Install cross-compilation tools \(Linux ARM64\)[\s\S]*moon run --target native - -- < tools\/moon\/scripts\/github\/install_cross_compile_tools\.mbtx/,
   );
   assert.match(
     workflow,
-    /build-native-all:[\s\S]*MOON_HELPER_TARGET:\s*\$\{\{ matrix\.settings\.host == 'windows-latest' && 'js' \|\| 'native' \}\}/,
+    /Create archive \(Windows\)[\s\S]*moon run --target native - -- \$\{\{ matrix\.settings\.target \}\} \$\{\{ matrix\.settings\.archive \}\} vize\.exe < tools\/moon\/scripts\/github\/create_cli_archive\.mbtx/,
   );
-  assert.match(
-    workflow,
-    /Create archive \(Windows\)[\s\S]*moon run --target \$\{\{ env\.MOON_HELPER_TARGET \}\}/,
-  );
-  assert.match(
-    workflow,
-    /Build vize-native[\s\S]*moon run --target \$\{\{ env\.MOON_HELPER_TARGET \}\}/,
-  );
+  assert.match(workflow, /Build vize-native[\s\S]*moon run --target native - -- npm\/vize-native/);
 });
