@@ -56,7 +56,7 @@ fn safe_path_exists(path : String) -> Bool {
 }
 
 ///|
-fn is_git_ignored(path : String) -> Bool {
+async fn is_git_ignored(path : String) -> Bool {
   @process.run("git", ["check-ignore", "-q", path]) == 0
 }
 
