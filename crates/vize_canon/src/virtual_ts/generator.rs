@@ -653,7 +653,9 @@ fn is_use_template_ref_binding(
     }
 
     let tail_end = (end as usize + 256).min(script.len());
-    let tail = &script[end as usize..tail_end];
+    let Some(tail) = script.get(end as usize..tail_end) else {
+        return false;
+    };
     let Some(eq_pos) = tail.find('=') else {
         return false;
     };
