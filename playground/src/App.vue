@@ -13,11 +13,15 @@ import { loadWasm } from "./wasm/index";
 const AtelierPlayground = defineAsyncComponent(
   () => import("./features/atelier/AtelierPlayground.vue"),
 );
-const MuseaPlayground = defineAsyncComponent(() => import("./features/musea/MuseaPlayground.vue"));
+const MuseaPlayground = defineAsyncComponent(
+  () => import("./features/musea/MuseaPlayground.vue"),
+);
 const PatinaPlayground = defineAsyncComponent(
   () => import("./features/patina/PatinaPlayground.vue"),
 );
-const GlyphPlayground = defineAsyncComponent(() => import("./features/glyph/GlyphPlayground.vue"));
+const GlyphPlayground = defineAsyncComponent(
+  () => import("./features/glyph/GlyphPlayground.vue"),
+);
 const CroquisPlayground = defineAsyncComponent(
   () => import("./features/croquis/CroquisPlayground.vue"),
 );
@@ -30,7 +34,9 @@ const TypeCheckPlayground = defineAsyncComponent(
 
 // Theme toggle
 const isDark = ref(false);
-const currentTheme = computed<"dark" | "light">(() => (isDark.value ? "dark" : "light"));
+const currentTheme = computed<"dark" | "light">(() =>
+  isDark.value ? "dark" : "light",
+);
 provide("theme", currentTheme);
 function toggleTheme() {
   isDark.value = !isDark.value;
@@ -38,7 +44,14 @@ function toggleTheme() {
 }
 
 // Main tab
-type MainTab = "atelier" | "patina" | "canon" | "croquis" | "cross-file" | "musea" | "glyph";
+type MainTab =
+  | "atelier"
+  | "patina"
+  | "canon"
+  | "croquis"
+  | "cross-file"
+  | "musea"
+  | "glyph";
 const validTabs: MainTab[] = [
   "atelier",
   "patina",
@@ -86,7 +99,11 @@ onMounted(async () => {
     <header class="header">
       <div class="logo">
         <div class="logo-icon">
-          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            viewBox="0 0 100 100"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <g transform="translate(15, 10) skewX(-15)">
               <path d="M 65 0 L 40 60 L 70 20 L 65 0 Z" fill="currentColor" />
               <path d="M 20 0 L 40 60 L 53 13 L 20 0 Z" fill="currentColor" />
@@ -118,15 +135,24 @@ onMounted(async () => {
           <span class="tab-name">Atelier</span>
           <span class="tab-desc">compiler</span>
         </button>
-        <button :class="['main-tab', { active: mainTab === 'patina' }]" @click="mainTab = 'patina'">
+        <button
+          :class="['main-tab', { active: mainTab === 'patina' }]"
+          @click="mainTab = 'patina'"
+        >
           <span class="tab-name">Patina</span>
           <span class="tab-desc">linter</span>
         </button>
-        <button :class="['main-tab', { active: mainTab === 'glyph' }]" @click="mainTab = 'glyph'">
+        <button
+          :class="['main-tab', { active: mainTab === 'glyph' }]"
+          @click="mainTab = 'glyph'"
+        >
           <span class="tab-name">Glyph</span>
           <span class="tab-desc">formatter</span>
         </button>
-        <button :class="['main-tab', { active: mainTab === 'canon' }]" @click="mainTab = 'canon'">
+        <button
+          :class="['main-tab', { active: mainTab === 'canon' }]"
+          @click="mainTab = 'canon'"
+        >
           <span class="tab-name">Canon</span>
           <span class="tab-desc">typecheck</span>
         </button>
@@ -144,7 +170,10 @@ onMounted(async () => {
           <span class="tab-name">Cross</span>
           <span class="tab-desc">xfile</span>
         </button>
-        <button :class="['main-tab', { active: mainTab === 'musea' }]" @click="mainTab = 'musea'">
+        <button
+          :class="['main-tab', { active: mainTab === 'musea' }]"
+          @click="mainTab = 'musea'"
+        >
           <span class="tab-name">Musea</span>
           <span class="tab-desc">story</span>
         </button>
@@ -237,7 +266,10 @@ onMounted(async () => {
       <span class="separator">|</span>
       <span
         >by
-        <a href="https://github.com/ubugeeei" target="_blank" rel="noopener noreferrer"
+        <a
+          href="https://github.com/ubugeeei"
+          target="_blank"
+          rel="noopener noreferrer"
           >@ubugeeei</a
         ></span
       >

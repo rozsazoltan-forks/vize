@@ -73,12 +73,17 @@ const count = ref(1);
     expect(result.code).toContain("const n0 = t0()");
     expect(result.code).toContain("const __ctx = _proxyRefs(__returned__)");
     expect(result.code).toContain("const __vaporRender = render");
-    expect(result.code).toContain("return __vaporRender(__ctx, __props, __emit, __attrs, __slots)");
+    expect(result.code).toContain(
+      "return __vaporRender(__ctx, __props, __emit, __attrs, __slots)",
+    );
     expect(result.code).toContain("return n0");
   });
 
   it("compiles the playground app itself to Vapor output", () => {
-    const source = readFileSync(new URL("../src/App.vue", import.meta.url), "utf8");
+    const source = readFileSync(
+      new URL("../src/App.vue", import.meta.url),
+      "utf8",
+    );
     const result = compileSfc(source, {
       filename: "/src/App.vue",
       sourceMap: false,
@@ -92,13 +97,19 @@ const count = ref(1);
     expect(result.code).toContain("_createIf");
     expect(result.code).toContain("_setClass");
     expect(result.code).toContain('_delegateEvents("click")');
-    expect(result.code).toContain("_setInsertionState(n16, null, true)\n  const n17 = _createIf(");
-    expect(result.code).toContain("_setInsertionState(n1, null, true)\n  const n22 = _createIf(");
+    expect(result.code).toContain(
+      "_setInsertionState(n16, null, true)\n  const n17 = _createIf(",
+    );
+    expect(result.code).toContain(
+      "_setInsertionState(n1, null, true)\n  const n22 = _createIf(",
+    );
     expect(result.code).toContain(
       '<g transform=\\"translate(15, 10) skewX(-15)\\"><path d=\\"M 65 0 L 40 60 L 70 20 L 65 0 Z\\" fill=\\"currentColor\\"></path><path d=\\"M 20 0 L 40 60 L 53 13 L 20 0 Z\\" fill=\\"currentColor\\"></path></g>',
     );
     expect(result.code).toContain("const __vaporRender = render");
-    expect(result.code).toContain("return __vaporRender(__ctx, __props, __emit, __attrs, __slots)");
+    expect(result.code).toContain(
+      "return __vaporRender(__ctx, __props, __emit, __attrs, __slots)",
+    );
     expect(result.code).not.toContain("_openBlock");
     expect(result.code).not.toContain("_createElementBlock");
     expect(result.code).not.toContain("_ctx.===");
@@ -126,7 +137,9 @@ function render() {
 
     expect(result.code).toContain("const __vaporRender = render");
     expect(result.code).toContain("render: __vaporRender");
-    expect(result.code).toContain("return __vaporRender(__ctx, __props, __emit, __attrs, __slots)");
+    expect(result.code).toContain(
+      "return __vaporRender(__ctx, __props, __emit, __attrs, __slots)",
+    );
   });
 
   it("emits Vapor template ref setters for DOM refs used by playground components", () => {
@@ -153,7 +166,9 @@ function render() {
       isTs: true,
     });
 
-    expect(monacoResult.code).toContain("createTemplateRefSetter as _createTemplateRefSetter");
+    expect(monacoResult.code).toContain(
+      "createTemplateRefSetter as _createTemplateRefSetter",
+    );
     expect(monacoResult.code).toContain(
       "const vaporTemplateRefSetter = _createTemplateRefSetter()",
     );
@@ -202,9 +217,15 @@ import { Primitive } from "@tresjs/core";
       },
     );
 
-    expect(result.code).toContain("const _component_primitive = _ctx.Primitive");
-    expect(result.code).toContain("_createComponentWithFallback(_component_primitive");
-    expect(result.code).not.toContain('_template("<primitive></primitive>", true)');
+    expect(result.code).toContain(
+      "const _component_primitive = _ctx.Primitive",
+    );
+    expect(result.code).toContain(
+      "_createComponentWithFallback(_component_primitive",
+    );
+    expect(result.code).not.toContain(
+      '_template("<primitive></primitive>", true)',
+    );
   });
 
   it("keeps Tres-style custom renderer intrinsics as elements around imported lowercase components", () => {
@@ -231,9 +252,15 @@ const visible = true;
       },
     );
 
-    expect(result.code).toContain('const t1 = _template("<mesh></mesh>", true)');
-    expect(result.code).toContain('const t0 = _template("<group></group>", true)');
-    expect(result.code).toContain("const _component_primitive = _ctx.Primitive");
+    expect(result.code).toContain(
+      'const t1 = _template("<mesh></mesh>", true)',
+    );
+    expect(result.code).toContain(
+      'const t0 = _template("<group></group>", true)',
+    );
+    expect(result.code).toContain(
+      "const _component_primitive = _ctx.Primitive",
+    );
     expect(result.code).not.toContain('_resolveComponent("mesh")');
     expect(result.code).not.toContain('_resolveComponent("group")');
   });
@@ -251,9 +278,15 @@ const visible = true;
       isTs: true,
     });
 
-    expect(result.code).toContain("_createInvoker(() => (_ctx.activeTab = 'code'))");
-    expect(result.code).toContain("_createInvoker(() => (_ctx.activeTab = 'ast'))");
-    expect(result.code).toContain("_createInvoker(() => (_ctx.activeTab = 'helpers'))");
+    expect(result.code).toContain(
+      "_createInvoker(() => (_ctx.activeTab = 'code'))",
+    );
+    expect(result.code).toContain(
+      "_createInvoker(() => (_ctx.activeTab = 'ast'))",
+    );
+    expect(result.code).toContain(
+      "_createInvoker(() => (_ctx.activeTab = 'helpers'))",
+    );
     expect(result.code).toContain("_ctx.activeTab === 'code'");
     expect(result.code).toContain("_ctx.activeTab === 'ast'");
     expect(result.code).toContain("_ctx.activeTab === 'helpers'");

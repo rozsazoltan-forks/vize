@@ -4,7 +4,9 @@ import path from "node:path";
 import { createPostTransformPlugin } from "./compat.ts";
 import type { VizePluginState } from "./state.ts";
 
-function createState(overrides: Partial<VizePluginState> = {}): VizePluginState {
+function createState(
+  overrides: Partial<VizePluginState> = {},
+): VizePluginState {
   return {
     cache: new Map(),
     ssrCache: new Map(),
@@ -54,9 +56,14 @@ const msg = 'hello'
 {
   const state = createState();
   const plugin = createPostTransformPlugin(state);
-  const result = await plugin.transform?.(virtualSfcSource, virtualSfcId, { ssr: true });
+  const result = await plugin.transform?.(virtualSfcSource, virtualSfcId, {
+    ssr: true,
+  });
 
-  assert.ok(result && typeof result === "object", "SSR virtual SFC transforms should succeed");
+  assert.ok(
+    result && typeof result === "object",
+    "SSR virtual SFC transforms should succeed",
+  );
   assert.doesNotMatch(
     result.code,
     /__vize_css__/,
@@ -75,7 +82,9 @@ const msg = 'hello'
     extractCss: true,
   });
   const plugin = createPostTransformPlugin(state);
-  const result = await plugin.transform?.(virtualSfcSource, virtualSfcId, { ssr: false });
+  const result = await plugin.transform?.(virtualSfcSource, virtualSfcId, {
+    ssr: false,
+  });
 
   assert.ok(
     result && typeof result === "object",

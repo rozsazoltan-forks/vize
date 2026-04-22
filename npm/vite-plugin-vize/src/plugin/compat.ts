@@ -58,7 +58,9 @@ export function createPostTransformPlugin(state: VizePluginState): Plugin {
         id.endsWith(".setup.ts") &&
         /<script\s+setup[\s>]/.test(code)
       ) {
-        state.logger.log(`post-transform: compiling virtual SFC content from ${id}`);
+        state.logger.log(
+          `post-transform: compiling virtual SFC content from ${id}`,
+        );
         try {
           const isSsr = !!transformOptions?.ssr;
           const compiled = compileFile(
@@ -78,12 +80,17 @@ export function createPostTransformPlugin(state: VizePluginState): Plugin {
           });
 
           const result = await transformWithOxc(output, id, { lang: "ts" });
-          const defines = transformOptions?.ssr ? state.serverViteDefine : state.clientViteDefine;
+          const defines = transformOptions?.ssr
+            ? state.serverViteDefine
+            : state.clientViteDefine;
           let transformed = result.code;
           if (Object.keys(defines).length > 0) {
             transformed = applyDefineReplacements(transformed, defines);
           }
-          return { code: transformed, map: result.map as TransformResult["map"] };
+          return {
+            code: transformed,
+            map: result.map as TransformResult["map"],
+          };
         } catch (e: unknown) {
           state.logger.error(`Virtual SFC compilation failed for ${id}:`, e);
         }

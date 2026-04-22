@@ -64,9 +64,21 @@ const batchResult = compileBatch(
   { ssr: true, vapor: true },
 );
 
-assert.equal(batchResult.successCount, 1, "Batch compilation should succeed for the SSR regression");
-assert.equal(batchResult.failedCount, 0, "Batch compilation should stay clean for the SSR regression");
-assert.equal(batchResult.results.length, 1, "Batch compilation should return a single file result");
+assert.equal(
+  batchResult.successCount,
+  1,
+  "Batch compilation should succeed for the SSR regression",
+);
+assert.equal(
+  batchResult.failedCount,
+  0,
+  "Batch compilation should stay clean for the SSR regression",
+);
+assert.equal(
+  batchResult.results.length,
+  1,
+  "Batch compilation should return a single file result",
+);
 assert.match(
   batchResult.results[0]?.code ?? "",
   /\$setup\.Primitive/,

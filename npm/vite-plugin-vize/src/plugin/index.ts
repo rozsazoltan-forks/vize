@@ -66,7 +66,11 @@ export function vize(options: VizeOptions = {}): Plugin[] {
       const cssModules = userConfig.css?.modules;
       if (cssModules && typeof cssModules.generateScopedName === "function") {
         const origFn = cssModules.generateScopedName;
-        cssModules.generateScopedName = function (name: string, filename: string, css: string) {
+        cssModules.generateScopedName = function (
+          name: string,
+          filename: string,
+          css: string,
+        ) {
           let clean = filename;
           // Vite's postcss-modules resolves the virtual module ID against root,
           // producing paths like: /project/root/\0/abs/path/Comp.vue?...module.scss
@@ -175,7 +179,8 @@ export function vize(options: VizeOptions = {}): Plugin[] {
         ssr: options.ssr ?? compilerConfig.ssr ?? false,
         sourceMap: options.sourceMap ?? compilerConfig.sourceMap,
         vapor: options.vapor ?? compilerConfig.vapor ?? false,
-        customRenderer: options.customRenderer ?? compilerConfig.customRenderer ?? false,
+        customRenderer:
+          options.customRenderer ?? compilerConfig.customRenderer ?? false,
         include: options.include ?? viteConfig.include,
         exclude: options.exclude ?? viteConfig.exclude,
         scanPatterns: options.scanPatterns ?? viteConfig.scanPatterns,
@@ -184,36 +189,59 @@ export function vize(options: VizeOptions = {}): Plugin[] {
 
       state.dynamicImportAliasRules = [];
       for (const alias of resolvedConfig.resolve.alias) {
-        if (typeof alias.find !== "string" || typeof alias.replacement !== "string") {
+        if (
+          typeof alias.find !== "string" ||
+          typeof alias.replacement !== "string"
+        ) {
           continue;
         }
-        const fromPrefix = alias.find.endsWith("/") ? alias.find : `${alias.find}/`;
+        const fromPrefix = alias.find.endsWith("/")
+          ? alias.find
+          : `${alias.find}/`;
         const replacement = toBrowserImportPrefix(alias.replacement);
-        const toPrefix = replacement.endsWith("/") ? replacement : `${replacement}/`;
+        const toPrefix = replacement.endsWith("/")
+          ? replacement
+          : `${replacement}/`;
         state.dynamicImportAliasRules.push({ fromPrefix, toPrefix });
       }
       // Prefer longer alias keys first (e.g. "@@" before "@")
-      state.dynamicImportAliasRules.sort((a, b) => b.fromPrefix.length - a.fromPrefix.length);
+      state.dynamicImportAliasRules.sort(
+        (a, b) => b.fromPrefix.length - a.fromPrefix.length,
+      );
 
       // Build CSS alias rules for @import resolution (use filesystem paths, not browser paths)
       state.cssAliasRules = [];
       for (const alias of resolvedConfig.resolve.alias) {
-        if (typeof alias.find !== "string" || typeof alias.replacement !== "string") {
+        if (
+          typeof alias.find !== "string" ||
+          typeof alias.replacement !== "string"
+        ) {
           continue;
         }
-        state.cssAliasRules.push({ find: alias.find, replacement: alias.replacement });
+        state.cssAliasRules.push({
+          find: alias.find,
+          replacement: alias.replacement,
+        });
       }
       // Prefer longer alias keys first
       state.cssAliasRules.sort((a, b) => b.find.length - a.find.length);
 
-      state.filter = createFilter(state.mergedOptions.include, state.mergedOptions.exclude);
+      state.filter = createFilter(
+        state.mergedOptions.include,
+        state.mergedOptions.exclude,
+      );
       state.scanPatterns = state.mergedOptions.scanPatterns ?? ["**/*.vue"];
       state.ignorePatterns = state.mergedOptions.ignorePatterns ?? [
         "node_modules/**",
         "dist/**",
         ".git/**",
       ];
-      patchUnoCssBridge(resolvedConfig.plugins as Array<{ name?: string; transform?: Function }>);
+      patchUnoCssBridge(
+        resolvedConfig.plugins as Array<{
+          name?: string;
+          transform?: Function;
+        }>,
+      );
       state.initialized = true;
     },
 
@@ -244,9 +272,13 @@ export function vize(options: VizeOptions = {}): Plugin[] {
               fs.statSync(fsPath).isFile() &&
               !fsPath.endsWith(".vue.ts")
             ) {
-              const cleaned = queryPart ? `${cleanedPath}?${queryPart}` : cleanedPath;
+              const cleaned = queryPart
+                ? `${cleanedPath}?${queryPart}`
+                : cleanedPath;
               if (cleaned !== req.url) {
-                state.logger.log(`middleware: rewriting ${req.url} -> ${cleaned}`);
+                state.logger.log(
+                  `middleware: rewriting ${req.url} -> ${cleaned}`,
+                );
                 req.url = cleaned;
               }
             }
@@ -287,5 +319,9 @@ export function vize(options: VizeOptions = {}): Plugin[] {
     },
   };
 
-  return [createVueCompatPlugin(state), mainPlugin, createPostTransformPlugin(state)];
+  return [
+    createVueCompatPlugin(state),
+    mainPlugin,
+    createPostTransformPlugin(state),
+  ];
 }

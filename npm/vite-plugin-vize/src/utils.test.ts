@@ -303,7 +303,11 @@ function generateScopeId(filename: string): string {
 // Test 13: Different files should have different scope IDs
 const scope1 = generateScopeId("src/components/Button.vue");
 const scope2 = generateScopeId("src/components/Input.vue");
-assert.notStrictEqual(scope1, scope2, "Different files should have different scope IDs");
+assert.notStrictEqual(
+  scope1,
+  scope2,
+  "Different files should have different scope IDs",
+);
 
 // Test 14: Same file should have same scope ID
 const scope3 = generateScopeId("src/components/Button.vue");
@@ -351,10 +355,14 @@ function resolveCssTransforms(css: string): string {
 .foo { color: red; }
 @media (--mobile) { .foo { font-size: 12px; } }`;
   const result = resolveCssTransforms(css);
-  assert.ok(!result.includes("@custom-media"), "@custom-media definition should be removed");
+  assert.ok(
+    !result.includes("@custom-media"),
+    "@custom-media definition should be removed",
+  );
   assert.ok(
     result.includes("@media (max-width: 768px)"),
-    "@media (--mobile) should be resolved to (max-width: 768px). Got:\n" + result,
+    "@media (--mobile) should be resolved to (max-width: 768px). Got:\n" +
+      result,
   );
 }
 
@@ -394,7 +402,11 @@ function resolveCssTransforms(css: string): string {
 {
   const css = `.foo { color: red; }\n@media (max-width: 768px) { .foo { font-size: 12px; } }`;
   const result = resolveCssTransforms(css);
-  assert.strictEqual(result, css, "CSS without @custom-media should pass through unchanged");
+  assert.strictEqual(
+    result,
+    css,
+    "CSS without @custom-media should pass through unchanged",
+  );
 }
 
 // Test 20: dev asset URLs honor configured base path
@@ -422,7 +434,10 @@ function resolveCssTransforms(css: string): string {
 // Test: applyDefineReplacements
 // =============================================================================
 
-function applyDefineReplacements(code: string, defines: Record<string, string>): string {
+function applyDefineReplacements(
+  code: string,
+  defines: Record<string, string>,
+): string {
   const sortedKeys = Object.keys(defines).sort((a, b) => b.length - a.length);
   let result = code;
   for (const key of sortedKeys) {
@@ -441,7 +456,8 @@ function applyDefineReplacements(code: string, defines: Record<string, string>):
   const result = applyDefineReplacements(code, defines);
   assert.ok(
     result.includes("if (true)"),
-    "Should replace import.meta.vfFeatures.photoSection with true. Got:\n" + result,
+    "Should replace import.meta.vfFeatures.photoSection with true. Got:\n" +
+      result,
   );
 }
 
@@ -501,20 +517,39 @@ const BUILTIN_DEFINE_PREFIXES = [
 
 function isBuiltinDefine(key: string): boolean {
   return BUILTIN_DEFINE_PREFIXES.some(
-    (prefix) => key === prefix || key.startsWith(prefix + ".") || key.startsWith(prefix + "_"),
+    (prefix) =>
+      key === prefix ||
+      key.startsWith(prefix + ".") ||
+      key.startsWith(prefix + "_"),
   );
 }
 
 // Test 24: Built-in define detection
-assert.strictEqual(isBuiltinDefine("import.meta.env"), true, "import.meta.env is builtin");
+assert.strictEqual(
+  isBuiltinDefine("import.meta.env"),
+  true,
+  "import.meta.env is builtin",
+);
 assert.strictEqual(
   isBuiltinDefine("import.meta.env.MODE"),
   true,
   "import.meta.env.MODE is builtin",
 );
-assert.strictEqual(isBuiltinDefine("import.meta.server"), true, "import.meta.server is builtin");
-assert.strictEqual(isBuiltinDefine("import.meta.client"), true, "import.meta.client is builtin");
-assert.strictEqual(isBuiltinDefine("import.meta.hot"), true, "import.meta.hot is builtin");
+assert.strictEqual(
+  isBuiltinDefine("import.meta.server"),
+  true,
+  "import.meta.server is builtin",
+);
+assert.strictEqual(
+  isBuiltinDefine("import.meta.client"),
+  true,
+  "import.meta.client is builtin",
+);
+assert.strictEqual(
+  isBuiltinDefine("import.meta.hot"),
+  true,
+  "import.meta.hot is builtin",
+);
 // Note: __VUE_OPTIONS_API__ starts with __VUE_O, not __VUE__, so it is NOT matched
 // by the current prefix + "_" check. Only __VUE__ (double underscore) would match.
 assert.strictEqual(
@@ -532,7 +567,11 @@ assert.strictEqual(
   true,
   "__NUXT__ (double underscore) is builtin",
 );
-assert.strictEqual(isBuiltinDefine("process.env"), true, "process.env is builtin");
+assert.strictEqual(
+  isBuiltinDefine("process.env"),
+  true,
+  "process.env is builtin",
+);
 assert.strictEqual(
   isBuiltinDefine("process.env.NODE_ENV"),
   true,
@@ -550,7 +589,11 @@ assert.strictEqual(
   false,
   "Custom nested define is not builtin",
 );
-assert.strictEqual(isBuiltinDefine("MY_CUSTOM_FLAG"), false, "Custom flag is not builtin");
+assert.strictEqual(
+  isBuiltinDefine("MY_CUSTOM_FLAG"),
+  false,
+  "Custom flag is not builtin",
+);
 
 // =============================================================================
 // All tests passed

@@ -9,7 +9,8 @@ let prettierRuntimePromise: Promise<{
   parserCss: typeof import("prettier/plugins/postcss");
 }> | null = null;
 
-let typeScriptRuntimePromise: Promise<typeof import("typescript")> | null = null;
+let typeScriptRuntimePromise: Promise<typeof import("typescript")> | null =
+  null;
 
 async function loadPrettierRuntime() {
   if (!prettierRuntimePromise) {
@@ -19,13 +20,15 @@ async function loadPrettierRuntime() {
       import("prettier/plugins/estree"),
       import("prettier/plugins/typescript"),
       import("prettier/plugins/postcss"),
-    ]).then(([prettier, parserBabel, parserEstree, parserTypescript, parserCss]) => ({
-      prettier,
-      parserBabel,
-      parserEstree,
-      parserTypescript,
-      parserCss,
-    }));
+    ]).then(
+      ([prettier, parserBabel, parserEstree, parserTypescript, parserCss]) => ({
+        prettier,
+        parserBabel,
+        parserEstree,
+        parserTypescript,
+        parserCss,
+      }),
+    );
   }
 
   return prettierRuntimePromise;
@@ -39,11 +42,15 @@ async function loadTypeScriptRuntime() {
   return typeScriptRuntimePromise;
 }
 
-export async function formatCode(code: string, parser: "babel" | "typescript"): Promise<string> {
+export async function formatCode(
+  code: string,
+  parser: "babel" | "typescript",
+): Promise<string> {
   try {
     const ssrFormatted = await formatSsrTemplates(code);
     const source = await formatVaporTemplates(ssrFormatted);
-    const { prettier, parserBabel, parserEstree, parserTypescript } = await loadPrettierRuntime();
+    const { prettier, parserBabel, parserEstree, parserTypescript } =
+      await loadPrettierRuntime();
     return await prettier.format(source, {
       parser,
       plugins: [parserBabel, parserEstree, parserTypescript],

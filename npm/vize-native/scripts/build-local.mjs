@@ -52,4 +52,3 @@ for (const file of readdirSync(outputDir)) {
   }
   copyFileSync(path.join(outputDir, file), path.join(packageDir, file));
 }
-

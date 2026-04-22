@@ -21,7 +21,10 @@ import {
   RESOLVED_CSS_MODULE,
   rewriteDynamicTemplateImports,
 } from "../virtual.ts";
-import { rewriteStaticAssetUrls, applyDefineReplacements } from "../transform.ts";
+import {
+  rewriteStaticAssetUrls,
+  applyDefineReplacements,
+} from "../transform.ts";
 
 const SERVER_PLACEHOLDER_CODE = `import { createElementBlock, defineComponent } from "vue";
 export default defineComponent({
@@ -32,7 +35,10 @@ export default defineComponent({
 });
 `;
 
-export function getBoundaryPlaceholderCode(realPath: string, ssr: boolean): string | null {
+export function getBoundaryPlaceholderCode(
+  realPath: string,
+  ssr: boolean,
+): string | null {
   if (ssr && realPath.endsWith(".client.vue")) {
     return SERVER_PLACEHOLDER_CODE;
   }
@@ -43,7 +49,11 @@ export function getBoundaryPlaceholderCode(realPath: string, ssr: boolean): stri
 }
 
 function getOxcDumpPath(root: string, realPath: string): string {
-  const dumpDir = path.resolve(root || process.cwd(), "__agent_only", "oxc-dumps");
+  const dumpDir = path.resolve(
+    root || process.cwd(),
+    "__agent_only",
+    "oxc-dumps",
+  );
   fs.mkdirSync(dumpDir, { recursive: true });
   return path.join(dumpDir, `vize-oxc-error-${path.basename(realPath)}.ts`);
 }
@@ -54,7 +64,9 @@ export function loadHook(
   loadOptions?: { ssr?: boolean },
 ): string | { code: string; map: null } | null {
   // Pick the correct viteBase for URL resolution based on the build environment.
-  const currentBase = loadOptions?.ssr ? state.serverViteBase : state.clientViteBase;
+  const currentBase = loadOptions?.ssr
+    ? state.serverViteBase
+    : state.clientViteBase;
 
   // Handle virtual CSS module for production extraction
   if (id === RESOLVED_CSS_MODULE) {
@@ -71,9 +83,14 @@ export function loadHook(
       .replace(/\.\w+$/, ""); // strip .{lang}
   }
 
-  if (styleId.includes("?vue&type=style") || styleId.includes("?vue=&type=style")) {
+  if (
+    styleId.includes("?vue&type=style") ||
+    styleId.includes("?vue=&type=style")
+  ) {
     const [filename, queryString] = styleId.split("?");
-    const realPath = isVizeVirtual(filename) ? fromVirtualId(filename) : filename;
+    const realPath = isVizeVirtual(filename)
+      ? fromVirtualId(filename)
+      : filename;
     const params = new URLSearchParams(queryString);
     const indexStr = params.get("index");
     const lang = params.get("lang");
@@ -110,7 +127,8 @@ export function loadHook(
           }
         }
         const bodyContent = body.join("\n");
-        const hoistedContent = hoisted.length > 0 ? hoisted.join("\n") + "\n\n" : "";
+        const hoistedContent =
+          hoisted.length > 0 ? hoisted.join("\n") + "\n\n" : "";
         styleContent = `${hoistedContent}[${scoped}] {\n${bodyContent}\n}`;
       }
 
@@ -137,7 +155,9 @@ export function loadHook(
     const realPath = id.slice(1).replace("?macro=true", "");
     if (fs.existsSync(realPath)) {
       const source = fs.readFileSync(realPath, "utf-8");
-      const setupMatch = source.match(/<script\s+setup[^>]*>([\s\S]*?)<\/script>/);
+      const setupMatch = source.match(
+        /<script\s+setup[^>]*>([\s\S]*?)<\/script>/,
+      );
       if (setupMatch) {
         const scriptContent = setupMatch[1];
         return {
@@ -159,7 +179,10 @@ export function loadHook(
       return null;
     }
 
-    const placeholderCode = getBoundaryPlaceholderCode(realPath, !!loadOptions?.ssr);
+    const placeholderCode = getBoundaryPlaceholderCode(
+      realPath,
+      !!loadOptions?.ssr,
+    );
     if (placeholderCode) {
       state.logger.log(`load: using boundary placeholder for ${realPath}`);
       return {
@@ -174,7 +197,11 @@ export function loadHook(
     // On-demand compile if not cached
     if (!compiled && fs.existsSync(realPath)) {
       state.logger.log(`load: on-demand compiling ${realPath}`);
-      compiled = compileFile(realPath, cache, getCompileOptionsForRequest(state, isSsr));
+      compiled = compileFile(
+        realPath,
+        cache,
+        getCompileOptionsForRequest(state, isSsr),
+      );
       syncCollectedCssForFile(state, realPath, compiled);
     }
 
@@ -230,12 +257,18 @@ export function loadHook(
     const [pathPart, queryPart] = afterPrefix.split("?");
     const querySuffix = queryPart ? `?${queryPart}` : "";
     const fsPath = pathPart.startsWith("/@fs/") ? pathPart.slice(4) : pathPart;
-    if (fsPath.startsWith("/") && fs.existsSync(fsPath) && fs.statSync(fsPath).isFile()) {
+    if (
+      fsPath.startsWith("/") &&
+      fs.existsSync(fsPath) &&
+      fs.statSync(fsPath).isFile()
+    ) {
       const importPath =
         state.server === null
           ? `${pathToFileURL(fsPath).href}${querySuffix}`
           : "/@fs" + fsPath + querySuffix;
-      state.logger.log(`load: proxying \0-prefixed file ${id} -> re-export from ${importPath}`);
+      state.logger.log(
+        `load: proxying \0-prefixed file ${id} -> re-export from ${importPath}`,
+      );
       return `export { default } from ${JSON.stringify(importPath)};\nexport * from ${JSON.stringify(importPath)};`;
     }
   }
@@ -252,12 +285,16 @@ export async function transformHook(
 ): Promise<TransformResult | null> {
   const isMacro = id.startsWith("\0") && id.endsWith("?macro=true");
   if (isVizeVirtual(id) || isMacro) {
-    const realPath = isMacro ? id.slice(1).replace("?macro=true", "") : fromVirtualId(id);
+    const realPath = isMacro
+      ? id.slice(1).replace("?macro=true", "")
+      : fromVirtualId(id);
     try {
       const result = await transformWithOxc(code, realPath, {
         lang: "ts",
       });
-      const defines = options?.ssr ? state.serverViteDefine : state.clientViteDefine;
+      const defines = options?.ssr
+        ? state.serverViteDefine
+        : state.clientViteDefine;
       let transformed = result.code;
       if (Object.keys(defines).length > 0) {
         transformed = applyDefineReplacements(transformed, defines);
