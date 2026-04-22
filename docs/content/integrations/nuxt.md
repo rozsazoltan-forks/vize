@@ -10,8 +10,10 @@ Vize provides first-class Nuxt integration through the `@vizejs/nuxt` module. Th
 
 ## Installation
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then add the module:
+
 ```bash
-npm install @vizejs/nuxt
+vp install @vizejs/nuxt
 ```
 
 ## Setup

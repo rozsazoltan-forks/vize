@@ -14,8 +14,10 @@ title: Vite Plugin
 
 ## Installation
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then add the packages:
+
 ```bash
-npm install @vizejs/vite-plugin vize
+vp install -D @vizejs/vite-plugin vize
 ```
 
 ## Basic Usage

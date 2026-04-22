@@ -11,8 +11,10 @@ MCP (Model Context Protocol) server for Musea design system integration.
 
 ## Installation
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then add the server to your project:
+
 ```bash
-npm install -g @vizejs/musea-mcp-server
+vp install -D @vizejs/musea-mcp-server
 ```
 
 ## Usage
@@ -25,8 +27,8 @@ Add to `claude_desktop_config.json`:
 {
   "mcpServers": {
     "musea": {
-      "command": "musea-mcp-server",
-      "args": ["--project", "/path/to/project"]
+      "command": "vp",
+      "args": ["dlx", "@vizejs/musea-mcp-server", "--project", "/path/to/project"]
     }
   }
 }
@@ -35,7 +37,7 @@ Add to `claude_desktop_config.json`:
 ### Standalone
 
 ```bash
-musea-mcp-server --project ./my-vue-app
+vp dlx @vizejs/musea-mcp-server --project ./my-vue-app
 ```
 
 ## MCP Tools

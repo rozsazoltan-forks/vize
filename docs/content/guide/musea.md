@@ -20,8 +20,10 @@ Musea uses `*.art.vue` files to describe component variants with Vue-native synt
 
 ## Installation
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then add the package:
+
 ```bash
-pnpm add -D @vizejs/vite-plugin-musea
+vp install -D @vizejs/vite-plugin-musea
 ```
 
 ## Recommended Usage: Vite Plugin

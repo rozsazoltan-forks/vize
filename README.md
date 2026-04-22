@@ -32,10 +32,12 @@
 
 ## Quick Start
 
+Need `vp` first? Install Vite+ once from the [Vite+ install guide](https://viteplus.dev/guide/install).
+
 ### Vite
 
 ```bash
-pnpm add -D vize @vizejs/vite-plugin
+vp install -D vize @vizejs/vite-plugin
 ```
 
 ```ts
@@ -70,9 +72,9 @@ export default defineConfig({
 The npm `vize` package currently exposes the native lint command plus shared config helpers:
 
 ```bash
-pnpm add -D vize
-pnpm exec vize lint src
-pnpm exec vize lint --preset opinionated --help-level short src
+vp install -D vize
+vp exec vize lint src
+vp exec vize lint --preset opinionated --help-level short src
 ```
 
 ### Full Rust CLI
@@ -102,8 +104,8 @@ nix run github:ubugeeei/vize#vize -- --help
 `oxlint-plugin-vize` lets Oxlint execute Vize Patina diagnostics through Oxlint's JS plugin system.
 
 ```bash
-pnpm add -D oxlint oxlint-plugin-vize
-pnpm exec oxlint-vize -c .oxlintrc.json -f stylish src
+vp install -D oxlint oxlint-plugin-vize
+vp exec oxlint-vize -c .oxlintrc.json -f stylish src
 ```
 
 This keeps Oxlint's core JS and TS rules active while adding Vue-aware diagnostics under the `vize/*` namespace.
@@ -147,11 +149,11 @@ The same feature names can be committed in `vize.config.json` or `vize.config.pk
 
 ## Local Development
 
-The primary local setup is `Nix + pnpm + vp`.
+The primary local setup is `Nix + vp`.
 
 ```bash
 nix develop
-pnpm install --frozen-lockfile
+vp install --frozen-lockfile
 vp build
 vp run --workspace-root check
 ```

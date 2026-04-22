@@ -68,12 +68,14 @@ vize lsp (vize_maestro)
 
 ### Installing from Source
 
+Install `vp` once from the [Vite+ install guide](https://viteplus.dev/guide/install), then:
+
 ```bash
 git clone https://github.com/ubugeeei/vize.git
 cd vize
 cd npm/vscode-vize
-pnpm install --ignore-workspace
-pnpm build
+vp install --ignore-workspace
+vp build
 ```
 
 ## Vize Art Extension
