@@ -73,6 +73,13 @@ test("release workflow overwrites existing GitHub release assets when a tag is r
   assert.match(workflow, /uses: softprops\/action-gh-release@v2[\s\S]*overwrite_files:\s*true/);
 });
 
+test("cargo config forces the bundled Rust linker for Windows MSVC targets", () => {
+  const cargoConfig = readRepoFile(".cargo", "config.toml");
+
+  assert.match(cargoConfig, /\[target\.x86_64-pc-windows-msvc\]\s*linker = "rust-lld"/);
+  assert.match(cargoConfig, /\[target\.aarch64-pc-windows-msvc\]\s*linker = "rust-lld"/);
+});
+
 test("release workflow runs GitHub helper scripts with the native target on every runner", () => {
   const workflow = readRepoFile(".github", "workflows", "release.yml");
 
