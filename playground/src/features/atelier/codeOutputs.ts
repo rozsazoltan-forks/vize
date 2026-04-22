@@ -63,7 +63,7 @@ async function formatVariantCode(code: string, isTypeScript: boolean) {
   }
 
   const formattedCode = await formatCode(code, isTypeScript ? "typescript" : "babel");
-  const formattedJsCode = isTypeScript ? await formatCode(transpileToJs(code), "babel") : "";
+  const formattedJsCode = isTypeScript ? await formatCode(await transpileToJs(code), "babel") : "";
 
   return {
     formattedCode,

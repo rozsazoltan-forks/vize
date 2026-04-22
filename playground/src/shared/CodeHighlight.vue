@@ -284,7 +284,7 @@ watch(
   line-height: inherit;
 }
 
-:global(body[data-theme="dark"]) .code-highlight :deep(.code-line span) {
+body[data-theme="dark"] .code-highlight :deep(.code-line span) {
   color: var(--d);
 }
 </style>

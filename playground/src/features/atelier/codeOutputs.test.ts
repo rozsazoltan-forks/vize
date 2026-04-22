@@ -9,7 +9,7 @@ import { compileCodeOutputs } from "./codeOutputs";
 
 vi.mock("./formatters", () => ({
   formatCode: vi.fn(async (code: string, parser: string) => `[${parser}] ${code}`),
-  transpileToJs: vi.fn((code: string) => `js:${code}`),
+  transpileToJs: vi.fn(async (code: string) => `js:${code}`),
 }));
 
 function createCompileResult(code: string, templates?: string[]): CompileResult {
