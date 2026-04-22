@@ -31,6 +31,14 @@ export interface ComponentPublicInstance {
   $emit: (...args: any[]) => void;
 }
 
+export interface App<Element = any> {
+  mount(rootContainer: string | Element): ComponentPublicInstance;
+  unmount(): void;
+  use(plugin: any, ...options: any[]): App<Element>;
+  provide<T>(key: InjectionKey<T> | string | symbol, value: T): App<Element>;
+  component(name: string, component?: any): any;
+}
+
 export type DefineComponent<
   Props = any,
   _RawBindings = any,
@@ -50,11 +58,11 @@ export declare function shallowRef<T>(value: T): ShallowRef<T>;
 export declare function computed<T>(getter: () => T): ComputedRef<T>;
 export declare function reactive<T extends object>(value: T): T;
 export declare function readonly<T>(value: T): Readonly<T>;
+export declare function createApp(rootComponent: any, rootProps?: any): App;
+export declare function createSSRApp(rootComponent: any, rootProps?: any): App;
 export declare function provide<T>(key: InjectionKey<T> | string | symbol, value: T): void;
-export declare function inject<T>(
-  key: InjectionKey<T> | string | symbol,
-  defaultValue?: T,
-): T | undefined;
+export declare function inject<T>(key: InjectionKey<T> | string | symbol): T | undefined;
+export declare function inject<T>(key: InjectionKey<T> | string | symbol, defaultValue: T): T;
 export declare function watch<T>(source: any, cb: any): WatchStopHandle;
 export declare function watchEffect(effect: () => void | Promise<void>): WatchStopHandle;
 export declare function onMounted(hook: LifecycleHook): void;

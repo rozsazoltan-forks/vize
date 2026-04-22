@@ -9,6 +9,32 @@ use vize_carton::profile;
 use vize_carton::String;
 use vize_croquis::Croquis;
 
+#[inline]
+fn should_skip_template_prop_binding(summary: &Croquis, prop_name: &str) -> bool {
+    summary
+        .macros
+        .props_destructure()
+        .and_then(|destructure| destructure.get(prop_name))
+        .is_some_and(|binding| binding.local.as_str() == prop_name)
+}
+
+fn emit_template_prop_binding(
+    ts: &mut String,
+    props_type_ref: &str,
+    prop_name: &str,
+    has_default: bool,
+) {
+    if has_default {
+        append!(
+            *ts,
+            "  const {prop_name} = props[\"{prop_name}\"] as Exclude<{props_type_ref}[\"{prop_name}\"], undefined>;\n"
+        );
+    } else {
+        append!(*ts, "  const {prop_name} = props[\"{prop_name}\"];\n");
+    }
+    append!(*ts, "  void {prop_name};\n");
+}
+
 /// Generate Props type definition at module level.
 /// When `generic_param` is present (e.g., `"T extends Foo, P extends Bar"`),
 /// the Props type is emitted with generic parameters: `export type Props<T, P> = ...;`
@@ -93,8 +119,15 @@ pub(crate) fn generate_props_variables(
         if has_props {
             // Runtime-declared props: generate individual variables
             for prop in props {
-                append!(*ts, "  const {} = props[\"{}\"];\n", prop.name, prop.name);
-                append!(*ts, "  void {};\n", prop.name);
+                if should_skip_template_prop_binding(summary, prop.name.as_str()) {
+                    continue;
+                }
+                emit_template_prop_binding(
+                    ts,
+                    props_type_ref.as_str(),
+                    prop.name.as_str(),
+                    prop.default_value.is_some(),
+                );
             }
         } else if let Some(type_args) = define_props_type_args {
             // Type-only defineProps<TypeName>(): extract fields
@@ -105,8 +138,15 @@ pub(crate) fn generate_props_variables(
             let type_properties = summary.types.extract_properties(type_name);
             if !type_properties.is_empty() {
                 for prop in &type_properties {
-                    append!(*ts, "  const {} = props[\"{}\"];\n", prop.name, prop.name);
-                    append!(*ts, "  void {};\n", prop.name);
+                    if should_skip_template_prop_binding(summary, prop.name.as_str()) {
+                        continue;
+                    }
+                    emit_template_prop_binding(
+                        ts,
+                        props_type_ref.as_str(),
+                        prop.name.as_str(),
+                        false,
+                    );
                 }
             } else if let Some(script) = script_content {
                 // Fallback: extract field names from script text (for local interfaces)
@@ -115,8 +155,10 @@ pub(crate) fn generate_props_variables(
                     extract_interface_fields(script, type_name)
                 );
                 for field in &field_names {
-                    append!(*ts, "  const {field} = props[\"{field}\"];\n");
-                    append!(*ts, "  void {field};\n");
+                    if should_skip_template_prop_binding(summary, field.as_str()) {
+                        continue;
+                    }
+                    emit_template_prop_binding(ts, props_type_ref.as_str(), field.as_str(), false);
                 }
             }
         }

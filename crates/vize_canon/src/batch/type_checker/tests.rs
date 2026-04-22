@@ -185,6 +185,68 @@ const inputRef = useTemplateRef<HTMLInputElement>('input')
 }
 
 #[test]
+fn batch_type_checker_accepts_nested_ref_value_component_props() {
+    if resolve_test_tsgo_binary().is_none() {
+        return;
+    }
+
+    let project_root = create_project_case(
+        "nested-ref-value-props",
+        &[
+            (
+                "src/Child.vue",
+                r#"<script setup lang="ts">
+defineProps<{
+  count: number
+}>()
+</script>
+
+<template>
+  <div>{{ count }}</div>
+</template>
+"#,
+            ),
+            (
+                "src/App.vue",
+                r#"<script setup lang="ts">
+import { ref } from 'vue'
+import Child from './Child.vue'
+
+const state = ref({
+  nested: ref(1),
+})
+</script>
+
+<template>
+  <Child :count="state.nested.value" />
+</template>
+"#,
+            ),
+        ],
+    );
+
+    let Some(snapshot) = snapshot_project_diagnostics(&project_root) else {
+        let _ = std::fs::remove_dir_all(&project_root);
+        return;
+    };
+
+    let relevant: Vec<_> = snapshot
+        .iter()
+        .filter(|(file, code, _)| {
+            file == "src/App.vue" && matches!(*code, Some(18048) | Some(2322) | Some(2339))
+        })
+        .cloned()
+        .collect();
+
+    assert!(
+        relevant.is_empty(),
+        "unexpected nested ref prop diagnostics: {relevant:#?}"
+    );
+
+    let _ = std::fs::remove_dir_all(&project_root);
+}
+
+#[test]
 fn batch_type_checker_reports_template_handler_mismatches_without_node_modules() {
     if resolve_test_tsgo_binary().is_none() {
         return;
