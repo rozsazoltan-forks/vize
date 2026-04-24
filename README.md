@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./playground/public/og-image.png" alt="Vize" width="600" />
+  <img src="./assets/readme-screenshot.png" alt="Vize" width="600" />
 </p>
 
 <p align="center">
