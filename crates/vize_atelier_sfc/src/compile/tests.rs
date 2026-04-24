@@ -240,6 +240,57 @@ const currentCode = ref('dom');
 }
 
 #[test]
+fn test_script_setup_sfc_demotes_reactive_const_used_in_v_model() {
+    let source = r#"<template>
+  <Comp v-model="reactiveObject" />
+</template>
+
+<script lang="ts" setup>
+import { reactive } from 'vue';
+
+const reactiveObject = reactive({ foo: 'bar' });
+</script>"#;
+
+    let descriptor = parse_sfc(source, SfcParseOptions::default()).expect("Failed to parse SFC");
+    let result =
+        compile_sfc(&descriptor, SfcCompileOptions::default()).expect("Failed to compile SFC");
+
+    assert!(
+        result
+            .code
+            .contains("let reactiveObject = reactive({ foo: \"bar\" });"),
+        "compiled output should demote the binding to let"
+    );
+    assert!(
+        result.code.contains("reactiveObject = $event"),
+        "compiled output should assign directly to the demoted binding"
+    );
+    assert_eq!(result.warnings.len(), 1, "expected exactly one warning");
+    assert_eq!(
+        result.warnings[0].code.as_deref(),
+        Some("V_MODEL_CONST_REACTIVE_DEMOTED")
+    );
+    assert!(
+        result.warnings[0]
+            .message
+            .contains("const reactive binding `reactiveObject`"),
+        "warning should explain the reactive const demotion"
+    );
+
+    let bindings = result
+        .bindings
+        .as_ref()
+        .expect("script setup output should include bindings");
+    assert!(
+        matches!(
+            bindings.bindings.get("reactiveObject"),
+            Some(BindingType::SetupLet)
+        ),
+        "reactiveObject should be exposed as SetupLet after demotion"
+    );
+}
+
+#[test]
 fn test_ssr_vapor_request_falls_back_with_warning() {
     let source = r#"<script setup>
 const count = 1
@@ -434,6 +485,50 @@ const { items } = defineProps<{
     let result = compile_sfc(&descriptor, opts).expect("Failed to compile SFC");
 
     insta::assert_snapshot!(result.code.as_str());
+}
+
+#[test]
+fn test_script_setup_typescript_downcompiles_to_javascript_by_default() {
+    let source = r#"<script setup lang="ts">
+const props = withDefaults(defineProps<{
+  first?: boolean;
+}>(), {
+  first: false,
+});
+
+async function updatePasswordLessLogin(value: boolean): Promise<void> {
+  console.log(value);
+}
+</script>
+
+<template>
+  <div>{{ props.first }}</div>
+</template>"#;
+
+    let descriptor = parse_sfc(source, SfcParseOptions::default()).expect("Failed to parse SFC");
+    let result =
+        compile_sfc(&descriptor, SfcCompileOptions::default()).expect("Failed to compile SFC");
+
+    assert!(
+        result.code.contains("setup(__props)"),
+        "default JS output should not preserve typed setup params: {}",
+        result.code
+    );
+    assert!(
+        !result.code.contains("__props: any"),
+        "default JS output should strip typed setup params: {}",
+        result.code
+    );
+    assert!(
+        !result.code.contains("(_ctx: any,_cache: any)"),
+        "default JS output should strip typed render params: {}",
+        result.code
+    );
+    assert!(
+        !result.code.contains(": Promise<void>"),
+        "default JS output should strip TypeScript return types: {}",
+        result.code
+    );
 }
 
 #[test]
