@@ -36,11 +36,12 @@ type __WithDefaultsArgs<T> = { [K in keyof T]?: __WithDefaultValue<T[K]> };
 type __WithDefaultsResult<T, D extends __WithDefaultsArgs<T>> = Omit<T, keyof D> & { [K in keyof D & keyof T]-?: T[K] };
 type __Ref<T> = import('vue').Ref<T>;
 type __ShallowRef<T> = import('vue').ShallowRef<T>;
-import { ref } from 'vue'
-import TodoItem from './TodoItem.vue'
+import TrendChart from './TrendChart.vue'
 
 // ========== Exported Types ==========
-export type Props = {};
+export type Props = {
+  class?: string
+};
 
 // ========== Setup Scope ==========
 function __setup() {
@@ -65,18 +66,14 @@ function __setup() {
   void defineProps; void defineEmits; void defineExpose; void defineModel; void defineSlots; void withDefaults; void useTemplateRef;
 
   // User setup code
+  defineProps<{
+    class?: string
+  }>()
   
-  const todos = ref([{ id: 1, text: 'Hello' }])
-  
-  // @vize-map: 4255:4309 -> 0:111
+  // @vize-map: 4251:4296 -> 0:78
 
   // ========== Template Scope (inherits from setup) ==========
-  // Ref type captures (before template scope shadows them)
-  type __R_todos = typeof todos;
   ;(function __template() {
-    // Auto-unwrap Vue refs in template scope
-    type __U<T> = T extends import('vue').Ref<infer V, unknown> ? V : T;
-    var todos: __U<__R_todos> = undefined as any;
     // Vue template context (delegates to ComponentPublicInstance)
     type __Ctx = import('vue').ComponentPublicInstance;
     const __ctx = undefined as unknown as __Ctx;
@@ -86,36 +83,43 @@ function __setup() {
     const $emit = __ctx.$emit;
     void __ctx; void $attrs; void $slots; void $refs; void $emit;
 
+  // Props are available in template as variables
+  // Access via `propName` or `props.propName`
+  const props: Props = {} as Props;
+  void props; // Mark as used to avoid TS6133
+  const _class = props["class"];
+  void _class;
 
-  // v-for scope: todo in todos
-  (todos).forEach((todo: typeof todos[number]) => {
-    void todo;
-    void (todo.id); // VBind
-    // @vize-map: expr -> 46:53
-    void (todo); // VBind
-    // @vize-map: expr -> 62:66
-  });
+  void (props["class"]); // VBind
+  // @vize-map: expr -> 20:25
+
+  // v-slot scope: #area-gradient
+  void function _slot_area_gradient({ id }: any) {
+    void id;
+    void (id); // Interpolation
+    // @vize-map: expr -> 72:74
+  };
 
   // Component props type declarations
-  // @vize-map: component -> 8:70
-  type __TodoItem_Props_0 = typeof TodoItem extends { new (): { $props: infer __P } } ? __P : (typeof TodoItem extends (props: infer __P) => any ? __P : {});
-  type __TodoItem_0_prop_item = __TodoItem_Props_0 extends { 'item'?: infer T } ? T : __TodoItem_Props_0 extends { 'item': infer T } ? T : unknown;
+  // @vize-map: component -> 0:27
+  type __TrendChart_Props_0 = typeof TrendChart extends { new (): { $props: infer __P } } ? __P : (typeof TrendChart extends (props: infer __P) => any ? __P : {});
+  type __TrendChart_0_prop_class = __TrendChart_Props_0 extends { 'class'?: infer T } ? T : __TrendChart_Props_0 extends { 'class': infer T } ? T : unknown;
 
   // Component props value checks (template scope)
+  // @vize-map: prop -> 12:25
+  const __vize_prop_check_0_class: __TrendChart_0_prop_class = props["class"];
+  void __vize_prop_check_0_class;
 
-  // Component props in v-for scope: todo in todos
-  (todos).forEach((todo: typeof todos[number]) => {
-    void todo;
-    // @vize-map: prop -> 55:66
-    const __vize_prop_check_0_item: __TodoItem_0_prop_item = todo;
-    void __vize_prop_check_0_item;
-  });
+  // Component props in v-slot scope: #area-gradient
+  void function _slot_props_area_gradient({ id }: any) {
+    void id;
+  };
 
   // Mark used components as referenced
-  void TodoItem;
+  void TrendChart;
 
   // Reference setup bindings (used in template/CSS v-bind)
-  void TodoItem; void ref; void todos;
+  void TrendChart;
   })();
 }
 

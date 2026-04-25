@@ -129,25 +129,38 @@ Run `vp run --workspace-root bench:fmt` to reproduce.
 
 ## Benchmark: Type Checker — canon vs vue-tsc
 
-Type checking **15,000 Vue SFC files**:
+Type checking **500 generated Vue SFC files** with the current Corsa-backed diagnostics path:
 
 |          | vue-tsc (ST) | Vize canon (ST) | Speedup  | vue-tsc (MT) | Vize canon (MT) | Speedup  | **vue-tsc ST vs Vize MT** |
 | -------- | ------------ | --------------- | -------- | ------------ | --------------- | -------- | ------------------------- |
-| **Time** | 22.13s       | 6.28s           | **3.5x** | 20.31s       | 3.33s           | **6.1x** | **6.6x**                  |
+| **Time** | 4.38s        | 511ms           | **8.6x** | 4.41s        | 493ms           | **8.9x** | **8.9x**                  |
+| **Rate** | 114 files/s  | 979 files/s     |          | 113 files/s  | 1.0k files/s    |          |                           |
 
-> **Note:** Vize canon is still in early development and the Corsa-backed diagnostics path is still catching up with vue-tsc fidelity. These measurements reflect the current native project-session implementation with auto-tuned parallel Corsa sessions and will change as diagnostics coverage and parity improve.
+> **Note:** Vize canon is still in early development and the Corsa-backed diagnostics path is still catching up with vue-tsc fidelity. These measurements reflect the current CLI-first native implementation with a project-session fallback and will change as diagnostics coverage and parity improve.
 
-Run `vp run --workspace-root bench:check` to reproduce.
+Run `node bench/check.ts 500` after `cargo build --release -p vize` to reproduce this quick benchmark.
+
+### Type checker profile
+
+The 500-SFC profile fixture keeps most wall time inside the Corsa CLI command, while the import rewrite fast path removes the previous OXC parse cost for files without Vue specifiers:
+
+| Metric                       | Before  | Current |
+| ---------------------------- | ------- | ------- |
+| `canon.import.rewrite.vue`   | 26.77ms | 2.45ms  |
+| Largest generated Virtual TS | 15,401B | 14,414B |
+| Total profile wall time      | 1.88s   | 668ms   |
+| Corsa diagnostics phase      | 1.67s   | 482ms   |
+| Corsa CLI parse              | n/a     | 10.41ms |
 
 ### Diagnostics-heavy e2e fixture
 
-`bench/check.ts` also measures the `tests/_fixtures/_git/npmx.dev` app when the fixture is present. This catches the diagnostics mapping path that synthetic no-error SFCs do not stress:
+`bench/check.ts` also measures the `tests/_fixtures/_git/npmx.dev` app when the fixture is present. This catches the diagnostics mapping path on a real application fixture:
 
 | Fixture      | Source SFC files | Virtual files | Diagnostics | Vize canon |
 | ------------ | ---------------- | ------------- | ----------- | ---------- |
-| npmx.dev app | 134              | 226           | 3,943       | ~2.9s      |
+| npmx.dev app | 134              | 226           | 1,053       | 1.94s      |
 
-The current profile for this fixture keeps `canon.corsa.map_diagnostics` at ~31ms; most time is now in Corsa project diagnostics.
+The current profile for this fixture keeps CLI diagnostic parsing at ~7ms. Most time is now in the Corsa CLI command itself. Hoisting framework auto-import stubs into one ambient file also reduced the largest generated Virtual TS file from about 275KB to 144KB.
 
 ## Benchmark: Vite Plugin — @vizejs/vite-plugin vs @vitejs/plugin-vue
 
