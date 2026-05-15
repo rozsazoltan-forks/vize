@@ -75,6 +75,9 @@ vize lint examples/cli/src/*.vue --max-warnings 5
 
 # Show only the summary
 vize lint examples/cli/src/*.vue --quiet
+
+# Print rule and file timing
+vize lint examples/cli/src/*.vue --profile
 ```
 
 `src/HasErrors.vue` intentionally includes missing `v-for` keys, a `v-if`/`v-for` conflict, and a
