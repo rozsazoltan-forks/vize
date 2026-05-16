@@ -802,6 +802,30 @@ const onSave = () => {}
 }
 
 #[test]
+fn typed_template_members_after_setup_object_literals_are_ignored() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+const payload: { label: string } = { label: 'safe' }
+const actions = {
+  save(): void {}
+}
+</script>
+
+<template>
+  <button :title="payload.label" @click="actions.save">{{ payload.label }}</button>
+</template>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "SafePanel.vue");
+    assert!(!result.diagnostics.iter().any(|diag| matches!(
+        diag.rule_name,
+        RULE_NO_UNSAFE_TEMPLATE_BINDING | RULE_NO_FLOATING_PROMISES
+    )));
+}
+
+#[test]
 fn type_aware_diagnostics_snapshot() {
     if !corsa_available() {
         return;
