@@ -238,6 +238,31 @@ async function save(): Promise<void> {}
 }
 
 #[test]
+fn malformed_template_event_expressions_skip_type_aware_noise() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+async function save(): Promise<void> {}
+</script>
+
+<template>
+  <button @click="save(">Save</button>
+</template>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "Component.vue");
+    assert!(
+        !result
+            .diagnostics
+            .iter()
+            .any(|diag| diag.rule_name == RULE_NO_FLOATING_PROMISES),
+        "malformed template event should not emit floating-promise noise: {:?}",
+        result.diagnostics
+    );
+}
+
+#[test]
 fn no_floating_promises_reports_bare_template_event_handlers() {
     if !corsa_available() {
         return;
@@ -610,6 +635,31 @@ const payload: Record<string, any> = { label: 'unsafe' }
         .diagnostics
         .iter()
         .any(|diag| diag.rule_name == RULE_NO_UNSAFE_TEMPLATE_BINDING));
+}
+
+#[test]
+fn malformed_template_interpolations_skip_type_aware_noise() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+const payload: any = { label: 'unsafe' }
+</script>
+
+<template>
+  <div>{{ payload. }}</div>
+</template>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "TypeAwareFixture.vue");
+    assert!(
+        !result
+            .diagnostics
+            .iter()
+            .any(|diag| diag.rule_name == RULE_NO_UNSAFE_TEMPLATE_BINDING),
+        "malformed interpolation should not emit unsafe-binding noise: {:?}",
+        result.diagnostics
+    );
 }
 
 #[test]

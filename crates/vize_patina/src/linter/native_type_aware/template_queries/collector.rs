@@ -301,23 +301,23 @@ fn collect_expression_query_sets(
         )
     );
 
-    if let (Some(queries), Some(generated_offset)) = (
-        sinks.template_queries.as_deref_mut(),
-        expression_generated_offset,
-    ) {
-        let generated_offset =
-            expression_binding_generated_offset(&virtual_ts.content, generated_offset)
-                .unwrap_or(generated_offset);
-        queries.push(TemplateQuery {
-            kind: TemplateQueryKind::Expression,
-            context,
-            generated_offset,
-            source_start,
-            source_end,
-            owner_start: source_start,
-            owner_end: source_end,
-        });
-
+    if let Some(queries) = sinks.template_queries.as_deref_mut() {
+        if call_ranges.expression_consumes_source {
+            if let Some(generated_offset) = expression_generated_offset {
+                let generated_offset =
+                    expression_binding_generated_offset(&virtual_ts.content, generated_offset)
+                        .unwrap_or(generated_offset);
+                queries.push(TemplateQuery {
+                    kind: TemplateQueryKind::Expression,
+                    context,
+                    generated_offset,
+                    source_start,
+                    source_end,
+                    owner_start: source_start,
+                    owner_end: source_end,
+                });
+            }
+        }
         for callee in call_ranges.callees {
             let callee_start = source_start + callee.start;
             let callee_end = source_start + callee.end;

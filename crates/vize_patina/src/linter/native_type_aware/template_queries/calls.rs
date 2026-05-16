@@ -35,6 +35,7 @@ pub(super) struct TemplateCallRanges {
     pub callees: Vec<RelativeRange>,
     pub floating_promises: Vec<FloatingPromiseRange>,
     pub probe_expression_binding: bool,
+    pub expression_consumes_source: bool,
 }
 
 const TEMPLATE_HANDLER_PREFIX: &str = "function __vize_template_handler(){\n";
@@ -58,6 +59,7 @@ pub(super) fn collect_template_call_ranges(
     ) {
         ranges.probe_expression_binding = expression_prefers_binding_probe(&expression);
         let expression_consumes_source = expression.span().end as usize == source.trim_end().len();
+        ranges.expression_consumes_source = expression_consumes_source;
         if allow_statement_fallback && !expression_consumes_source {
             let statement_ranges = collect_statement_template_call_ranges(
                 &allocator,
