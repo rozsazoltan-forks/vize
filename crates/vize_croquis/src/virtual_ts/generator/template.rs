@@ -9,6 +9,7 @@ use super::{
     InterpolationNode, MappingData, PropNode, RootNode, SourceMapping, SourceRange,
     TemplateChildNode, VirtualTsGenerator, VirtualTsOutput,
 };
+use crate::analyzer::{parse_v_for_scope_expression, VForScopeAliases};
 use vize_carton::{append, profile, String, ToCompactString};
 
 impl VirtualTsGenerator {
@@ -214,31 +215,20 @@ impl VirtualTsGenerator {
     where
         F: FnOnce(&mut Self),
     {
-        let content = match exp {
-            ExpressionNode::Simple(s) => s.content.as_str(),
-            ExpressionNode::Compound(c) => c.loc.source.as_str(),
-        };
+        let content = expression_source(exp);
 
         // Parse v-for expression: "item in items" or "(item, index) in items"
-        if let Some(in_pos) = content.find(" in ").or_else(|| content.find(" of ")) {
-            let left = &content[..in_pos];
-            let right = &content[in_pos + 4..];
-
+        if let Some(aliases) = parse_v_for_scope_expression(content) {
             self.emit_line("// v-for scope");
             self.emit_line("{");
             self.indent_level += 1;
 
-            let vars_part = left.trim();
-            let vars_part = vars_part.trim_start_matches('(').trim_end_matches(')');
-            let aliases = extract_var_names(vars_part);
-
             // Emit the source expression (right side)
-            let source = right.trim();
             let var_name = format!("__expr_{}", self.expr_counter);
             self.expr_counter += 1;
-            self.emit_line(&format!("const {} = {};", var_name, source));
+            self.emit_line(&format!("const {} = {};", var_name, aliases.source));
 
-            let loop_emitted = self.emit_v_for_loop_open(&aliases, &var_name);
+            let loop_emitted = self.emit_v_for_scope_loop_open(&aliases, &var_name);
             profile!("croquis.virtual_ts.template.v_for_body", body(self));
             if loop_emitted {
                 self.indent_level = self.indent_level.saturating_sub(1);
@@ -310,39 +300,21 @@ impl VirtualTsGenerator {
         self.emit_line("{");
         self.indent_level += 1;
 
-        let mut aliases = Vec::with_capacity(3);
-        if let Some(ref value) = parse_result.value {
-            if let Some(var_name) = extract_var_name(value) {
-                push_unique_alias(&mut aliases, var_name);
-            }
-        }
-        if let Some(ref key) = parse_result.key {
-            if let Some(var_name) = extract_var_name(key) {
-                push_unique_alias(&mut aliases, var_name);
-            }
-        }
-        if let Some(ref index) = parse_result.index {
-            if let Some(var_name) = extract_var_name(index) {
-                push_unique_alias(&mut aliases, var_name);
-            }
-        }
-
-        // Also check the direct aliases on ForNode
-        if let Some(ref value_alias) = for_node.value_alias {
-            if let Some(var_name) = extract_var_name(value_alias) {
-                push_unique_alias(&mut aliases, var_name);
-            }
-        }
-        if let Some(ref key_alias) = for_node.key_alias {
-            if let Some(var_name) = extract_var_name(key_alias) {
-                push_unique_alias(&mut aliases, var_name);
-            }
-        }
-        if let Some(ref index_alias) = for_node.object_index_alias {
-            if let Some(var_name) = extract_var_name(index_alias) {
-                push_unique_alias(&mut aliases, var_name);
-            }
-        }
+        let value_pattern = parse_result
+            .value
+            .as_ref()
+            .or(for_node.value_alias.as_ref())
+            .map(expression_source);
+        let key_alias = parse_result
+            .key
+            .as_ref()
+            .or(for_node.key_alias.as_ref())
+            .and_then(extract_var_name);
+        let index_alias = parse_result
+            .index
+            .as_ref()
+            .or(for_node.object_index_alias.as_ref())
+            .and_then(extract_var_name);
 
         // Emit the source expression
         let source_expr = &parse_result.source;
@@ -365,9 +337,16 @@ impl VirtualTsGenerator {
             }
         };
 
-        let loop_emitted = source_var_name
-            .as_deref()
-            .is_some_and(|source_var_name| self.emit_v_for_loop_open(&aliases, source_var_name));
+        let loop_emitted = source_var_name.as_deref().is_some_and(|source_var_name| {
+            value_pattern.is_some_and(|value_pattern| {
+                self.emit_v_for_loop_open(
+                    value_pattern.trim(),
+                    key_alias.as_deref(),
+                    index_alias.as_deref(),
+                    source_var_name,
+                )
+            })
+        });
         profile!(
             "croquis.virtual_ts.template.for_children",
             self.visit_children(&for_node.children)
@@ -381,31 +360,70 @@ impl VirtualTsGenerator {
         self.emit_line("}");
     }
 
-    fn emit_v_for_loop_open(&mut self, aliases: &[String], source_var_name: &str) -> bool {
-        match aliases {
-            [value] => {
-                self.emit_line(&format!("for (const {} of {}) {{", value, source_var_name));
-                self.indent_level += 1;
-                true
-            }
-            [value, index] => {
+    fn emit_v_for_scope_loop_open(
+        &mut self,
+        aliases: &VForScopeAliases,
+        source_var_name: &str,
+    ) -> bool {
+        self.emit_v_for_loop_open(
+            aliases.value_pattern.as_str(),
+            aliases
+                .key_alias
+                .as_ref()
+                .map(|alias: &vize_carton::CompactString| alias.as_str()),
+            aliases
+                .index_alias
+                .as_ref()
+                .map(|alias: &vize_carton::CompactString| alias.as_str()),
+            source_var_name,
+        )
+    }
+
+    fn emit_v_for_loop_open(
+        &mut self,
+        value_pattern: &str,
+        key_alias: Option<&str>,
+        index_alias: Option<&str>,
+        source_var_name: &str,
+    ) -> bool {
+        if value_pattern.is_empty() {
+            return false;
+        }
+
+        match (key_alias, index_alias) {
+            (None, None) => {
                 self.emit_line(&format!(
-                    "for (const [{}, {}] of Array.from({}).entries()) {{",
-                    index, value, source_var_name
+                    "for (const {} of {}) {{",
+                    value_pattern, source_var_name
                 ));
                 self.indent_level += 1;
                 true
             }
-            [value, key, index, ..] => {
+            (Some(index), None) => {
                 self.emit_line(&format!(
                     "for (const [{}, {}] of Array.from({}).entries()) {{",
-                    index, value, source_var_name
+                    index, value_pattern, source_var_name
+                ));
+                self.indent_level += 1;
+                true
+            }
+            (Some(key), Some(index)) => {
+                self.emit_line(&format!(
+                    "for (const [{}, {}] of Array.from({}).entries()) {{",
+                    index, value_pattern, source_var_name
                 ));
                 self.indent_level += 1;
                 self.emit_line(&format!("const {} = {};", key, index));
                 true
             }
-            [] => false,
+            (None, Some(index)) => {
+                self.emit_line(&format!(
+                    "for (const [{}, {}] of Array.from({}).entries()) {{",
+                    index, value_pattern, source_var_name
+                ));
+                self.indent_level += 1;
+                true
+            }
         }
     }
 
@@ -538,25 +556,16 @@ fn extract_var_name(expr: &ExpressionNode) -> Option<String> {
     }
 }
 
-fn extract_var_names(vars_part: &str) -> Vec<String> {
-    vars_part
-        .split(',')
-        .filter_map(|var| {
-            let var = var.trim();
-            is_simple_identifier(var).then_some(var.to_compact_string())
-        })
-        .collect()
-}
-
-fn push_unique_alias(aliases: &mut Vec<String>, alias: String) {
-    if !aliases.contains(&alias) {
-        aliases.push(alias);
-    }
-}
-
 fn is_simple_identifier(name: &str) -> bool {
     !name.is_empty()
         && name
             .chars()
             .all(|c| c.is_alphanumeric() || c == '_' || c == '$')
+}
+
+fn expression_source<'a>(expr: &'a ExpressionNode<'a>) -> &'a str {
+    match expr {
+        ExpressionNode::Simple(simple) => simple.content.as_str(),
+        ExpressionNode::Compound(compound) => compound.loc.source.as_str(),
+    }
 }

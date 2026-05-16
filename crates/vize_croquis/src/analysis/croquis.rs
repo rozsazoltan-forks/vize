@@ -102,7 +102,11 @@ impl Croquis {
                     let context = match scope.data() {
                         ScopeData::VFor(data) => {
                             // Determine which kind of variable this is
-                            if data.value_alias.as_str() == name {
+                            if data
+                                .value_bindings
+                                .iter()
+                                .any(|value| value.as_str() == name)
+                            {
                                 UnusedVarContext::VForValue
                             } else if data.key_alias.as_ref().is_some_and(|k| k.as_str() == name) {
                                 UnusedVarContext::VForKey

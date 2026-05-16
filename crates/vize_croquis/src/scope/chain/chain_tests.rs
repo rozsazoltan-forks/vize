@@ -8,7 +8,7 @@ use super::{
 };
 use crate::scope::types::JsRuntime;
 use insta::assert_snapshot;
-use vize_carton::append;
+use vize_carton::{append, smallvec};
 
 #[test]
 fn test_scope_chain_basic() {
@@ -70,6 +70,7 @@ fn test_v_for_scope() {
     chain.enter_v_for_scope(
         VForScopeData {
             value_alias: CompactString::new("item"),
+            value_bindings: smallvec![CompactString::new("item")],
             key_alias: Some(CompactString::new("key")),
             index_alias: Some(CompactString::new("index")),
             source: CompactString::new("items"),
@@ -179,6 +180,7 @@ fn test_nested_v_for() {
     chain.enter_v_for_scope(
         VForScopeData {
             value_alias: CompactString::new("row"),
+            value_bindings: smallvec![CompactString::new("row")],
             key_alias: None,
             index_alias: Some(CompactString::new("rowIndex")),
             source: CompactString::new("rows"),
@@ -192,6 +194,7 @@ fn test_nested_v_for() {
     chain.enter_v_for_scope(
         VForScopeData {
             value_alias: CompactString::new("cell"),
+            value_bindings: smallvec![CompactString::new("cell")],
             key_alias: None,
             index_alias: Some(CompactString::new("cellIndex")),
             source: CompactString::new("row.cells"),
@@ -225,6 +228,7 @@ fn test_nested_callback_in_v_for() {
     chain.enter_v_for_scope(
         VForScopeData {
             value_alias: CompactString::new("item"),
+            value_bindings: smallvec![CompactString::new("item")],
             key_alias: None,
             index_alias: Some(CompactString::new("index")),
             source: CompactString::new("items"),
@@ -635,6 +639,7 @@ fn test_scope_chain_snapshot() {
     chain.enter_v_for_scope(
         VForScopeData {
             value_alias: CompactString::new("item"),
+            value_bindings: smallvec![CompactString::new("item")],
             key_alias: Some(CompactString::new("key")),
             index_alias: None,
             source: CompactString::new("items"),
@@ -721,6 +726,7 @@ fn test_snapshot_complex_nested_scopes() {
     chain.enter_v_for_scope(
         VForScopeData {
             value_alias: CompactString::new("item"),
+            value_bindings: smallvec![CompactString::new("item")],
             key_alias: Some(CompactString::new("key")),
             index_alias: Some(CompactString::new("index")),
             source: CompactString::new("items"),
@@ -834,6 +840,7 @@ fn test_snapshot_scope_transitions() {
     chain.enter_v_for_scope(
         VForScopeData {
             value_alias: CompactString::new("item"),
+            value_bindings: smallvec![CompactString::new("item")],
             key_alias: None,
             index_alias: None,
             source: CompactString::new("list"),

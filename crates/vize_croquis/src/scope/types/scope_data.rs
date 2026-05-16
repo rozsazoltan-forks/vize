@@ -103,8 +103,10 @@ impl BlockKind {
 /// Data specific to v-for scope
 #[derive(Debug, Clone)]
 pub struct VForScopeData {
-    /// The value alias (e.g., "item" in v-for="item in items")
+    /// The value alias or pattern (e.g., "item" or "{ id, name }")
     pub value_alias: CompactString,
+    /// Bindings introduced by the value alias or pattern.
+    pub value_bindings: ParamNames,
     /// The key alias (e.g., "key" in v-for="(item, key) in items")
     pub key_alias: Option<CompactString>,
     /// The index alias (e.g., "index" in v-for="(item, index) in items")

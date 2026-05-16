@@ -437,7 +437,9 @@ fn generate_scope_node(
             ts.push_str(") => {\n");
 
             // Mark v-for variables as used to avoid TS6133
-            append!(*ts, "{inner_indent}void {};\n", data.value_alias);
+            for value in &data.value_bindings {
+                append!(*ts, "{inner_indent}void {value};\n");
+            }
             if let Some(ref key) = data.key_alias {
                 append!(*ts, "{inner_indent}void {key};\n");
             }
@@ -775,7 +777,9 @@ fn generate_closure_component_props_recursive(
             ts.push_str(") => {\n");
 
             // Mark v-for variables as used to avoid TS6133
-            append!(*ts, "{inner_indent}void {};\n", data.value_alias);
+            for value in &data.value_bindings {
+                append!(*ts, "{inner_indent}void {value};\n");
+            }
             if let Some(ref key) = data.key_alias {
                 append!(*ts, "{inner_indent}void {key};\n");
             }

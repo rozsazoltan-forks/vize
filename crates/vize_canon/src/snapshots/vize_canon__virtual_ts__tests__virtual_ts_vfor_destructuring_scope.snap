@@ -85,8 +85,8 @@ function __setup() {
     void __ctx; void $attrs; void $slots; void $refs; void $emit;
 
 
-  // v-for scope: id in items
-  (items).forEach((id: typeof items[number], name: number) => {
+  // v-for scope: { id, name } in items
+  (items).forEach(({ id, name }: typeof items[number]) => {
     void id;
     void name;
     void (id); // VBind

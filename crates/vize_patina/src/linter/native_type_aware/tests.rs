@@ -1017,6 +1017,33 @@ const items: Array<{ label: string }> = [{ label: 'safe' }]
 }
 
 #[test]
+fn typed_destructured_v_for_template_bindings_are_ignored() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+const items: Array<{ id: number; meta: { label: string } }> = [
+  { id: 1, meta: { label: 'safe' } },
+]
+</script>
+
+<template>
+  <p v-for="{ id, meta: { label } } in items" :key="id">{{ label.toUpperCase() }}</p>
+</template>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "Component.vue");
+    assert!(
+        !result
+            .diagnostics
+            .iter()
+            .any(|diag| diag.rule_name == RULE_NO_UNSAFE_TEMPLATE_BINDING),
+        "destructured v-for bindings should stay typed: {:?}",
+        result.diagnostics
+    );
+}
+
+#[test]
 fn typed_template_members_after_setup_object_literals_are_ignored() {
     if !corsa_available() {
         return;

@@ -5,14 +5,15 @@
 //! processes v-bind, v-if, v-show, v-model, v-on in the correct scope.
 
 use crate::analysis::ComponentUsage;
-use crate::scope::{VForScopeData, VSlotScopeData};
+use crate::scope::{ParamNames, VForScopeData, VSlotScopeData};
 use crate::ScopeBinding;
 use vize_carton::{profile, smallvec, CompactString, SmallVec};
 use vize_relief::ast::{ElementNode, ExpressionNode, PropNode};
 use vize_relief::BindingType;
 
 use crate::analyzer::helpers::{
-    extract_slot_props, is_builtin_directive, is_component_tag, parse_v_for_expression,
+    extract_slot_props, is_builtin_directive, is_component_tag, parse_v_for_scope_expression,
+    VForScopeAliases,
 };
 use crate::analyzer::Analyzer;
 
@@ -61,13 +62,7 @@ impl Analyzer {
 
         // Collect v-for scope
         #[allow(clippy::type_complexity)]
-        let mut for_scope: Option<(
-            vize_carton::SmallVec<[CompactString; 3]>,
-            CompactString,
-            u32,
-            u32,
-            Option<CompactString>,
-        )> = None;
+        let mut for_scope: Option<(VForScopeAliases, u32, u32)> = None;
 
         let mut key_expression: Option<CompactString> = None;
 
@@ -96,18 +91,12 @@ impl Analyzer {
                                 ExpressionNode::Simple(s) => s.content.as_str(),
                                 ExpressionNode::Compound(c) => c.loc.source.as_str(),
                             };
-                            let (vars, source) = profile!(
+                            let aliases = profile!(
                                 "croquis.template.v_for.parse_expression",
-                                parse_v_for_expression(content)
+                                parse_v_for_scope_expression(content)
                             );
-                            if !vars.is_empty() {
-                                for_scope = Some((
-                                    vars,
-                                    source,
-                                    el.loc.start.offset,
-                                    el.loc.end.offset,
-                                    None,
-                                ));
+                            if let Some(aliases) = aliases {
+                                for_scope = Some((aliases, el.loc.start.offset, el.loc.end.offset));
                             }
                         }
                     }
@@ -202,28 +191,25 @@ impl Analyzer {
             };
 
         // Enter v-for scope if present
-        let for_vars_count = if let Some((vars, source, start, end, _)) = for_scope {
-            let count = vars.len();
+        let for_vars_count = if let Some((aliases, start, end)) = for_scope {
+            let scope_bindings = v_for_scope_bindings(&aliases);
+            let count = scope_bindings.len();
 
             if count > 0 {
-                let value_alias = vars
-                    .first()
-                    .cloned()
-                    .unwrap_or_else(|| CompactString::const_new("_"));
-
                 self.summary.scopes.enter_v_for_scope(
                     VForScopeData {
-                        value_alias,
-                        key_alias: vars.get(1).cloned(),
-                        index_alias: vars.get(2).cloned(),
-                        source,
+                        value_alias: aliases.value_pattern,
+                        value_bindings: aliases.value_bindings,
+                        key_alias: aliases.key_alias,
+                        index_alias: aliases.index_alias,
+                        source: aliases.source,
                         key_expression,
                     },
                     start,
                     end,
                 );
 
-                for var in &vars {
+                for var in &scope_bindings {
                     self.summary
                         .scopes
                         .add_binding(var.clone(), ScopeBinding::new(BindingType::SetupConst, 0));
@@ -410,4 +396,15 @@ impl Analyzer {
             self.summary.component_usages.push(usage);
         }
     }
+}
+
+fn v_for_scope_bindings(aliases: &VForScopeAliases) -> ParamNames {
+    let mut bindings = aliases.value_bindings.clone();
+    if let Some(key) = &aliases.key_alias {
+        bindings.push(key.clone());
+    }
+    if let Some(index) = &aliases.index_alias {
+        bindings.push(index.clone());
+    }
+    bindings
 }

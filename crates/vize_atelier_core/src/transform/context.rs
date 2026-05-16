@@ -250,6 +250,9 @@ impl<'a> TransformContext<'a> {
         self.scope_chain.enter_v_for_scope(
             VForScopeData {
                 value_alias: CompactString::new(value_alias.unwrap_or("")),
+                value_bindings: value_alias
+                    .map(|alias| vize_carton::smallvec![CompactString::new(alias)])
+                    .unwrap_or_default(),
                 key_alias: key_alias.map(CompactString::new),
                 index_alias: index_alias.map(CompactString::new),
                 source: CompactString::new(source),

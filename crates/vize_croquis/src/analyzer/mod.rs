@@ -30,7 +30,8 @@ mod template;
 
 pub use helpers::{
     extract_identifiers_oxc, extract_inline_callback_params, extract_slot_props,
-    is_builtin_directive, is_component_tag, is_keyword, parse_v_for_expression, strip_js_comments,
+    is_builtin_directive, is_component_tag, is_keyword, parse_v_for_expression,
+    parse_v_for_scope_expression, strip_js_comments, VForScopeAliases,
 };
 
 use crate::analysis::Croquis;

@@ -55,11 +55,14 @@ impl ScopeChain {
         let parents = self.build_template_parents();
         let mut scope = Scope::with_span_parents(id, parents, ScopeKind::VFor, start, end);
 
-        // Add value alias as binding
-        scope.add_binding(
-            data.value_alias.clone(),
-            ScopeBinding::new(BindingType::SetupConst, start),
-        );
+        // Add value aliases as bindings. Destructured v-for values introduce
+        // multiple names even though the generated parameter is a single pattern.
+        for value in &data.value_bindings {
+            scope.add_binding(
+                value.clone(),
+                ScopeBinding::new(BindingType::SetupConst, start),
+            );
+        }
 
         // Add key alias if present
         if let Some(ref key) = data.key_alias {
