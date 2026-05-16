@@ -230,10 +230,10 @@ pub fn extract_event_names_from_ts_type(
     match ts_type {
         TSType::TSFunctionType(func_type) => {
             // Extract from first parameter's type annotation
-            if let Some(first_param) = func_type.params.items.first() {
-                if let Some(type_ann) = &first_param.type_annotation {
-                    extract_literal_values_from_ts_type(&type_ann.type_annotation, emits, source);
-                }
+            if let Some(first_param) = func_type.params.items.first()
+                && let Some(type_ann) = &first_param.type_annotation
+            {
+                extract_literal_values_from_ts_type(&type_ann.type_annotation, emits, source);
             }
         }
         TSType::TSTypeLiteral(type_lit) => {
@@ -290,16 +290,11 @@ fn extract_from_ts_type_literal(
     // Second pass: extract from call signatures if no properties
     if has_call_signature && !has_property {
         for member in type_lit.members.iter() {
-            if let TSSignature::TSCallSignatureDeclaration(call) = member {
-                if let Some(first_param) = call.params.items.first() {
-                    if let Some(type_ann) = &first_param.type_annotation {
-                        extract_literal_values_from_ts_type(
-                            &type_ann.type_annotation,
-                            emits,
-                            source,
-                        );
-                    }
-                }
+            if let TSSignature::TSCallSignatureDeclaration(call) = member
+                && let Some(first_param) = call.params.items.first()
+                && let Some(type_ann) = &first_param.type_annotation
+            {
+                extract_literal_values_from_ts_type(&type_ann.type_annotation, emits, source);
             }
         }
     }
@@ -359,8 +354,8 @@ mod tests {
     use vize_carton::{CompactString, FxHashSet, ToCompactString};
 
     use super::{
-        extract_event_name_from_function_type, extract_events_from_type_literal, gen_runtime_emits,
-        ScriptCompileContext,
+        ScriptCompileContext, extract_event_name_from_function_type,
+        extract_events_from_type_literal, gen_runtime_emits,
     };
 
     fn snapshot_emits(emits: &FxHashSet<CompactString>) -> Vec<&str> {

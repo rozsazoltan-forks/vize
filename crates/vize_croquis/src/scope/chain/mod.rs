@@ -14,7 +14,7 @@ mod resolution;
 
 use core::fmt;
 
-use vize_carton::{smallvec, CompactString, FxHashMap, SmallVec, String, ToCompactString};
+use vize_carton::{CompactString, FxHashMap, SmallVec, String, ToCompactString, smallvec};
 use vize_relief::BindingType;
 
 use super::types::{
@@ -361,7 +361,7 @@ impl ScopeChain {
     /// Caller must ensure id is valid
     #[inline]
     pub unsafe fn get_scope_unchecked(&self, id: ScopeId) -> &Scope {
-        self.scopes.get_unchecked(id.as_u32() as usize)
+        unsafe { self.scopes.get_unchecked(id.as_u32() as usize) }
     }
 
     /// Current scope ID
@@ -409,10 +409,10 @@ impl ScopeChain {
     /// Build parents list including Vue global for template scopes
     pub(crate) fn build_template_parents(&self) -> ParentScopes {
         let mut parents: ParentScopes = smallvec![self.current];
-        if let Some(vue_id) = self.find_scope_by_kind(ScopeKind::VueGlobal) {
-            if !parents.contains(&vue_id) {
-                parents.push(vue_id);
-            }
+        if let Some(vue_id) = self.find_scope_by_kind(ScopeKind::VueGlobal)
+            && !parents.contains(&vue_id)
+        {
+            parents.push(vue_id);
         }
         parents
     }

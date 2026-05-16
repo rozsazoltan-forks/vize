@@ -3,11 +3,11 @@
 //! Generates `Props` type definitions and template-level prop variable
 //! declarations from Vue SFC macro analysis.
 
+use vize_carton::FxHashSet;
+use vize_carton::String;
 use vize_carton::append;
 use vize_carton::cstr;
 use vize_carton::profile;
-use vize_carton::FxHashSet;
-use vize_carton::String;
 use vize_croquis::Croquis;
 
 use super::helpers::to_safe_identifier;

@@ -35,15 +35,15 @@ use wasm_bindgen::prelude::*;
 use crate::{CompileResult, CompilerOptions};
 use vize_atelier_core::options::CodegenMode;
 use vize_atelier_core::parser::parse;
-use vize_atelier_dom::{compile_template_with_options, DomCompilerOptions};
+use vize_atelier_dom::{DomCompilerOptions, compile_template_with_options};
 use vize_atelier_sfc::compile_script::typescript::transform_typescript_to_js;
 use vize_atelier_sfc::{
-    compile_sfc as sfc_compile, parse_sfc, CssCompileOptions, CssTargets, ScriptCompileOptions,
-    SfcCompileOptions, SfcDescriptor, SfcMacroArtifact, SfcParseOptions, StyleCompileOptions,
-    TemplateCompileOptions,
+    CssCompileOptions, CssTargets, ScriptCompileOptions, SfcCompileOptions, SfcDescriptor,
+    SfcMacroArtifact, SfcParseOptions, StyleCompileOptions, TemplateCompileOptions,
+    compile_sfc as sfc_compile, parse_sfc,
 };
 use vize_atelier_ssr::compile_ssr as ssr_compile;
-use vize_atelier_vapor::{compile_vapor as vapor_compile, VaporCompilerOptions};
+use vize_atelier_vapor::{VaporCompilerOptions, compile_vapor as vapor_compile};
 
 /// Helper function to serialize values to JsValue with maps as objects
 pub(crate) fn to_js_value<T: Serialize>(value: &T) -> Result<JsValue, JsValue> {

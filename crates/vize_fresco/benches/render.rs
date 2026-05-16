@@ -1,6 +1,6 @@
 //! Render benchmarks.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 
 use vize_fresco::layout::{FlexStyle, LayoutEngine};
 use vize_fresco::terminal::{Buffer, Style};

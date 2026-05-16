@@ -1,7 +1,7 @@
 use super::{CrossFileAnalyzer, CrossFileOptions};
+use crate::AnalyzerOptions;
 use crate::analysis::ComponentUsage;
 use crate::cross_file::diagnostics::{CrossFileDiagnosticKind, DiagnosticSeverity};
-use crate::AnalyzerOptions;
 use std::path::Path;
 use vize_carton::{CompactString, SmallVec};
 
@@ -287,12 +287,16 @@ watch(query, async () => {
         })
         .expect("first async injected mutation should be reported");
 
-    assert!(first_diag
-        .related_files
-        .iter()
-        .any(|(file_id, _, _)| *file_id == provider_id));
-    assert!(first_diag
-        .related_files
-        .iter()
-        .any(|(file_id, _, _)| *file_id == second_id));
+    assert!(
+        first_diag
+            .related_files
+            .iter()
+            .any(|(file_id, _, _)| *file_id == provider_id)
+    );
+    assert!(
+        first_diag
+            .related_files
+            .iter()
+            .any(|(file_id, _, _)| *file_id == second_id)
+    );
 }

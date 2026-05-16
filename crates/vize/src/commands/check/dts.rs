@@ -124,20 +124,19 @@ pub(super) fn parse_declared_global_values_content(
             .strip_prefix("const ")
             .or_else(|| trimmed.strip_prefix("let "))
             .or_else(|| trimmed.strip_prefix("var "))
+            && let Some((name, type_ann)) = parse_named_type(rest)
         {
-            if let Some((name, type_ann)) = parse_named_type(rest) {
-                if type_ann.trim().is_empty() {
-                    current_name = Some(name);
-                    current_type.clear();
-                } else if is_type_complete(type_ann.as_str()) {
-                    values.push((
-                        name,
-                        normalize_rewritten_type(type_ann.as_str(), source_dir),
-                    ));
-                } else {
-                    current_name = Some(name);
-                    current_type = type_ann;
-                }
+            if type_ann.trim().is_empty() {
+                current_name = Some(name);
+                current_type.clear();
+            } else if is_type_complete(type_ann.as_str()) {
+                values.push((
+                    name,
+                    normalize_rewritten_type(type_ann.as_str(), source_dir),
+                ));
+            } else {
+                current_name = Some(name);
+                current_type = type_ann;
             }
         }
     }

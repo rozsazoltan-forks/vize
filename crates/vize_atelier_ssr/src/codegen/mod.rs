@@ -8,7 +8,7 @@ pub(crate) mod helpers;
 
 use crate::options::SsrCompilerOptions;
 use vize_atelier_core::ast::{RootNode, RuntimeHelper, TemplateChildNode};
-use vize_carton::{camelize, capitalize, Bump, FxHashSet, SmallVec, String, ToCompactString};
+use vize_carton::{Bump, FxHashSet, SmallVec, String, ToCompactString, camelize, capitalize};
 
 /// SSR codegen result
 #[derive(Debug, Default)]
@@ -359,8 +359,8 @@ fn push_helper_imports(out: &mut String, helpers: &[RuntimeHelper]) {
 
 #[cfg(test)]
 mod tests {
-    use super::helpers::{escape_html, escape_html_attr};
     use super::SsrCodegenResult;
+    use super::helpers::{escape_html, escape_html_attr};
 
     #[test]
     fn test_escape_html() {

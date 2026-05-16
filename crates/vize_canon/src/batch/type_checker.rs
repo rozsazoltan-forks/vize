@@ -2,10 +2,10 @@
 
 use std::path::{Path, PathBuf};
 
+use super::Diagnostic;
 use super::error::{CorsaError, CorsaResult};
 use super::executor::CorsaExecutor;
 use super::virtual_project::VirtualProject;
-use super::Diagnostic;
 use crate::virtual_ts::VirtualTsOptions;
 use vize_carton::String;
 

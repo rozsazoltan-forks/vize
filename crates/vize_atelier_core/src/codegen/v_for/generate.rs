@@ -159,22 +159,20 @@ pub fn generate_for_item(ctx: &mut CodegenContext, node: &TemplateChildNode<'_>,
                     // Handle dynamic component
                     if is_dynamic_component {
                         let dynamic_is = el.props.iter().find_map(|p| {
-                            if let PropNode::Directive(dir) = p {
-                                if dir.name == "bind" {
-                                    if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                                        if arg.content == "is" {
-                                            return dir.exp.as_ref();
-                                        }
-                                    }
-                                }
+                            if let PropNode::Directive(dir) = p
+                                && dir.name == "bind"
+                                && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                                && arg.content == "is"
+                            {
+                                return dir.exp.as_ref();
                             }
                             None
                         });
                         let static_is = el.props.iter().find_map(|p| {
-                            if let PropNode::Attribute(attr) = p {
-                                if attr.name == "is" {
-                                    return attr.value.as_ref().map(|v| v.content.as_str());
-                                }
+                            if let PropNode::Attribute(attr) = p
+                                && attr.name == "is"
+                            {
+                                return attr.value.as_ref().map(|v| v.content.as_str());
                             }
                             None
                         });
@@ -279,11 +277,11 @@ pub fn generate_for_item(ctx: &mut CodegenContext, node: &TemplateChildNode<'_>,
                         )
                     };
                     // Remove TEXT flag for components with slot children (text is inside slot)
-                    if has_slot_children(el) {
-                        if let Some(flag) = patch_flag {
-                            let new_flag = flag & !1;
-                            patch_flag = if new_flag > 0 { Some(new_flag) } else { None };
-                        }
+                    if has_slot_children(el)
+                        && let Some(flag) = patch_flag
+                    {
+                        let new_flag = flag & !1;
+                        patch_flag = if new_flag > 0 { Some(new_flag) } else { None };
                     }
                     // Inside v-for, component slots are always dynamic
                     if ctx.in_v_for && has_slot_children(el) {
@@ -422,16 +420,16 @@ pub(crate) fn generate_for_item_props(
         if let Some(key) = key_exp {
             ctx.push("{ key: ");
             generate_expression(ctx, key);
-            if let Some(ref sid) = scope_id {
+            if let Some(sid) = scope_id {
                 ctx.push(", \"");
-                ctx.push(sid);
+                ctx.push(sid.as_str());
                 ctx.push("\": \"\"");
             }
             ctx.push(" }");
-        } else if let Some(ref sid) = scope_id {
+        } else if let Some(sid) = scope_id {
             // No key, no other props, but has scope_id
             ctx.push("{ \"");
-            ctx.push(sid);
+            ctx.push(sid.as_str());
             ctx.push("\": \"\" }");
         }
         return;
@@ -456,41 +454,39 @@ pub(crate) fn generate_for_item_props(
 
     // Detect static class/style that need to be merged with dynamic :class/:style
     let static_class = el.props.iter().find_map(|p| {
-        if let PropNode::Attribute(attr) = p {
-            if attr.name == "class" {
-                return attr.value.as_ref().map(|v| v.content.as_str());
-            }
+        if let PropNode::Attribute(attr) = p
+            && attr.name == "class"
+        {
+            return attr.value.as_ref().map(|v| v.content.as_str());
         }
         None
     });
 
     let static_style = el.props.iter().find_map(|p| {
-        if let PropNode::Attribute(attr) = p {
-            if attr.name == "style" {
-                return attr.value.as_ref().map(|v| v.content.as_str());
-            }
+        if let PropNode::Attribute(attr) = p
+            && attr.name == "style"
+        {
+            return attr.value.as_ref().map(|v| v.content.as_str());
         }
         None
     });
 
     let has_dynamic_class = el.props.iter().any(|p| {
-        if let PropNode::Directive(dir) = p {
-            if dir.name == "bind" {
-                if let Some(ExpressionNode::Simple(exp)) = &dir.arg {
-                    return exp.content == "class";
-                }
-            }
+        if let PropNode::Directive(dir) = p
+            && dir.name == "bind"
+            && let Some(ExpressionNode::Simple(exp)) = &dir.arg
+        {
+            return exp.content == "class";
         }
         false
     });
 
     let has_dynamic_style = el.props.iter().any(|p| {
-        if let PropNode::Directive(dir) = p {
-            if dir.name == "bind" {
-                if let Some(ExpressionNode::Simple(exp)) = &dir.arg {
-                    return exp.content == "style";
-                }
-            }
+        if let PropNode::Directive(dir) = p
+            && dir.name == "bind"
+            && let Some(ExpressionNode::Simple(exp)) = &dir.arg
+        {
+            return exp.content == "style";
         }
         false
     });
@@ -521,30 +517,28 @@ pub(crate) fn generate_for_item_props(
             if should_skip_prop(prop) || (skip_is_prop && is_is_prop(prop)) {
                 continue;
             }
-            if skip_static_class {
-                if let PropNode::Attribute(attr) = prop {
-                    if attr.name == "class" {
-                        continue;
-                    }
-                }
+            if skip_static_class
+                && let PropNode::Attribute(attr) = prop
+                && attr.name == "class"
+            {
+                continue;
             }
-            if skip_static_style {
-                if let PropNode::Attribute(attr) = prop {
-                    if attr.name == "style" {
-                        continue;
-                    }
-                }
+            if skip_static_style
+                && let PropNode::Attribute(attr) = prop
+                && attr.name == "style"
+            {
+                continue;
             }
             ctx.push(",");
             ctx.newline();
             generate_single_prop(ctx, prop, merge_static_class, merge_static_style);
         }
 
-        if let Some(ref sid) = scope_id {
+        if let Some(sid) = scope_id {
             ctx.push(",");
             ctx.newline();
             ctx.push("\"");
-            ctx.push(sid);
+            ctx.push(sid.as_str());
             ctx.push("\": \"\"");
         }
 
@@ -559,19 +553,17 @@ pub(crate) fn generate_for_item_props(
             if should_skip_prop(prop) || (skip_is_prop && is_is_prop(prop)) {
                 continue;
             }
-            if skip_static_class {
-                if let PropNode::Attribute(attr) = prop {
-                    if attr.name == "class" {
-                        continue;
-                    }
-                }
+            if skip_static_class
+                && let PropNode::Attribute(attr) = prop
+                && attr.name == "class"
+            {
+                continue;
             }
-            if skip_static_style {
-                if let PropNode::Attribute(attr) = prop {
-                    if attr.name == "style" {
-                        continue;
-                    }
-                }
+            if skip_static_style
+                && let PropNode::Attribute(attr) = prop
+                && attr.name == "style"
+            {
+                continue;
             }
             if !first {
                 ctx.push(",");
@@ -581,12 +573,12 @@ pub(crate) fn generate_for_item_props(
             first = false;
         }
 
-        if let Some(ref sid) = scope_id {
+        if let Some(sid) = scope_id {
             if !first {
                 ctx.push(",");
             }
             ctx.push(" \"");
-            ctx.push(sid);
+            ctx.push(sid.as_str());
             ctx.push("\": \"\"");
         }
 
@@ -629,10 +621,11 @@ fn generate_for_item_props_merged(
             if should_skip_prop(p) || (skip_is_prop && is_is_prop(p)) {
                 return false;
             }
-            if let PropNode::Directive(dir) = p {
-                if dir.arg.is_none() && (dir.name == "bind" || dir.name == "on") {
-                    return false;
-                }
+            if let PropNode::Directive(dir) = p
+                && dir.arg.is_none()
+                && (dir.name == "bind" || dir.name == "on")
+            {
+                return false;
             }
             true
         });
@@ -656,10 +649,11 @@ fn generate_for_item_props_merged(
             if should_skip_prop(prop) || (skip_is_prop && is_is_prop(prop)) {
                 continue;
             }
-            if let PropNode::Directive(dir) = prop {
-                if dir.arg.is_none() && (dir.name == "bind" || dir.name == "on") {
-                    continue;
-                }
+            if let PropNode::Directive(dir) = prop
+                && dir.arg.is_none()
+                && (dir.name == "bind" || dir.name == "on")
+            {
+                continue;
             }
             if !first_prop {
                 ctx.push(",");
@@ -669,13 +663,13 @@ fn generate_for_item_props_merged(
             first_prop = false;
         }
 
-        if let Some(ref sid) = scope_id {
+        if let Some(sid) = scope_id {
             if !first_prop {
                 ctx.push(",");
             }
             ctx.newline();
             ctx.push("\"");
-            ctx.push(sid);
+            ctx.push(sid.as_str());
             ctx.push("\": \"\"");
         }
 

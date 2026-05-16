@@ -402,7 +402,9 @@ mod tests {
         );
 
         assert!(
-            result.code.contains("_createTextVNode(_toDisplayString(msg), 1 /* TEXT */)"),
+            result
+                .code
+                .contains("_createTextVNode(_toDisplayString(msg), 1 /* TEXT */)"),
             "mixed children inside v-if branch should wrap interpolation in createTextVNode. Got:\n{}",
             result.code
         );

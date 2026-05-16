@@ -6,7 +6,7 @@ use vize_carton::profile;
 
 use super::element::{transform_element, transform_interpolation};
 use super::structural::{
-    take_structural_directive, transform_v_for, transform_v_if, StructuralDirectiveKind,
+    StructuralDirectiveKind, take_structural_directive, transform_v_for, transform_v_if,
 };
 use super::{ExitFn, ParentNode, TransformContext};
 
@@ -270,17 +270,17 @@ pub fn traverse_node<'a>(ctx: &mut TransformContext<'a>, node: &mut TemplateChil
     }
 
     // Traverse children for element nodes
-    if let TemplateChildNode::Element(el) = node {
-        if !el.children.is_empty() {
-            let entered_slot_scope = enter_v_slot_scope_if_needed(ctx, el);
-            let el_ptr = el.as_mut() as *mut ElementNode<'a>;
-            profile!(
-                "atelier.transform.traverse_element_children",
-                traverse_children(ctx, ParentNode::Element(el_ptr))
-            );
-            if entered_slot_scope {
-                ctx.exit_scope();
-            }
+    if let TemplateChildNode::Element(el) = node
+        && !el.children.is_empty()
+    {
+        let entered_slot_scope = enter_v_slot_scope_if_needed(ctx, el);
+        let el_ptr = el.as_mut() as *mut ElementNode<'a>;
+        profile!(
+            "atelier.transform.traverse_element_children",
+            traverse_children(ctx, ParentNode::Element(el_ptr))
+        );
+        if entered_slot_scope {
+            ctx.exit_scope();
         }
     }
 

@@ -24,10 +24,10 @@ use serde::{Deserialize, Serialize};
 use std::io::{BufRead, BufReader, Write};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
 #[allow(clippy::disallowed_types)]
 use std::sync::Arc;
-use vize_carton::{cstr, FxHashMap, FxHashSet, String};
+use std::sync::atomic::{AtomicBool, Ordering};
+use vize_carton::{FxHashMap, FxHashSet, String, cstr};
 
 /// JSON-RPC Request
 #[derive(Debug, Deserialize)]
@@ -313,7 +313,7 @@ impl CorsaServer {
     /// Check a Vue SFC and return diagnostics.
     fn check_vue_sfc(&mut self, uri: &str, content: &str) -> Result<CheckResult, String> {
         use vize_atelier_core::parser::parse;
-        use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+        use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
         use vize_carton::Bump;
         use vize_croquis::virtual_ts::generate_virtual_ts;
         use vize_croquis::{Analyzer, AnalyzerOptions};

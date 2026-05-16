@@ -8,7 +8,7 @@ use crate::{error::FormatError, options::FormatOptions, script};
 use vize_carton::{String, ToCompactString};
 
 use super::{
-    attributes::{render_attribute, sort_attributes, ParsedAttribute},
+    attributes::{ParsedAttribute, render_attribute, sort_attributes},
     directives::normalize_attribute,
     helpers::{
         find_bytes, is_tag_name_char, is_void_element_str, is_whitespace, parse_closing_tag,
@@ -80,17 +80,18 @@ impl<'a> TemplateFormatter<'a> {
                 self.flush_text_buffer(&mut output, &mut line_buffer, depth);
 
                 // Closing tag
-                if pos + 1 < len && source[pos + 1] == b'/' {
-                    if let Some((tag_name, end_pos)) = parse_closing_tag(source, pos) {
-                        depth = depth.saturating_sub(1);
-                        self.write_indent(&mut output, depth);
-                        output.extend_from_slice(b"</");
-                        output.extend_from_slice(tag_name.as_bytes());
-                        output.push(b'>');
-                        output.extend_from_slice(self.newline);
-                        pos = end_pos;
-                        continue;
-                    }
+                if pos + 1 < len
+                    && source[pos + 1] == b'/'
+                    && let Some((tag_name, end_pos)) = parse_closing_tag(source, pos)
+                {
+                    depth = depth.saturating_sub(1);
+                    self.write_indent(&mut output, depth);
+                    output.extend_from_slice(b"</");
+                    output.extend_from_slice(tag_name.as_bytes());
+                    output.push(b'>');
+                    output.extend_from_slice(self.newline);
+                    pos = end_pos;
+                    continue;
                 }
 
                 // Opening tag

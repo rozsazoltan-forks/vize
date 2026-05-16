@@ -5,6 +5,7 @@
 #![allow(clippy::disallowed_types, clippy::disallowed_methods)]
 
 use tower_lsp::{
+    LanguageServer,
     jsonrpc::Result,
     lsp_types::{
         CodeActionParams, CodeActionResponse, CodeLens, CodeLensParams, CompletionItem,
@@ -19,10 +20,9 @@ use tower_lsp::{
         SemanticTokensResult, ServerInfo, SymbolInformation, SymbolKind,
         TextDocumentPositionParams, TextEdit, WorkspaceEdit, WorkspaceSymbolParams,
     },
-    LanguageServer,
 };
 
-use super::{server_capabilities, MaestroServer};
+use super::{MaestroServer, server_capabilities};
 use crate::ide::{
     CodeActionService, CodeLensService, CompletionService, DefinitionService, DocumentLinkService,
     FileRenameService, HoverService, IdeContext, InlayHintService, ReferencesService,
@@ -696,43 +696,43 @@ impl LanguageServer for MaestroServer {
         };
 
         if let Ok(descriptor) = vize_atelier_sfc::parse_sfc(&content, options) {
-            if let Some(ref template) = descriptor.template {
-                if template.loc.start_line < template.loc.end_line {
-                    ranges.push(FoldingRange {
-                        start_line: template.loc.start_line.saturating_sub(1) as u32,
-                        start_character: None,
-                        end_line: template.loc.end_line.saturating_sub(1) as u32,
-                        end_character: None,
-                        kind: Some(FoldingRangeKind::Region),
-                        collapsed_text: Some("template".to_string()),
-                    });
-                }
+            if let Some(ref template) = descriptor.template
+                && template.loc.start_line < template.loc.end_line
+            {
+                ranges.push(FoldingRange {
+                    start_line: template.loc.start_line.saturating_sub(1) as u32,
+                    start_character: None,
+                    end_line: template.loc.end_line.saturating_sub(1) as u32,
+                    end_character: None,
+                    kind: Some(FoldingRangeKind::Region),
+                    collapsed_text: Some("template".to_string()),
+                });
             }
 
-            if let Some(ref script) = descriptor.script_setup {
-                if script.loc.start_line < script.loc.end_line {
-                    ranges.push(FoldingRange {
-                        start_line: script.loc.start_line.saturating_sub(1) as u32,
-                        start_character: None,
-                        end_line: script.loc.end_line.saturating_sub(1) as u32,
-                        end_character: None,
-                        kind: Some(FoldingRangeKind::Region),
-                        collapsed_text: Some("script setup".to_string()),
-                    });
-                }
+            if let Some(ref script) = descriptor.script_setup
+                && script.loc.start_line < script.loc.end_line
+            {
+                ranges.push(FoldingRange {
+                    start_line: script.loc.start_line.saturating_sub(1) as u32,
+                    start_character: None,
+                    end_line: script.loc.end_line.saturating_sub(1) as u32,
+                    end_character: None,
+                    kind: Some(FoldingRangeKind::Region),
+                    collapsed_text: Some("script setup".to_string()),
+                });
             }
 
-            if let Some(ref script) = descriptor.script {
-                if script.loc.start_line < script.loc.end_line {
-                    ranges.push(FoldingRange {
-                        start_line: script.loc.start_line.saturating_sub(1) as u32,
-                        start_character: None,
-                        end_line: script.loc.end_line.saturating_sub(1) as u32,
-                        end_character: None,
-                        kind: Some(FoldingRangeKind::Region),
-                        collapsed_text: Some("script".to_string()),
-                    });
-                }
+            if let Some(ref script) = descriptor.script
+                && script.loc.start_line < script.loc.end_line
+            {
+                ranges.push(FoldingRange {
+                    start_line: script.loc.start_line.saturating_sub(1) as u32,
+                    start_character: None,
+                    end_line: script.loc.end_line.saturating_sub(1) as u32,
+                    end_character: None,
+                    kind: Some(FoldingRangeKind::Region),
+                    collapsed_text: Some("script".to_string()),
+                });
             }
 
             for style in &descriptor.styles {

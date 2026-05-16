@@ -30,8 +30,8 @@ pub use transforms::{
 
 // Re-export core types
 pub use vize_atelier_core::{
-    ast, codegen as core_codegen, errors as core_errors, parser, runtime_helpers, tokenizer,
-    transform, Allocator, CompilerError, Namespace, RootNode, RuntimeHelper, TemplateChildNode,
+    Allocator, CompilerError, Namespace, RootNode, RuntimeHelper, TemplateChildNode, ast,
+    codegen as core_codegen, errors as core_errors, parser, runtime_helpers, tokenizer, transform,
 };
 
 use vize_atelier_core::{
@@ -39,7 +39,7 @@ use vize_atelier_core::{
     parser::parse_with_options,
     transform::transform as do_transform,
 };
-use vize_carton::{profile, Bump, String};
+use vize_carton::{Bump, String, profile};
 
 /// Compile a Vue template for SSR with default options
 pub fn compile_ssr<'a>(
@@ -136,7 +136,7 @@ fn get_namespace(tag: &str, parent: Option<&str>) -> Namespace {
 
 #[cfg(test)]
 mod tests {
-    use super::{compile_ssr, Bump};
+    use super::{Bump, compile_ssr};
 
     #[test]
     fn test_compile_simple_element() {

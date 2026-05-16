@@ -5,10 +5,10 @@ use super::types::{CrossFileReactivityIssueKind, ReactivityFlowKind};
 use crate::cross_file::diagnostics::{
     CrossFileDiagnostic, CrossFileDiagnosticKind, DiagnosticSeverity,
 };
-use vize_carton::append;
-use vize_carton::cstr;
 use vize_carton::CompactString;
 use vize_carton::String;
+use vize_carton::append;
+use vize_carton::cstr;
 
 impl<'a> CrossFileReactivityAnalyzer<'a> {
     /// Generate diagnostics from detected issues.

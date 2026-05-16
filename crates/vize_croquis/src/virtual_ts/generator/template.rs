@@ -9,8 +9,8 @@ use super::{
     InterpolationNode, MappingData, PropNode, RootNode, SourceMapping, SourceRange,
     TemplateChildNode, VirtualTsGenerator, VirtualTsOutput,
 };
-use crate::analyzer::{parse_v_for_scope_expression, VForScopeAliases};
-use vize_carton::{append, profile, String, ToCompactString};
+use crate::analyzer::{VForScopeAliases, parse_v_for_scope_expression};
+use vize_carton::{String, ToCompactString, append, profile};
 
 impl VirtualTsGenerator {
     /// Generate virtual TypeScript from template AST (legacy API).
@@ -150,14 +150,14 @@ impl VirtualTsGenerator {
 
     /// Visit an element node.
     fn visit_element(&mut self, element: &ElementNode) {
-        if let Some(condition) = element_control_flow_condition(element) {
-            if self.emit_mapped_expression_line(condition, "if (", ") {") {
-                self.indent_level += 1;
-                self.visit_element_inner(element);
-                self.indent_level = self.indent_level.saturating_sub(1);
-                self.emit_line("}");
-                return;
-            }
+        if let Some(condition) = element_control_flow_condition(element)
+            && self.emit_mapped_expression_line(condition, "if (", ") {")
+        {
+            self.indent_level += 1;
+            self.visit_element_inner(element);
+            self.indent_level = self.indent_level.saturating_sub(1);
+            self.emit_line("}");
+            return;
         }
 
         self.visit_element_inner(element);
@@ -166,10 +166,10 @@ impl VirtualTsGenerator {
     fn visit_element_inner(&mut self, element: &ElementNode) {
         // Check if this element has a v-for directive
         let v_for_exp = element.props.iter().find_map(|prop| {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name == "for" {
-                    return dir.exp.as_ref();
-                }
+            if let PropNode::Directive(dir) = prop
+                && dir.name == "for"
+            {
+                return dir.exp.as_ref();
             }
             None
         });
@@ -178,13 +178,14 @@ impl VirtualTsGenerator {
         if let Some(exp) = v_for_exp {
             self.emit_v_for_scope(exp, |this| {
                 for prop in &element.props {
-                    if let PropNode::Directive(dir) = prop {
-                        if dir.name != "for" && !is_control_flow_directive(&dir.name) {
-                            profile!(
-                                "croquis.virtual_ts.template.directive",
-                                this.visit_directive(dir)
-                            );
-                        }
+                    if let PropNode::Directive(dir) = prop
+                        && dir.name != "for"
+                        && !is_control_flow_directive(&dir.name)
+                    {
+                        profile!(
+                            "croquis.virtual_ts.template.directive",
+                            this.visit_directive(dir)
+                        );
                     }
                 }
                 profile!(
@@ -194,13 +195,13 @@ impl VirtualTsGenerator {
             });
         } else {
             for prop in &element.props {
-                if let PropNode::Directive(dir) = prop {
-                    if !is_control_flow_directive(&dir.name) {
-                        profile!(
-                            "croquis.virtual_ts.template.directive",
-                            self.visit_directive(dir)
-                        );
-                    }
+                if let PropNode::Directive(dir) = prop
+                    && !is_control_flow_directive(&dir.name)
+                {
+                    profile!(
+                        "croquis.virtual_ts.template.directive",
+                        self.visit_directive(dir)
+                    );
                 }
             }
             profile!(

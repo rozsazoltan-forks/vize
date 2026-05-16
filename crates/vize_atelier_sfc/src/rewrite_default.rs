@@ -7,7 +7,7 @@ use oxc_allocator::Allocator;
 use oxc_ast::ast::{ExportDefaultDeclarationKind, Statement};
 use oxc_parser::Parser;
 use oxc_span::{GetSpan, SourceType};
-use vize_carton::{profile, String, ToCompactString};
+use vize_carton::{String, ToCompactString, profile};
 
 /// Rewrite `export default` to a const declaration with the given name.
 /// Returns (rewritten_code, has_default_export)

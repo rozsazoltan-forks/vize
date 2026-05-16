@@ -1,7 +1,7 @@
 //! Block code generation for Vapor mode.
 
 use crate::ir::{BlockIRNode, IREffect, OperationNode};
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 /// Context for code generation
 pub struct GenerateContext {
@@ -163,7 +163,7 @@ pub fn escape_template(s: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{escape_template, GenerateContext};
+    use super::{GenerateContext, escape_template};
 
     #[test]
     fn test_generate_context() {

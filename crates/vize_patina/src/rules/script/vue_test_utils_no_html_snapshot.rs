@@ -10,7 +10,7 @@ use super::{ScriptLintResult, ScriptRule, ScriptRuleMeta};
 use crate::diagnostic::{LintDiagnostic, Severity};
 use oxc_allocator::Allocator;
 use oxc_ast::ast::{Argument, CallExpression, Expression};
-use oxc_ast_visit::{walk::walk_call_expression, Visit};
+use oxc_ast_visit::{Visit, walk::walk_call_expression};
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 

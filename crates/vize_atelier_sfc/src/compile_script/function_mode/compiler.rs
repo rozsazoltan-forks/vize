@@ -8,11 +8,12 @@ use vize_carton::{Bump, FxHashSet, String, ToCompactString};
 use vize_croquis::macros::runtime_erased_macro_names;
 
 use crate::script::{
-    resolve_template_used_identifiers, transform_destructured_props, ScriptCompileContext,
-    TemplateUsedIdentifiers,
+    ScriptCompileContext, TemplateUsedIdentifiers, resolve_template_used_identifiers,
+    transform_destructured_props,
 };
 use crate::types::{BindingType, SfcError};
 
+use super::super::ScriptCompileResult;
 use super::super::import_utils::extract_import_identifiers;
 use super::super::lazy_hydration::transform_lazy_hydration_macros;
 use super::super::props::{
@@ -20,7 +21,6 @@ use super::super::props::{
 };
 use super::super::statement_sections::extract_script_sections;
 use super::super::typescript::transform_typescript_to_js;
-use super::super::ScriptCompileResult;
 use super::helpers::{collect_runtime_identifier_references, is_reserved_word};
 use super::imports::dedupe_imports;
 
@@ -192,24 +192,23 @@ pub fn compile_script_setup(
     let mut props_binding_names: FxHashSet<String> = FxHashSet::default();
 
     // defineProps binding: const props = __props (only if not destructured)
-    if !has_props_destructure {
-        if let Some(ref props_macro) = ctx.macros.define_props {
-            if let Some(ref binding_name) = props_macro.binding_name {
-                output.extend_from_slice(b"  const ");
-                output.extend_from_slice(binding_name.as_bytes());
-                output.extend_from_slice(b" = __props\n");
-                props_binding_names.insert(String::from(binding_name.as_str()));
-            }
-        }
+    if !has_props_destructure
+        && let Some(ref props_macro) = ctx.macros.define_props
+        && let Some(ref binding_name) = props_macro.binding_name
+    {
+        output.extend_from_slice(b"  const ");
+        output.extend_from_slice(binding_name.as_bytes());
+        output.extend_from_slice(b" = __props\n");
+        props_binding_names.insert(String::from(binding_name.as_str()));
     }
 
     // defineSlots binding: const slots = _useSlots()
-    if let Some(ref slots_macro) = ctx.macros.define_slots {
-        if let Some(ref binding_name) = slots_macro.binding_name {
-            output.extend_from_slice(b"  const ");
-            output.extend_from_slice(binding_name.as_bytes());
-            output.extend_from_slice(b" = _useSlots()\n");
-        }
+    if let Some(ref slots_macro) = ctx.macros.define_slots
+        && let Some(ref binding_name) = slots_macro.binding_name
+    {
+        output.extend_from_slice(b"  const ");
+        output.extend_from_slice(binding_name.as_bytes());
+        output.extend_from_slice(b" = _useSlots()\n");
     }
 
     // defineModel bindings: const model = _useModel(__props, 'modelValue')
@@ -382,12 +381,12 @@ fn emit_props_definition(
             output.extend_from_slice(b"}),\n");
         } else {
             // No defaults - just use the original props array
-            if let Some(ref props_macro) = ctx.macros.define_props {
-                if !props_macro.args.is_empty() {
-                    output.extend_from_slice(b"  props: ");
-                    output.extend_from_slice(props_macro.args.as_bytes());
-                    output.extend_from_slice(b",\n");
-                }
+            if let Some(ref props_macro) = ctx.macros.define_props
+                && !props_macro.args.is_empty()
+            {
+                output.extend_from_slice(b"  props: ");
+                output.extend_from_slice(props_macro.args.as_bytes());
+                output.extend_from_slice(b",\n");
             }
         }
     } else if let Some(ref props_macro) = ctx.macros.define_props {
@@ -406,20 +405,17 @@ fn emit_props_definition(
                     output.extend_from_slice(name.as_bytes());
                     output.extend_from_slice(b": { type: ");
                     output.extend_from_slice(runtime_js_type.as_bytes());
-                    if needs_prop_type {
-                        if let Some(ref ts_type) = prop_type.ts_type {
-                            if prop_type.js_type == "null" {
-                                output.extend_from_slice(b" as unknown as PropType<");
-                            } else {
-                                output.extend_from_slice(b" as PropType<");
-                            }
-                            // Normalize multi-line types to single line
-                            let normalized: String = String::from(
-                                ts_type.split_whitespace().collect::<Vec<_>>().join(" "),
-                            );
-                            output.extend_from_slice(normalized.as_bytes());
-                            output.push(b'>');
+                    if needs_prop_type && let Some(ref ts_type) = prop_type.ts_type {
+                        if prop_type.js_type == "null" {
+                            output.extend_from_slice(b" as unknown as PropType<");
+                        } else {
+                            output.extend_from_slice(b" as PropType<");
                         }
+                        // Normalize multi-line types to single line
+                        let normalized: String =
+                            String::from(ts_type.split_whitespace().collect::<Vec<_>>().join(" "));
+                        output.extend_from_slice(normalized.as_bytes());
+                        output.push(b'>');
                     }
                     output.extend_from_slice(b", required: ");
                     output.extend_from_slice(if prop_type.optional {
@@ -504,12 +500,12 @@ fn emit_emits_definition(
             output.push(b'"');
         }
         output.extend_from_slice(b"],\n");
-    } else if let Some(ref emits_macro) = ctx.macros.define_emits {
-        if !emits_macro.args.is_empty() {
-            output.extend_from_slice(b"  emits: ");
-            output.extend_from_slice(emits_macro.args.as_bytes());
-            output.extend_from_slice(b",\n");
-        }
+    } else if let Some(ref emits_macro) = ctx.macros.define_emits
+        && !emits_macro.args.is_empty()
+    {
+        output.extend_from_slice(b"  emits: ");
+        output.extend_from_slice(emits_macro.args.as_bytes());
+        output.extend_from_slice(b",\n");
     }
 }
 
@@ -639,10 +635,10 @@ fn build_returned_bindings(
         .collect();
 
     // Add emit binding to returned (it's a runtime value that should be exposed)
-    if let Some(ref emit_name) = emit_binding_name {
-        if !returned_bindings.contains(emit_name) {
-            returned_bindings.push(emit_name.clone());
-        }
+    if let Some(emit_name) = emit_binding_name
+        && !returned_bindings.contains(emit_name)
+    {
+        returned_bindings.push(emit_name.clone());
     }
 
     returned_bindings.sort();

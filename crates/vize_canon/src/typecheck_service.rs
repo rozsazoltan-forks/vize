@@ -4,12 +4,12 @@
 //! using Corsa as the TypeScript type checker backend.
 
 use crate::corsa_bridge::{CorsaBridge, CorsaBridgeError};
-use crate::script_parse::{collect_script_parse_diagnostics, ScriptParseDiagnostic};
-use crate::virtual_ts::{generate_virtual_ts_with_offsets, VirtualTsOptions, VirtualTsOutput};
+use crate::script_parse::{ScriptParseDiagnostic, collect_script_parse_diagnostics};
+use crate::virtual_ts::{VirtualTsOptions, VirtualTsOutput, generate_virtual_ts_with_offsets};
 #[allow(clippy::disallowed_types)]
 use std::sync::Arc;
-use vize_carton::cstr;
 use vize_carton::String;
+use vize_carton::cstr;
 
 /// Type check service for Vue SFCs.
 #[allow(clippy::disallowed_types)]
@@ -109,7 +109,7 @@ impl TypeCheckService {
     ) -> Result<SfcTypeCheckResult, CorsaBridgeError> {
         use std::time::Instant;
         use vize_atelier_core::parser::parse;
-        use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+        use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
         use vize_carton::Bump;
         use vize_croquis::{Analyzer, AnalyzerOptions};
 

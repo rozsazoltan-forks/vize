@@ -92,21 +92,21 @@ pub fn generate_vmodel_closing(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
 /// Generate v-show directive closing if present
 pub fn generate_vshow_closing(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
     for prop in &el.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name.as_str() == "show" {
-                if let Some(exp) = &dir.exp {
-                    ctx.push(", [");
-                    ctx.newline();
-                    ctx.push("  [");
-                    ctx.push(ctx.helper(RuntimeHelper::VShow));
-                    ctx.push(", ");
-                    generate_expression(ctx, exp);
-                    ctx.push("]");
-                    ctx.newline();
-                    ctx.push("])");
-                }
-                return;
+        if let PropNode::Directive(dir) = prop
+            && dir.name.as_str() == "show"
+        {
+            if let Some(exp) = &dir.exp {
+                ctx.push(", [");
+                ctx.newline();
+                ctx.push("  [");
+                ctx.push(ctx.helper(RuntimeHelper::VShow));
+                ctx.push(", ");
+                generate_expression(ctx, exp);
+                ctx.push("]");
+                ctx.newline();
+                ctx.push("])");
             }
+            return;
         }
     }
 }
@@ -183,20 +183,20 @@ pub fn generate_custom_directives_closing(ctx: &mut CodegenContext, el: &Element
     // Also include v-show in the same withDirectives array if present
     if has_vshow_directive(el) {
         for prop in &el.props {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name.as_str() == "show" {
-                    if let Some(exp) = &dir.exp {
-                        ctx.push(",");
-                        ctx.newline();
-                        ctx.push("  [");
-                        ctx.use_helper(RuntimeHelper::VShow);
-                        ctx.push(ctx.helper(RuntimeHelper::VShow));
-                        ctx.push(", ");
-                        generate_expression(ctx, exp);
-                        ctx.push("]");
-                    }
-                    break;
+            if let PropNode::Directive(dir) = prop
+                && dir.name.as_str() == "show"
+            {
+                if let Some(exp) = &dir.exp {
+                    ctx.push(",");
+                    ctx.newline();
+                    ctx.push("  [");
+                    ctx.use_helper(RuntimeHelper::VShow);
+                    ctx.push(ctx.helper(RuntimeHelper::VShow));
+                    ctx.push(", ");
+                    generate_expression(ctx, exp);
+                    ctx.push("]");
                 }
+                break;
             }
         }
     }

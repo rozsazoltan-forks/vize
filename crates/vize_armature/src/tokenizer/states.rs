@@ -4,12 +4,12 @@ use crate::char_codes::AMP;
 use crate::tokenizer::sequences::Sequence;
 
 use super::{
+    Tokenizer,
     char_codes::{
         AT, COLON, DASH, DOT, DOUBLE_QUOTE, EQ, EXCLAMATION_MARK, GT, LEFT_SQUARE, LOWER_V, LT,
         NUMBER, QUESTION_MARK, RIGHT_SQUARE, SINGLE_QUOTE, SLASH,
     },
-    types::{is_end_of_tag_section, is_tag_start_char, is_whitespace, Callbacks, QuoteType, State},
-    Tokenizer,
+    types::{Callbacks, QuoteType, State, is_end_of_tag_section, is_tag_start_char, is_whitespace},
 };
 
 use super::entity_decode::try_decode_entity;

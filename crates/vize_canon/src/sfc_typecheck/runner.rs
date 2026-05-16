@@ -3,8 +3,8 @@
 //! Orchestrates parsing, analysis, and virtual TypeScript generation
 //! for a Vue Single File Component.
 
-use vize_carton::cstr;
 use vize_carton::Bump;
+use vize_carton::cstr;
 
 use crate::script_parse::collect_script_parse_diagnostics;
 
@@ -28,7 +28,7 @@ use super::{
 /// For full TypeScript type checking with Corsa, use `TypeCheckService`.
 pub fn type_check_sfc(source: &str, options: &SfcTypeCheckOptions) -> SfcTypeCheckResult {
     use vize_atelier_core::parser::parse;
-    use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+    use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
     use vize_croquis::{Analyzer, AnalyzerOptions};
 
     // Use Instant for timing on native, skip on WASM

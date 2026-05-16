@@ -10,7 +10,7 @@ pub mod typecheck;
 pub mod types;
 
 pub use typecheck::{
-    type_check_sfc, RelatedLocation, TypeCheckOptions, TypeCheckResult, TypeDiagnostic,
-    TypeSeverity,
+    RelatedLocation, TypeCheckOptions, TypeCheckResult, TypeDiagnostic, TypeSeverity,
+    type_check_sfc,
 };
 pub use types::*;

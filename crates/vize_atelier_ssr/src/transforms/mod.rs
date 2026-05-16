@@ -39,10 +39,10 @@ pub fn has_v_text(el: &ElementNode) -> bool {
 /// Get v-model expression if present
 pub fn get_v_model_exp<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionNode<'a>> {
     for prop in &el.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "model" {
-                return dir.exp.as_ref();
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "model"
+        {
+            return dir.exp.as_ref();
         }
     }
     None
@@ -51,10 +51,10 @@ pub fn get_v_model_exp<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionNode
 /// Get v-show expression if present
 pub fn get_v_show_exp<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionNode<'a>> {
     for prop in &el.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "show" {
-                return dir.exp.as_ref();
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "show"
+        {
+            return dir.exp.as_ref();
         }
     }
     None
@@ -63,10 +63,10 @@ pub fn get_v_show_exp<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionNode<
 /// Get v-html expression if present
 pub fn get_v_html_exp<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionNode<'a>> {
     for prop in &el.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "html" {
-                return dir.exp.as_ref();
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "html"
+        {
+            return dir.exp.as_ref();
         }
     }
     None
@@ -75,10 +75,10 @@ pub fn get_v_html_exp<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionNode<
 /// Get v-text expression if present
 pub fn get_v_text_exp<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionNode<'a>> {
     for prop in &el.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "text" {
-                return dir.exp.as_ref();
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "text"
+        {
+            return dir.exp.as_ref();
         }
     }
     None

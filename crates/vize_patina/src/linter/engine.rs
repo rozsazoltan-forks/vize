@@ -5,10 +5,10 @@
 
 use crate::{context::LintContext, diagnostic::LintSummary, visitor::LintVisitor};
 use vize_armature::Parser;
-use vize_carton::profile;
 use vize_carton::Allocator;
 use vize_carton::String;
 use vize_carton::ToCompactString;
+use vize_carton::profile;
 use vize_croquis::{Analyzer, AnalyzerOptions, Croquis};
 use vize_relief::ast::RootNode;
 

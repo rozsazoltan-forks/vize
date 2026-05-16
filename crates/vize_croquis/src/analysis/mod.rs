@@ -35,9 +35,8 @@ mod vir;
 
 // Re-export all public types so downstream `use analysis::*` still works.
 pub use bindings::{
-    BindingMetadata, ImportStatementInfo, InvalidExport, InvalidExportKind, ReExportInfo,
-    TypeExport, TypeExportKind, UndefinedRef, UnusedTemplateVar, UnusedVarContext,
-    COMPILER_MACRO_NAMES,
+    BindingMetadata, COMPILER_MACRO_NAMES, ImportStatementInfo, InvalidExport, InvalidExportKind,
+    ReExportInfo, TypeExport, TypeExportKind, UndefinedRef, UnusedTemplateVar, UnusedVarContext,
 };
 pub use croquis::AnalysisStats;
 pub use template::{

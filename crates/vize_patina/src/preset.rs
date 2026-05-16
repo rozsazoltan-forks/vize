@@ -149,22 +149,36 @@ mod tests {
         assert!(opinionated.has_rule("vue/multi-word-component-names"));
         assert!(opinionated.has_rule("a11y/use-list"));
         assert!(!opinionated.has_rule("ecosystem/router-link-require-to"));
-        assert!(!RuleRegistry::with_preset(LintPreset::Nuxt)
-            .has_rule("ecosystem/nuxt-prefer-nuxt-link"));
+        assert!(
+            !RuleRegistry::with_preset(LintPreset::Nuxt)
+                .has_rule("ecosystem/nuxt-prefer-nuxt-link")
+        );
         assert!(RuleRegistry::with_opt_in_rules().has_rule("ecosystem/router-link-require-to"));
         assert!(RuleRegistry::with_opt_in_rules().has_rule("ecosystem/vue-i18n-no-missing-key"));
-        assert!(!super::builtin_script_rule_names(LintPreset::HappyPath)
-            .contains(&"script/no-options-api"));
-        assert!(super::builtin_script_rule_names(LintPreset::Opinionated)
-            .contains(&"script/no-options-api"));
-        assert!(super::builtin_script_rule_names(LintPreset::Opinionated)
-            .contains(&"script/no-get-current-instance"));
-        assert!(super::builtin_script_rule_names(LintPreset::Opinionated)
-            .contains(&"script/no-next-tick"));
-        assert!(!super::builtin_script_rule_names(LintPreset::Opinionated)
-            .contains(&"ecosystem/pinia-prefer-store-to-refs"));
-        assert!(crate::linter::script_rules::opt_in_script_rule_names()
-            .contains(&"ecosystem/pinia-prefer-store-to-refs"));
+        assert!(
+            !super::builtin_script_rule_names(LintPreset::HappyPath)
+                .contains(&"script/no-options-api")
+        );
+        assert!(
+            super::builtin_script_rule_names(LintPreset::Opinionated)
+                .contains(&"script/no-options-api")
+        );
+        assert!(
+            super::builtin_script_rule_names(LintPreset::Opinionated)
+                .contains(&"script/no-get-current-instance")
+        );
+        assert!(
+            super::builtin_script_rule_names(LintPreset::Opinionated)
+                .contains(&"script/no-next-tick")
+        );
+        assert!(
+            !super::builtin_script_rule_names(LintPreset::Opinionated)
+                .contains(&"ecosystem/pinia-prefer-store-to-refs")
+        );
+        assert!(
+            crate::linter::script_rules::opt_in_script_rule_names()
+                .contains(&"ecosystem/pinia-prefer-store-to-refs")
+        );
     }
 
     #[test]

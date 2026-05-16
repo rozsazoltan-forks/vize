@@ -84,29 +84,29 @@ impl WorkspaceSymbolsService {
         };
 
         // Extract component name from file path
-        if let Some(component_name) = Self::extract_component_name(uri) {
-            if component_name.to_lowercase().contains(query) {
-                symbols.push(SymbolInformation {
-                    name: component_name,
-                    kind: SymbolKind::CLASS,
-                    tags: None,
-                    deprecated: None,
-                    location: Location {
-                        uri: uri.clone(),
-                        range: Range {
-                            start: Position {
-                                line: 0,
-                                character: 0,
-                            },
-                            end: Position {
-                                line: 0,
-                                character: 0,
-                            },
+        if let Some(component_name) = Self::extract_component_name(uri)
+            && component_name.to_lowercase().contains(query)
+        {
+            symbols.push(SymbolInformation {
+                name: component_name,
+                kind: SymbolKind::CLASS,
+                tags: None,
+                deprecated: None,
+                location: Location {
+                    uri: uri.clone(),
+                    range: Range {
+                        start: Position {
+                            line: 0,
+                            character: 0,
+                        },
+                        end: Position {
+                            line: 0,
+                            character: 0,
                         },
                     },
-                    container_name: None,
-                });
-            }
+                },
+                container_name: None,
+            });
         }
 
         // Collect from script setup
@@ -194,115 +194,114 @@ impl WorkspaceSymbolsService {
 
             // const name = ...
             if let Some(rest) = trimmed.strip_prefix("const ") {
-                if let Some((name, kind)) = Self::parse_declaration(rest) {
-                    if name.to_lowercase().contains(query) {
-                        symbols.push(Self::create_symbol(
-                            name,
-                            kind,
-                            uri.clone(),
-                            line_num - 1,
-                            container,
-                        ));
-                    }
+                if let Some((name, kind)) = Self::parse_declaration(rest)
+                    && name.to_lowercase().contains(query)
+                {
+                    symbols.push(Self::create_symbol(
+                        name,
+                        kind,
+                        uri.clone(),
+                        line_num - 1,
+                        container,
+                    ));
                 }
             }
             // let name = ...
             else if let Some(rest) = trimmed.strip_prefix("let ") {
-                if let Some((name, kind)) = Self::parse_declaration(rest) {
-                    if name.to_lowercase().contains(query) {
-                        symbols.push(Self::create_symbol(
-                            name,
-                            kind,
-                            uri.clone(),
-                            line_num - 1,
-                            container,
-                        ));
-                    }
+                if let Some((name, kind)) = Self::parse_declaration(rest)
+                    && name.to_lowercase().contains(query)
+                {
+                    symbols.push(Self::create_symbol(
+                        name,
+                        kind,
+                        uri.clone(),
+                        line_num - 1,
+                        container,
+                    ));
                 }
             }
             // function name(...) { ... }
             else if let Some(rest) = trimmed.strip_prefix("function ") {
-                if let Some(name) = Self::extract_identifier(rest) {
-                    if name.to_lowercase().contains(query) {
-                        symbols.push(Self::create_symbol(
-                            name,
-                            SymbolKind::FUNCTION,
-                            uri.clone(),
-                            line_num - 1,
-                            container,
-                        ));
-                    }
+                if let Some(name) = Self::extract_identifier(rest)
+                    && name.to_lowercase().contains(query)
+                {
+                    symbols.push(Self::create_symbol(
+                        name,
+                        SymbolKind::FUNCTION,
+                        uri.clone(),
+                        line_num - 1,
+                        container,
+                    ));
                 }
             }
             // async function name(...) { ... }
             else if let Some(rest) = trimmed.strip_prefix("async function ") {
-                if let Some(name) = Self::extract_identifier(rest) {
-                    if name.to_lowercase().contains(query) {
-                        symbols.push(Self::create_symbol(
-                            name,
-                            SymbolKind::FUNCTION,
-                            uri.clone(),
-                            line_num - 1,
-                            container,
-                        ));
-                    }
+                if let Some(name) = Self::extract_identifier(rest)
+                    && name.to_lowercase().contains(query)
+                {
+                    symbols.push(Self::create_symbol(
+                        name,
+                        SymbolKind::FUNCTION,
+                        uri.clone(),
+                        line_num - 1,
+                        container,
+                    ));
                 }
             }
             // class Name { ... }
             else if let Some(rest) = trimmed.strip_prefix("class ") {
-                if let Some(name) = Self::extract_identifier(rest) {
-                    if name.to_lowercase().contains(query) {
-                        symbols.push(Self::create_symbol(
-                            name,
-                            SymbolKind::CLASS,
-                            uri.clone(),
-                            line_num - 1,
-                            container,
-                        ));
-                    }
+                if let Some(name) = Self::extract_identifier(rest)
+                    && name.to_lowercase().contains(query)
+                {
+                    symbols.push(Self::create_symbol(
+                        name,
+                        SymbolKind::CLASS,
+                        uri.clone(),
+                        line_num - 1,
+                        container,
+                    ));
                 }
             }
             // interface Name { ... }
             else if let Some(rest) = trimmed.strip_prefix("interface ") {
-                if let Some(name) = Self::extract_identifier(rest) {
-                    if name.to_lowercase().contains(query) {
-                        symbols.push(Self::create_symbol(
-                            name,
-                            SymbolKind::INTERFACE,
-                            uri.clone(),
-                            line_num - 1,
-                            container,
-                        ));
-                    }
+                if let Some(name) = Self::extract_identifier(rest)
+                    && name.to_lowercase().contains(query)
+                {
+                    symbols.push(Self::create_symbol(
+                        name,
+                        SymbolKind::INTERFACE,
+                        uri.clone(),
+                        line_num - 1,
+                        container,
+                    ));
                 }
             }
             // type Name = ...
             else if let Some(rest) = trimmed.strip_prefix("type ") {
-                if let Some(name) = Self::extract_identifier(rest) {
-                    if name.to_lowercase().contains(query) {
-                        symbols.push(Self::create_symbol(
-                            name,
-                            SymbolKind::TYPE_PARAMETER,
-                            uri.clone(),
-                            line_num - 1,
-                            container,
-                        ));
-                    }
+                if let Some(name) = Self::extract_identifier(rest)
+                    && name.to_lowercase().contains(query)
+                {
+                    symbols.push(Self::create_symbol(
+                        name,
+                        SymbolKind::TYPE_PARAMETER,
+                        uri.clone(),
+                        line_num - 1,
+                        container,
+                    ));
                 }
             }
             // enum Name { ... }
-            else if let Some(rest) = trimmed.strip_prefix("enum ") {
-                if let Some(name) = Self::extract_identifier(rest) {
-                    if name.to_lowercase().contains(query) {
-                        symbols.push(Self::create_symbol(
-                            name,
-                            SymbolKind::ENUM,
-                            uri.clone(),
-                            line_num - 1,
-                            container,
-                        ));
-                    }
-                }
+            else if let Some(rest) = trimmed.strip_prefix("enum ")
+                && let Some(name) = Self::extract_identifier(rest)
+                && name.to_lowercase().contains(query)
+            {
+                symbols.push(Self::create_symbol(
+                    name,
+                    SymbolKind::ENUM,
+                    uri.clone(),
+                    line_num - 1,
+                    container,
+                ));
             }
         }
     }

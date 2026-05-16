@@ -1,6 +1,6 @@
 //! Element transformation functions.
 
-use vize_carton::{capitalize, is_builtin_directive, is_native_tag, Box, String, Vec};
+use vize_carton::{Box, String, Vec, capitalize, is_builtin_directive, is_native_tag};
 
 use crate::ast::*;
 use crate::transforms::transform_expression::process_inline_handler;
@@ -161,13 +161,12 @@ fn process_directive_expressions<'a>(
                         dir.exp = Some(processed);
                     }
                     // Process dynamic argument
-                    if let Some(arg) = &dir.arg {
-                        if let ExpressionNode::Simple(simple_arg) = arg {
-                            if !simple_arg.is_static {
-                                let processed = process_expression(ctx, arg, false);
-                                dir.arg = Some(processed);
-                            }
-                        }
+                    if let Some(arg) = &dir.arg
+                        && let ExpressionNode::Simple(simple_arg) = arg
+                        && !simple_arg.is_static
+                    {
+                        let processed = process_expression(ctx, arg, false);
+                        dir.arg = Some(processed);
                     }
                 }
             }

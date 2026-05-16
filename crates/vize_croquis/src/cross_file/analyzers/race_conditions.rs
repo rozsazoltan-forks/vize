@@ -11,7 +11,7 @@ use crate::cross_file::graph::DependencyGraph;
 use crate::cross_file::registry::{FileId, ModuleEntry, ModuleRegistry};
 use crate::provide::{InjectEntry, ProvideKey};
 use crate::race::{RaceConditionRisk, RaceConditionRiskKind};
-use vize_carton::{cstr, CompactString, FxHashMap};
+use vize_carton::{CompactString, FxHashMap, cstr};
 
 /// Kind of race-condition issue.
 #[derive(Debug, Clone, PartialEq, Eq)]

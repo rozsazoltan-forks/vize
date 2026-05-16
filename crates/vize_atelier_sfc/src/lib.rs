@@ -50,9 +50,9 @@ pub mod types;
 pub mod vite_plugin;
 
 // Re-exports for public API
-pub use compile::{compile_sfc, ScriptCompileResult};
+pub use compile::{ScriptCompileResult, compile_sfc};
 pub use css::{
-    bundle_css, compile_css, compile_style_block, CssCompileOptions, CssCompileResult, CssTargets,
+    CssCompileOptions, CssCompileResult, CssTargets, bundle_css, compile_css, compile_style_block,
 };
 pub use parse::parse_sfc;
 pub use types::{
@@ -71,7 +71,7 @@ mod snapshot_tests;
 
 #[cfg(test)]
 mod tests {
-    use super::{compile_sfc, parse_sfc, SfcCompileOptions};
+    use super::{SfcCompileOptions, compile_sfc, parse_sfc};
 
     #[test]
     fn test_parse_simple_sfc() {

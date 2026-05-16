@@ -9,7 +9,7 @@
 
 use super::{to_js_value, to_json_js_value};
 use serde::Serialize;
-use vize_patina::{builtin_script_rules, LintPreset, RuleRegistry};
+use vize_patina::{LintPreset, RuleRegistry, builtin_script_rules};
 use wasm_bindgen::prelude::*;
 
 #[derive(Serialize)]
@@ -184,7 +184,7 @@ pub fn lint_template_wasm(source: &str, options: JsValue) -> Result<JsValue, JsV
 /// Lint Vue SFC file (full SFC including script)
 #[wasm_bindgen(js_name = "lintSfc")]
 pub fn lint_sfc_wasm(source: &str, options: JsValue) -> Result<JsValue, JsValue> {
-    use vize_carton::i18n::{t_fmt, Locale as CartonLocale};
+    use vize_carton::i18n::{Locale as CartonLocale, t_fmt};
     use vize_patina::{Locale, LspEmitter};
 
     let filename: String = js_sys::Reflect::get(&options, &JsValue::from_str("filename"))

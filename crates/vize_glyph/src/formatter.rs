@@ -8,7 +8,7 @@ use crate::script;
 use crate::style;
 use crate::template;
 use std::borrow::Cow;
-use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
 use vize_carton::{Allocator, FxHashMap, String, ToCompactString};
 
 /// Result of formatting a Vue SFC
@@ -82,11 +82,7 @@ impl<'a> GlyphFormatter<'a> {
         }
         for style in &descriptor.styles {
             let order = if self.options.sort_blocks {
-                if style.scoped {
-                    3
-                } else {
-                    4
-                }
+                if style.scoped { 3 } else { 4 }
             } else {
                 style.loc.tag_start
             };

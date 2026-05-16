@@ -8,7 +8,7 @@ mod component;
 mod deferred;
 mod template;
 
-use vize_carton::{append, cstr, Box, String, Vec};
+use vize_carton::{Box, String, Vec, append, cstr};
 
 use crate::ir::{
     BlockIRNode, ChildRefIRNode, ComponentKind, CreateComponentIRNode, IRProp, IRSlot,
@@ -163,15 +163,15 @@ pub(crate) fn transform_element<'a>(
                                     let key = Box::new_in(key_node, ctx.allocator);
 
                                     let mut values = Vec::new_in(ctx.allocator);
-                                    if let Some(ref exp) = dir.exp {
-                                        if let ExpressionNode::Simple(val_exp) = exp {
-                                            let val_node = SimpleExpressionNode::new(
-                                                val_exp.content.clone(),
-                                                val_exp.is_static,
-                                                val_exp.loc.clone(),
-                                            );
-                                            values.push(Box::new_in(val_node, ctx.allocator));
-                                        }
+                                    if let Some(ref exp) = dir.exp
+                                        && let ExpressionNode::Simple(val_exp) = exp
+                                    {
+                                        let val_node = SimpleExpressionNode::new(
+                                            val_exp.content.clone(),
+                                            val_exp.is_static,
+                                            val_exp.loc.clone(),
+                                        );
+                                        values.push(Box::new_in(val_node, ctx.allocator));
                                     }
 
                                     props.push(IRProp {
@@ -180,70 +180,67 @@ pub(crate) fn transform_element<'a>(
                                         is_component: true,
                                     });
                                 }
-                            } else if let Some(ref exp) = dir.exp {
-                                if let ExpressionNode::Simple(val_exp) = exp {
-                                    let key_node =
-                                        SimpleExpressionNode::new("$", true, SourceLocation::STUB);
-                                    let key = Box::new_in(key_node, ctx.allocator);
-                                    let mut values = Vec::new_in(ctx.allocator);
+                            } else if let Some(ref exp) = dir.exp
+                                && let ExpressionNode::Simple(val_exp) = exp
+                            {
+                                let key_node =
+                                    SimpleExpressionNode::new("$", true, SourceLocation::STUB);
+                                let key = Box::new_in(key_node, ctx.allocator);
+                                let mut values = Vec::new_in(ctx.allocator);
+                                let val_node = SimpleExpressionNode::new(
+                                    val_exp.content.clone(),
+                                    val_exp.is_static,
+                                    val_exp.loc.clone(),
+                                );
+                                values.push(Box::new_in(val_node, ctx.allocator));
+
+                                props.push(IRProp {
+                                    key,
+                                    values,
+                                    is_component: true,
+                                });
+                            }
+                        } else if dir.name.as_str() == "on" {
+                            // v-on -> onXxx prop
+                            if let Some(ref arg) = dir.arg
+                                && let ExpressionNode::Simple(event_exp) = arg
+                            {
+                                let event_name = event_exp.content.as_str();
+                                let on_name = if event_name.is_empty() {
+                                    String::from("on")
+                                } else {
+                                    let mut s = String::from("on");
+                                    let mut chars = event_name.chars();
+                                    if let Some(c) = chars.next() {
+                                        s.push(c.to_ascii_uppercase());
+                                    }
+                                    for c in chars {
+                                        s.push(c);
+                                    }
+                                    s
+                                };
+
+                                let key_node =
+                                    SimpleExpressionNode::new(on_name, true, event_exp.loc.clone());
+                                let key = Box::new_in(key_node, ctx.allocator);
+
+                                let mut values = Vec::new_in(ctx.allocator);
+                                if let Some(ref exp) = dir.exp
+                                    && let ExpressionNode::Simple(val_exp) = exp
+                                {
                                     let val_node = SimpleExpressionNode::new(
                                         val_exp.content.clone(),
                                         val_exp.is_static,
                                         val_exp.loc.clone(),
                                     );
                                     values.push(Box::new_in(val_node, ctx.allocator));
-
-                                    props.push(IRProp {
-                                        key,
-                                        values,
-                                        is_component: true,
-                                    });
                                 }
-                            }
-                        } else if dir.name.as_str() == "on" {
-                            // v-on -> onXxx prop
-                            if let Some(ref arg) = dir.arg {
-                                if let ExpressionNode::Simple(event_exp) = arg {
-                                    let event_name = event_exp.content.as_str();
-                                    let on_name = if event_name.is_empty() {
-                                        String::from("on")
-                                    } else {
-                                        let mut s = String::from("on");
-                                        let mut chars = event_name.chars();
-                                        if let Some(c) = chars.next() {
-                                            s.push(c.to_ascii_uppercase());
-                                        }
-                                        for c in chars {
-                                            s.push(c);
-                                        }
-                                        s
-                                    };
 
-                                    let key_node = SimpleExpressionNode::new(
-                                        on_name,
-                                        true,
-                                        event_exp.loc.clone(),
-                                    );
-                                    let key = Box::new_in(key_node, ctx.allocator);
-
-                                    let mut values = Vec::new_in(ctx.allocator);
-                                    if let Some(ref exp) = dir.exp {
-                                        if let ExpressionNode::Simple(val_exp) = exp {
-                                            let val_node = SimpleExpressionNode::new(
-                                                val_exp.content.clone(),
-                                                val_exp.is_static,
-                                                val_exp.loc.clone(),
-                                            );
-                                            values.push(Box::new_in(val_node, ctx.allocator));
-                                        }
-                                    }
-
-                                    props.push(IRProp {
-                                        key,
-                                        values,
-                                        is_component: true,
-                                    });
-                                }
+                                props.push(IRProp {
+                                    key,
+                                    values,
+                                    is_component: true,
+                                });
                             }
                         } else if dir.name.as_str() == "model" {
                             // v-model -> modelValue + onUpdate:modelValue props

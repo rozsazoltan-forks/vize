@@ -1,6 +1,6 @@
 use memchr::{memchr, memchr_iter, memmem};
 use std::borrow::Cow;
-use vize_carton::{cstr, FxHashMap, String};
+use vize_carton::{FxHashMap, String, cstr};
 
 // Tag name bytes for fast comparison
 const TAG_TEMPLATE: &[u8] = b"template";
@@ -531,14 +531,14 @@ pub(super) fn parse_block_fast<'a>(
                 continue;
             }
 
-            if b == b'/' && can_start_regex_literal(prev_significant_char) {
-                if let Some(next_pos) =
+            if b == b'/'
+                && can_start_regex_literal(prev_significant_char)
+                && let Some(next_pos) =
                     skip_regex_literal(bytes, pos, len, &mut line, &mut last_newline)
-                {
-                    prev_significant_char = b'/';
-                    pos = next_pos;
-                    continue;
-                }
+            {
+                prev_significant_char = b'/';
+                pos = next_pos;
+                continue;
             }
 
             // Check for string literals (', ", `)
@@ -634,22 +634,22 @@ pub(super) fn parse_block_fast<'a>(
         }
 
         // Check for closing tag (allows optional whitespace before '>')
-        if b == b'<' {
-            if let Some(end_tag_pos) = find_closing_tag_end(bytes, pos, len, tag_name) {
-                let content_end = pos;
-                let col = pos - last_newline + (end_tag_pos - pos);
-                let content = Cow::Borrowed(&source[content_start..content_end]);
-                return Ok(Some((
-                    tag_name,
-                    attrs,
-                    content,
-                    content_start,
-                    content_end,
-                    end_tag_pos,
-                    line,
-                    col,
-                )));
-            }
+        if b == b'<'
+            && let Some(end_tag_pos) = find_closing_tag_end(bytes, pos, len, tag_name)
+        {
+            let content_end = pos;
+            let col = pos - last_newline + (end_tag_pos - pos);
+            let content = Cow::Borrowed(&source[content_start..content_end]);
+            return Ok(Some((
+                tag_name,
+                attrs,
+                content,
+                content_start,
+                content_end,
+                end_tag_pos,
+                line,
+                col,
+            )));
         }
 
         prev_significant_char = b;
@@ -690,22 +690,22 @@ fn find_block_end<'a>(search: BlockEndSearch<'a>) -> BlockParseResult<'a> {
             pos += lt_offset;
 
             // Check for closing tag (allows optional whitespace before '>')
-            if bytes[pos] == b'<' {
-                if let Some(end_tag_pos) = find_closing_tag_end(bytes, pos, len, tag_name) {
-                    let content_end = pos;
-                    let col = pos - last_newline + (end_tag_pos - pos);
-                    let content = Cow::Borrowed(&source[content_start..content_end]);
-                    return Ok(Some((
-                        tag_name,
-                        attrs,
-                        content,
-                        content_start,
-                        content_end,
-                        end_tag_pos,
-                        line,
-                        col,
-                    )));
-                }
+            if bytes[pos] == b'<'
+                && let Some(end_tag_pos) = find_closing_tag_end(bytes, pos, len, tag_name)
+            {
+                let content_end = pos;
+                let col = pos - last_newline + (end_tag_pos - pos);
+                let content = Cow::Borrowed(&source[content_start..content_end]);
+                return Ok(Some((
+                    tag_name,
+                    attrs,
+                    content,
+                    content_start,
+                    content_end,
+                    end_tag_pos,
+                    line,
+                    col,
+                )));
             }
             pos += 1;
         } else {

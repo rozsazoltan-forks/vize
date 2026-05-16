@@ -28,10 +28,10 @@ mod tests_race_conditions;
 #[cfg(test)]
 mod tests {
     use super::{CrossFileAnalyzer, CrossFileOptions};
-    use crate::analysis::ComponentUsage;
-    use crate::cross_file::diagnostics::{CrossFileDiagnosticKind, DiagnosticSeverity};
-    use crate::cross_file::DependencyEdge;
     use crate::AnalyzerOptions;
+    use crate::analysis::ComponentUsage;
+    use crate::cross_file::DependencyEdge;
+    use crate::cross_file::diagnostics::{CrossFileDiagnosticKind, DiagnosticSeverity};
     use std::path::Path;
     use vize_carton::append;
     use vize_carton::{CompactString, SmallVec};
@@ -120,17 +120,21 @@ mod tests {
             child_analyzer.finish(),
         );
 
-        assert!(!analyzer
-            .graph()
-            .dependencies(parent_id)
-            .any(|(id, edge)| id == child_id && edge == DependencyEdge::Import));
+        assert!(
+            !analyzer
+                .graph()
+                .dependencies(parent_id)
+                .any(|(id, edge)| id == child_id && edge == DependencyEdge::Import)
+        );
 
         analyzer.rebuild_import_edges();
 
-        assert!(analyzer
-            .graph()
-            .dependencies(parent_id)
-            .any(|(id, edge)| id == child_id && edge == DependencyEdge::Import));
+        assert!(
+            analyzer
+                .graph()
+                .dependencies(parent_id)
+                .any(|(id, edge)| id == child_id && edge == DependencyEdge::Import)
+        );
     }
 
     #[test]
@@ -173,12 +177,16 @@ mod tests {
         analyzer.rebuild_component_edges();
 
         let edges: Vec<_> = analyzer.graph().dependencies(parent_id).collect();
-        assert!(edges
-            .iter()
-            .any(|(id, edge)| *id == child_id && *edge == DependencyEdge::Import));
-        assert!(edges
-            .iter()
-            .any(|(id, edge)| *id == child_id && *edge == DependencyEdge::ComponentUsage));
+        assert!(
+            edges
+                .iter()
+                .any(|(id, edge)| *id == child_id && *edge == DependencyEdge::Import)
+        );
+        assert!(
+            edges
+                .iter()
+                .any(|(id, edge)| *id == child_id && *edge == DependencyEdge::ComponentUsage)
+        );
 
         let result = analyzer.analyze();
         assert!(result.diagnostics.iter().any(|diagnostic| matches!(
@@ -431,21 +439,27 @@ const nameRef = toRef(props, 'item')"#,
             .unwrap();
 
         assert_eq!(analysis.macros.props().len(), 3);
-        assert!(analysis
-            .macros
-            .props()
-            .iter()
-            .any(|p| p.name.as_str() == "msg" && p.required));
-        assert!(analysis
-            .macros
-            .props()
-            .iter()
-            .any(|p| p.name.as_str() == "count" && !p.required));
-        assert!(analysis
-            .macros
-            .props()
-            .iter()
-            .any(|p| p.name.as_str() == "user" && p.required));
+        assert!(
+            analysis
+                .macros
+                .props()
+                .iter()
+                .any(|p| p.name.as_str() == "msg" && p.required)
+        );
+        assert!(
+            analysis
+                .macros
+                .props()
+                .iter()
+                .any(|p| p.name.as_str() == "count" && !p.required)
+        );
+        assert!(
+            analysis
+                .macros
+                .props()
+                .iter()
+                .any(|p| p.name.as_str() == "user" && p.required)
+        );
     }
 
     #[test]

@@ -277,9 +277,11 @@ mod tests {
         assert!(capabilities.document_link_provider.is_some());
         assert!(capabilities.folding_range_provider.is_some());
         assert!(capabilities.inlay_hint_provider.is_some());
-        assert!(capabilities
-            .workspace
-            .and_then(|workspace| workspace.file_operations)
-            .is_some());
+        assert!(
+            capabilities
+                .workspace
+                .and_then(|workspace| workspace.file_operations)
+                .is_some()
+        );
     }
 }

@@ -9,7 +9,7 @@
 
 use wasm_bindgen::prelude::*;
 
-use crate::typecheck::{type_check_sfc, TypeCheckOptions};
+use crate::typecheck::{TypeCheckOptions, type_check_sfc};
 
 /// Helper function to serialize values to JsValue with maps as objects
 fn to_js_value<T: serde::Serialize>(value: &T) -> Result<JsValue, JsValue> {

@@ -10,7 +10,7 @@ use crate::cross_file::diagnostics::{
 };
 use crate::cross_file::graph::{DependencyEdge, DependencyGraph};
 use crate::cross_file::registry::{FileId, ModuleRegistry};
-use vize_carton::{cstr, CompactString, FxHashMap, FxHashSet, ToCompactString};
+use vize_carton::{CompactString, FxHashMap, FxHashSet, ToCompactString, cstr};
 
 /// Information about emit flow between components.
 #[derive(Debug, Clone)]
@@ -138,32 +138,32 @@ pub fn analyze_emits(
             }
 
             // Check for unmatched parent listeners
-            if let Some(child_name) = child_name {
-                if let Some(listeners) = parent_listeners.get(child_name.as_str()) {
-                    for (event, offset) in listeners {
-                        if !child_info.declared_emits.contains(event.as_str())
-                            && !child_info.called_emits.contains(event.as_str())
-                            && !is_native_event(event)
-                        {
-                            diagnostics.push(
-                                CrossFileDiagnostic::new(
-                                    CrossFileDiagnosticKind::UnmatchedEventListener {
-                                        event_name: CompactString::new(event.as_str()),
-                                    },
-                                    DiagnosticSeverity::Warning,
-                                    node.file_id,
-                                    *offset,
-                                    cstr!(
-                                        "Listening for '{event}' but child component doesn't emit it",
-                                    ),
-                                )
-                                .with_related(
-                                    *child_id,
-                                    0,
-                                    cstr!("'{child_name}' component"),
+            if let Some(child_name) = child_name
+                && let Some(listeners) = parent_listeners.get(child_name.as_str())
+            {
+                for (event, offset) in listeners {
+                    if !child_info.declared_emits.contains(event.as_str())
+                        && !child_info.called_emits.contains(event.as_str())
+                        && !is_native_event(event)
+                    {
+                        diagnostics.push(
+                            CrossFileDiagnostic::new(
+                                CrossFileDiagnosticKind::UnmatchedEventListener {
+                                    event_name: CompactString::new(event.as_str()),
+                                },
+                                DiagnosticSeverity::Warning,
+                                node.file_id,
+                                *offset,
+                                cstr!(
+                                    "Listening for '{event}' but child component doesn't emit it",
                                 ),
-                            );
-                        }
+                            )
+                            .with_related(
+                                *child_id,
+                                0,
+                                cstr!("'{child_name}' component"),
+                            ),
+                        );
                     }
                 }
             }

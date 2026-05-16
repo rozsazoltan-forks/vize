@@ -13,10 +13,10 @@ use super::{
     MacroDisplay, MemoCacheDisplay, OnceCacheDisplay, PropDisplay, SelectorDisplay, Severity,
     TopLevelAwaitDisplay,
 };
-use vize_carton::append;
 use vize_carton::FxHashMap;
 use vize_carton::String;
 use vize_carton::ToCompactString;
+use vize_carton::append;
 
 /// Builder for Croquis
 #[derive(Debug, Default)]

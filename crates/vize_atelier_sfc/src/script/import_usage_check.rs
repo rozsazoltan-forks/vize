@@ -7,7 +7,7 @@
 
 use oxc_allocator::Allocator;
 use oxc_ast::ast as oxc_ast_types;
-use oxc_ast_visit::{walk::walk_arrow_function_expression, Visit};
+use oxc_ast_visit::{Visit, walk::walk_arrow_function_expression};
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 use vize_atelier_core::ast::{
@@ -15,8 +15,8 @@ use vize_atelier_core::ast::{
     TemplateChildNode,
 };
 use vize_carton::{
-    camelize, capitalize, is_builtin_directive, is_native_tag, is_simple_identifier, FxHashSet,
-    String, ToCompactString,
+    FxHashSet, String, ToCompactString, camelize, capitalize, is_builtin_directive, is_native_tag,
+    is_simple_identifier,
 };
 use vize_croquis::builtins::{is_builtin_component, is_global_allowed};
 
@@ -81,10 +81,8 @@ fn walk_node(
         TemplateChildNode::If(if_node) => {
             for branch in if_node.branches.iter() {
                 // Walk condition expression if present
-                if collect_used_ids {
-                    if let Some(ref condition) = branch.condition {
-                        extract_identifiers_from_expression(condition, &mut result.used_ids);
-                    }
+                if collect_used_ids && let Some(ref condition) = branch.condition {
+                    extract_identifiers_from_expression(condition, &mut result.used_ids);
                 }
                 // Walk children
                 for child in branch.children.iter() {
@@ -156,12 +154,12 @@ fn walk_element(
             }
             PropNode::Attribute(attr) => {
                 // ref attribute value is an identifier
-                if collect_used_ids && attr.name.as_str() == "ref" {
-                    if let Some(ref value) = attr.value {
-                        if !value.content.is_empty() {
-                            result.used_ids.insert(value.content.to_compact_string());
-                        }
-                    }
+                if collect_used_ids
+                    && attr.name.as_str() == "ref"
+                    && let Some(ref value) = attr.value
+                    && !value.content.is_empty()
+                {
+                    result.used_ids.insert(value.content.to_compact_string());
                 }
             }
         }
@@ -192,26 +190,23 @@ fn process_directive(
     }
 
     // Collect v-model target identifiers (simple identifiers only)
-    if name == "model" {
-        if let Some(ref exp) = directive.exp {
-            if let ExpressionNode::Simple(simple_exp) = exp {
-                let exp_string = simple_exp.content.trim();
-                if is_simple_identifier(exp_string) && exp_string != "undefined" {
-                    result.v_model_ids.insert(exp_string.to_compact_string());
-                }
-            }
+    if name == "model"
+        && let Some(ref exp) = directive.exp
+        && let ExpressionNode::Simple(simple_exp) = exp
+    {
+        let exp_string = simple_exp.content.trim();
+        if is_simple_identifier(exp_string) && exp_string != "undefined" {
+            result.v_model_ids.insert(exp_string.to_compact_string());
         }
     }
 
     // Process dynamic directive arguments
-    if collect_used_ids {
-        if let Some(ref arg) = directive.arg {
-            if let ExpressionNode::Simple(simple_arg) = arg {
-                if !simple_arg.is_static {
-                    extract_identifiers_from_expression(arg, &mut result.used_ids);
-                }
-            }
-        }
+    if collect_used_ids
+        && let Some(ref arg) = directive.arg
+        && let ExpressionNode::Simple(simple_arg) = arg
+        && !simple_arg.is_static
+    {
+        extract_identifiers_from_expression(arg, &mut result.used_ids);
     }
 
     // Process directive expression
@@ -229,13 +224,12 @@ fn process_directive(
             extract_identifiers_from_expression(exp, &mut result.used_ids);
         } else if name == "bind" {
             // v-bind shorthand name as identifier
-            if let Some(ref arg) = directive.arg {
-                if let ExpressionNode::Simple(simple_arg) = arg {
-                    if simple_arg.is_static {
-                        let identifier = camelize(simple_arg.content.as_str());
-                        result.used_ids.insert(identifier.to_compact_string());
-                    }
-                }
+            if let Some(ref arg) = directive.arg
+                && let ExpressionNode::Simple(simple_arg) = arg
+                && simple_arg.is_static
+            {
+                let identifier = camelize(simple_arg.content.as_str());
+                result.used_ids.insert(identifier.to_compact_string());
             }
         }
     }
@@ -418,7 +412,7 @@ fn extract_identifiers_from_compound(
 
 #[cfg(test)]
 mod tests {
-    use super::{is_used_in_template, resolve_template_used_identifiers, TemplateUsedIdentifiers};
+    use super::{TemplateUsedIdentifiers, is_used_in_template, resolve_template_used_identifiers};
     use vize_atelier_core::parser::parse;
     use vize_carton::Bump;
 

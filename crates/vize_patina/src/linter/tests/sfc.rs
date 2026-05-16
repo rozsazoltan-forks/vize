@@ -11,10 +11,12 @@ await nextTick()
 </script>
 "#;
     let result = linter.lint_sfc(sfc, "test.vue");
-    assert!(result
-        .diagnostics
-        .iter()
-        .any(|diagnostic| diagnostic.rule_name == "script/no-next-tick"));
+    assert!(
+        result
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.rule_name == "script/no-next-tick")
+    );
 }
 
 #[test]
@@ -27,10 +29,12 @@ const instance = getCurrentInstance()
 </script>
 "#;
     let result = linter.lint_sfc(sfc, "test.vue");
-    assert!(result
-        .diagnostics
-        .iter()
-        .any(|diagnostic| diagnostic.rule_name == "script/no-get-current-instance"));
+    assert!(
+        result
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.rule_name == "script/no-get-current-instance")
+    );
 }
 
 #[test]
@@ -91,10 +95,12 @@ const props = defineProps<{ user: { name: string }, count: number }>()
     let result = linter.lint_sfc(sfc, "test.vue");
 
     assert_eq!(result.error_count, 2);
-    assert!(result
-        .diagnostics
-        .iter()
-        .all(|diagnostic| diagnostic.rule_name == "vue/no-mutating-props"));
+    assert!(
+        result
+            .diagnostics
+            .iter()
+            .all(|diagnostic| diagnostic.rule_name == "vue/no-mutating-props")
+    );
 }
 
 #[test]
@@ -131,10 +137,12 @@ const field = 'title'
     let result = linter.lint_sfc(sfc, "test.vue");
 
     assert_eq!(result.error_count, 2);
-    assert!(result
-        .diagnostics
-        .iter()
-        .all(|diagnostic| diagnostic.rule_name == "vue/no-mutating-props"));
+    assert!(
+        result
+            .diagnostics
+            .iter()
+            .all(|diagnostic| diagnostic.rule_name == "vue/no-mutating-props")
+    );
 }
 
 #[test]

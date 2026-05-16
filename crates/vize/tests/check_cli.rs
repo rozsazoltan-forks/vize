@@ -149,14 +149,18 @@ const count =
     assert_eq!(output.status.code(), Some(1));
     assert_eq!(json["errorCount"], 1);
     assert_eq!(diagnostics.len(), 1);
-    assert!(diagnostics[0]
-        .as_str()
-        .unwrap()
-        .contains("Script parse error"));
-    assert!(!diagnostics[0]
-        .as_str()
-        .unwrap()
-        .contains("Cannot find name"));
+    assert!(
+        diagnostics[0]
+            .as_str()
+            .unwrap()
+            .contains("Script parse error")
+    );
+    assert!(
+        !diagnostics[0]
+            .as_str()
+            .unwrap()
+            .contains("Cannot find name")
+    );
 
     let _ = std::fs::remove_dir_all(&project_root);
 }

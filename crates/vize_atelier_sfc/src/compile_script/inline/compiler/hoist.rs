@@ -73,14 +73,14 @@ pub(super) fn separate_hoisted_consts(
                 }
             }
             // Extract variable name and check if it's LiteralConst
-            if let Some(name) = extract_const_name(trimmed) {
-                if matches!(
+            if let Some(name) = extract_const_name(trimmed)
+                && matches!(
                     ctx.bindings.bindings.get(name.as_str()),
                     Some(crate::types::BindingType::LiteralConst)
-                ) {
-                    hoisted_lines.push(line.to_compact_string());
-                    continue;
-                }
+                )
+            {
+                hoisted_lines.push(line.to_compact_string());
+                continue;
             }
         }
         setup_body_lines.push(line.to_compact_string());

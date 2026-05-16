@@ -1,11 +1,11 @@
 ///|
 import {
   "moonbitlang/core/env",
-  "moonbitlang/async@0.16.8",
-  "moonbitlang/async@0.16.8/fs" @afs,
-  "moonbitlang/x@0.4.41/fs" @xfs,
-  "moonbitlang/x@0.4.41/path",
-  "moonbitlang/x@0.4.41/sys",
+  "moonbitlang/async@0.19.0",
+  "moonbitlang/async@0.19.0/fs" @afs,
+  "moonbitlang/x@0.4.43/fs" @xfs,
+  "moonbitlang/x@0.4.43/path",
+  "moonbitlang/x@0.4.43/sys",
 }
 
 ///|

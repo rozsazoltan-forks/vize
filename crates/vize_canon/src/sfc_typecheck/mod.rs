@@ -51,7 +51,7 @@ pub use runner::type_check_sfc;
 #[cfg(test)]
 mod tests {
     use super::{
-        type_check_sfc, SfcTypeCheckOptions, SfcTypeCheckResult, SfcTypeDiagnostic, SfcTypeSeverity,
+        SfcTypeCheckOptions, SfcTypeCheckResult, SfcTypeDiagnostic, SfcTypeSeverity, type_check_sfc,
     };
 
     fn stable_snapshot_result(mut result: SfcTypeCheckResult) -> SfcTypeCheckResult {
@@ -141,10 +141,12 @@ const props = defineProps<Props>();
 </template>"#;
         let options = SfcTypeCheckOptions::new("test.vue");
         let result = type_check_sfc(source, &options);
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("untyped-prop")));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("untyped-prop"))
+        );
     }
 
     #[test]
@@ -192,10 +194,12 @@ const emit = defineEmits<{
 </template>"#;
         let options = SfcTypeCheckOptions::new("test.vue");
         let result = type_check_sfc(source, &options);
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("untyped-emit")));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("untyped-emit"))
+        );
     }
 
     #[test]
@@ -214,10 +218,12 @@ const emit = defineEmits({
 </template>"#;
         let options = SfcTypeCheckOptions::new("test.vue");
         let result = type_check_sfc(source, &options);
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| matches!(d.code.as_deref(), Some("untyped-emits" | "untyped-emit"))));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| matches!(d.code.as_deref(), Some("untyped-emits" | "untyped-emit")))
+        );
     }
 
     #[test]
@@ -232,14 +238,18 @@ const emit = defineEmits({
 </template>"#;
         let options = SfcTypeCheckOptions::new("test.vue");
         let result = type_check_sfc(source, &options);
-        assert!(result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("untyped-emit")));
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("untyped-emits")));
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("untyped-emit"))
+        );
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("untyped-emits"))
+        );
     }
 
     #[test]
@@ -253,10 +263,12 @@ const props = defineProps(['count']);
         let mut options = SfcTypeCheckOptions::new("test.vue");
         options.check_props = false;
         let result = type_check_sfc(source, &options);
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("untyped-prop")));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("untyped-prop"))
+        );
     }
 
     #[test]
@@ -427,10 +439,12 @@ const message = ref('')
         let options = SfcTypeCheckOptions::new("test.vue").with_virtual_ts();
         let result = type_check_sfc(source, &options);
         // All bindings are defined, should have no undefined binding errors
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("undefined-binding")));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("undefined-binding"))
+        );
     }
 
     #[test]
@@ -461,10 +475,12 @@ const text = ref('')
 </template>"#;
         let options = SfcTypeCheckOptions::new("test.vue").with_virtual_ts();
         let result = type_check_sfc(source, &options);
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("undefined-binding")));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("undefined-binding"))
+        );
     }
 
     #[test]
@@ -543,10 +559,12 @@ const count = 1
         assert_eq!(template_parse_errors, 1);
         assert!(result.has_errors());
         assert!(result.virtual_ts.is_none());
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("undefined-binding")));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("undefined-binding"))
+        );
     }
 
     #[test]
@@ -558,16 +576,20 @@ const count =
         let options = SfcTypeCheckOptions::new("test.vue").with_virtual_ts();
         let result = type_check_sfc(source, &options);
 
-        assert!(result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("script-parse-error")));
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("script-parse-error"))
+        );
         assert!(result.has_errors());
         assert!(result.virtual_ts.is_none());
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("undefined-binding")));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("undefined-binding"))
+        );
     }
 
     #[test]
@@ -610,10 +632,12 @@ const count = 1
         let options = SfcTypeCheckOptions::new("test.vue").with_virtual_ts();
         let result = type_check_sfc(source, &options);
 
-        assert!(result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("script-parse-error")));
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("script-parse-error"))
+        );
         assert!(result.virtual_ts.is_none());
     }
 
@@ -626,18 +650,24 @@ const props = defineProps(['count'])
         let options = SfcTypeCheckOptions::new("test.vue");
         let result = type_check_sfc(source, &options);
 
-        assert!(result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("template-parse-error")));
-        assert!(result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("untyped-prop")));
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.code.as_deref() == Some("undefined-binding")));
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("template-parse-error"))
+        );
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("untyped-prop"))
+        );
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code.as_deref() == Some("undefined-binding"))
+        );
     }
 
     #[test]

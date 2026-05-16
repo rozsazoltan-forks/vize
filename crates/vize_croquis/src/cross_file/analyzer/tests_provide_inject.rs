@@ -709,15 +709,21 @@ const theme = inject('theme')"#,
         2,
         "a reused child should be matched in each parent render context"
     );
-    assert!(theme_matches
-        .iter()
-        .any(|provider_match| provider_match.provider == parent_a));
-    assert!(theme_matches
-        .iter()
-        .any(|provider_match| provider_match.provider == parent_b));
-    assert!(theme_matches
-        .iter()
-        .all(|provider_match| provider_match.consumer == child));
+    assert!(
+        theme_matches
+            .iter()
+            .any(|provider_match| provider_match.provider == parent_a)
+    );
+    assert!(
+        theme_matches
+            .iter()
+            .any(|provider_match| provider_match.provider == parent_b)
+    );
+    assert!(
+        theme_matches
+            .iter()
+            .all(|provider_match| provider_match.consumer == child)
+    );
     assert!(result.diagnostics.iter().all(|diagnostic| {
         !matches!(
             diagnostic.kind,
@@ -992,12 +998,16 @@ const { count } = inject('state') as { count: number }"#,
         2,
         "shared child destructuring should be tracked for each provider context"
     );
-    assert!(reactivity_losses
-        .iter()
-        .any(|issue| issue.related_file == Some(parent_a)));
-    assert!(reactivity_losses
-        .iter()
-        .any(|issue| issue.related_file == Some(parent_b)));
+    assert!(
+        reactivity_losses
+            .iter()
+            .any(|issue| issue.related_file == Some(parent_a))
+    );
+    assert!(
+        reactivity_losses
+            .iter()
+            .any(|issue| issue.related_file == Some(parent_b))
+    );
 }
 
 #[test]

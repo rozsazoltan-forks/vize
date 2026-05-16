@@ -19,8 +19,8 @@
 
 // Re-export from canon for backwards compatibility
 pub use vize_canon::{
-    type_check_sfc, SfcRelatedLocation, SfcTypeCheckOptions, SfcTypeCheckResult, SfcTypeDiagnostic,
-    SfcTypeSeverity,
+    SfcRelatedLocation, SfcTypeCheckOptions, SfcTypeCheckResult, SfcTypeDiagnostic,
+    SfcTypeSeverity, type_check_sfc,
 };
 
 // Type aliases for backwards compatibility

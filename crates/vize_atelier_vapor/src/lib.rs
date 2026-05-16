@@ -11,9 +11,9 @@ pub mod ir;
 pub mod transform;
 pub mod transforms;
 
-pub use generate::{generate_vapor, VaporGenerateResult};
+pub use generate::{VaporGenerateResult, generate_vapor};
 pub use generators::{
-    build_text_expression, can_inline_text, can_optimize_for, can_use_ternary,
+    GenerateContext, build_text_expression, can_inline_text, can_optimize_for, can_use_ternary,
     capitalize_event_name, escape_template, generate_async_component, generate_attribute,
     generate_block, generate_class_binding, generate_component_prop, generate_create_component,
     generate_create_text_node, generate_delegate_event, generate_directive,
@@ -26,7 +26,6 @@ pub use generators::{
     generate_template_declaration, generate_template_instantiation, generate_text_content,
     generate_to_display_string, generate_v_cloak_removal, generate_v_show,
     generate_with_directives, is_dynamic_slot_name, is_v_pre_element, normalize_prop_key,
-    GenerateContext,
 };
 pub use ir::{
     BlockIRNode, ComponentKind, CreateComponentIRNode, DirectiveIRNode, DynamicFlag,
@@ -49,10 +48,10 @@ pub use transforms::{
 };
 
 use vize_atelier_core::{
+    Namespace,
     options::{ParserOptions, TransformOptions},
     parser::parse_with_options,
     transform::transform,
-    Namespace,
 };
 use vize_carton::{Bump, String};
 

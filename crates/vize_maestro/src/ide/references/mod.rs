@@ -37,10 +37,8 @@ impl ReferencesService {
         let mut locations = Vec::new();
 
         // Find definition location if requested
-        if include_declaration {
-            if let Some(def_loc) = Self::find_definition_location(ctx, &word) {
-                locations.push(def_loc);
-            }
+        if include_declaration && let Some(def_loc) = Self::find_definition_location(ctx, &word) {
+            locations.push(def_loc);
         }
 
         // Find references in template

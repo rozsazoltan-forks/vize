@@ -64,20 +64,20 @@ impl HoverService {
         }
 
         // Check for template bindings from script setup
-        if let Some(ref virtual_docs) = ctx.virtual_docs {
-            if let Some(ref script_setup) = virtual_docs.script_setup {
-                let bindings =
-                    crate::virtual_code::extract_simple_bindings(&script_setup.content, true);
-                if bindings.contains(&word) {
-                    return Some(Hover {
-                        contents: HoverContents::Markup(MarkupContent {
-                            kind: MarkupKind::Markdown,
-                            #[allow(clippy::disallowed_macros)]
-                            value: format!("**{}**\n\n*Binding from `<script setup>`*", word),
-                        }),
-                        range: None,
-                    });
-                }
+        if let Some(ref virtual_docs) = ctx.virtual_docs
+            && let Some(ref script_setup) = virtual_docs.script_setup
+        {
+            let bindings =
+                crate::virtual_code::extract_simple_bindings(&script_setup.content, true);
+            if bindings.contains(&word) {
+                return Some(Hover {
+                    contents: HoverContents::Markup(MarkupContent {
+                        kind: MarkupKind::Markdown,
+                        #[allow(clippy::disallowed_macros)]
+                        value: format!("**{}**\n\n*Binding from `<script setup>`*", word),
+                    }),
+                    range: None,
+                });
             }
         }
 
@@ -114,30 +114,29 @@ impl HoverService {
         }
 
         // Try to get type information from Corsa via virtual TypeScript.
-        if let Some(bridge) = corsa_bridge {
-            if let Some(ref virtual_docs) = ctx.virtual_docs {
-                if let Some(ref template) = virtual_docs.template {
-                    // Calculate position in virtual TS
-                    if let Some(vts_offset) = Self::sfc_to_virtual_ts_offset(ctx, ctx.offset) {
-                        let (line, character) =
-                            crate::ide::offset_to_position(&template.content, vts_offset);
+        if let Some(bridge) = corsa_bridge
+            && let Some(ref virtual_docs) = ctx.virtual_docs
+            && let Some(ref template) = virtual_docs.template
+        {
+            // Calculate position in virtual TS
+            if let Some(vts_offset) = Self::sfc_to_virtual_ts_offset(ctx, ctx.offset) {
+                let (line, character) =
+                    crate::ide::offset_to_position(&template.content, vts_offset);
 
-                        // Open/update virtual document
-                        if bridge.is_initialized() {
-                            #[allow(clippy::disallowed_macros)]
-                            let vdoc_uri = format!("{}.template.ts", ctx.uri.path());
-                            let Ok(uri) = bridge
-                                .open_or_update_virtual_document(&vdoc_uri, &template.content)
-                                .await
-                            else {
-                                return Self::hover_template(ctx);
-                            };
+                // Open/update virtual document
+                if bridge.is_initialized() {
+                    #[allow(clippy::disallowed_macros)]
+                    let vdoc_uri = format!("{}.template.ts", ctx.uri.path());
+                    let Ok(uri) = bridge
+                        .open_or_update_virtual_document(&vdoc_uri, &template.content)
+                        .await
+                    else {
+                        return Self::hover_template(ctx);
+                    };
 
-                            // Request hover from Corsa.
-                            if let Ok(Some(hover)) = bridge.hover(&uri, line, character).await {
-                                return Some(Self::convert_lsp_hover(hover));
-                            }
-                        }
+                    // Request hover from Corsa.
+                    if let Ok(Some(hover)) = bridge.hover(&uri, line, character).await {
+                        return Some(Self::convert_lsp_hover(hover));
                     }
                 }
             }

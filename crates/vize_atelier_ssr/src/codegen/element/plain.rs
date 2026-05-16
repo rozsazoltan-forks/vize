@@ -446,10 +446,10 @@ impl<'a> SsrCodegenContext<'a> {
         use vize_atelier_core::ast::PropNode;
 
         for prop in &el.props {
-            if let PropNode::Attribute(attr) = prop {
-                if attr.name == name {
-                    return attr.value.as_ref().map(|v| v.content.to_compact_string());
-                }
+            if let PropNode::Attribute(attr) = prop
+                && attr.name == name
+            {
+                return attr.value.as_ref().map(|v| v.content.to_compact_string());
             }
         }
         None

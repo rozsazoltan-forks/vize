@@ -1,7 +1,7 @@
 ///|
 import {
   "moonbitlang/core/env",
-  "moonbitlang/x@0.4.41/sys",
+  "moonbitlang/x@0.4.43/sys",
 }
 
 ///|

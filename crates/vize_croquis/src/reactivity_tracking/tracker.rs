@@ -1,6 +1,6 @@
 //! The main `ReactivityTracker` implementation.
 
-use vize_carton::{cstr, CompactString, FxHashMap, FxHashSet, SmallVec};
+use vize_carton::{CompactString, FxHashMap, FxHashSet, SmallVec, cstr};
 
 use super::{
     BindingState, ReactiveBinding, ReactiveBindingId, ReactiveOrigin, ReactiveScope,

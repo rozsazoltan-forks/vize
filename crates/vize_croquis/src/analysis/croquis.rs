@@ -3,9 +3,9 @@
 //! Contains the query methods on `Croquis` for checking bindings,
 //! props, emits, models, and unused template variables.
 
+use super::Croquis;
 use super::bindings::UnusedTemplateVar;
 use super::bindings::UnusedVarContext;
-use super::Croquis;
 use vize_carton::CompactString;
 use vize_relief::BindingType;
 

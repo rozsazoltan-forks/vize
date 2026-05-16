@@ -1,5 +1,5 @@
 use crate::ir::SetEventIRNode;
-use vize_carton::{cstr, String, ToCompactString};
+use vize_carton::{String, ToCompactString, cstr};
 
 use super::super::context::GenerateContext;
 

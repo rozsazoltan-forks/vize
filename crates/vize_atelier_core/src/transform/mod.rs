@@ -7,7 +7,7 @@ pub mod element;
 pub mod structural;
 pub mod traverse;
 
-use vize_carton::{profile, Box, Bump, FxHashSet, String, Vec};
+use vize_carton::{Box, Bump, FxHashSet, String, Vec, profile};
 use vize_croquis::{Croquis, ScopeChain};
 
 use crate::ast::*;

@@ -35,10 +35,8 @@ impl HoverService {
         }
 
         // Check for Vue macros (script setup only)
-        if is_setup {
-            if let Some(hover) = Self::hover_vue_macro(&word) {
-                return Some(hover);
-            }
+        if is_setup && let Some(hover) = Self::hover_vue_macro(&word) {
+            return Some(hover);
         }
 
         // Try to get TypeScript type information from croquis analysis
@@ -67,44 +65,41 @@ impl HoverService {
             return Some(hover);
         }
 
-        if is_setup {
-            if let Some(hover) = Self::hover_vue_macro(&word) {
-                return Some(hover);
-            }
+        if is_setup && let Some(hover) = Self::hover_vue_macro(&word) {
+            return Some(hover);
         }
 
         // Try to get type information from Corsa via virtual TypeScript.
-        if let Some(bridge) = corsa_bridge {
-            if let Some(ref virtual_docs) = ctx.virtual_docs {
-                let script_doc = if is_setup {
-                    virtual_docs.script_setup.as_ref()
-                } else {
-                    virtual_docs.script.as_ref()
-                };
+        if let Some(bridge) = corsa_bridge
+            && let Some(ref virtual_docs) = ctx.virtual_docs
+        {
+            let script_doc = if is_setup {
+                virtual_docs.script_setup.as_ref()
+            } else {
+                virtual_docs.script.as_ref()
+            };
 
-                if let Some(script) = script_doc {
-                    // Calculate position in virtual TS
-                    if let Some(vts_offset) = Self::sfc_to_virtual_ts_script_offset(ctx, ctx.offset)
-                    {
-                        let (line, character) =
-                            crate::ide::offset_to_position(&script.content, vts_offset);
-                        let suffix = if is_setup { "setup.ts" } else { "script.ts" };
+            if let Some(script) = script_doc {
+                // Calculate position in virtual TS
+                if let Some(vts_offset) = Self::sfc_to_virtual_ts_script_offset(ctx, ctx.offset) {
+                    let (line, character) =
+                        crate::ide::offset_to_position(&script.content, vts_offset);
+                    let suffix = if is_setup { "setup.ts" } else { "script.ts" };
 
-                        // Open/update virtual document
-                        if bridge.is_initialized() {
-                            #[allow(clippy::disallowed_macros)]
-                            let doc_path = format!("{}.{suffix}", ctx.uri.path());
-                            let Ok(uri) = bridge
-                                .open_or_update_virtual_document(&doc_path, &script.content)
-                                .await
-                            else {
-                                return Self::hover_script(ctx, is_setup);
-                            };
+                    // Open/update virtual document
+                    if bridge.is_initialized() {
+                        #[allow(clippy::disallowed_macros)]
+                        let doc_path = format!("{}.{suffix}", ctx.uri.path());
+                        let Ok(uri) = bridge
+                            .open_or_update_virtual_document(&doc_path, &script.content)
+                            .await
+                        else {
+                            return Self::hover_script(ctx, is_setup);
+                        };
 
-                            // Request hover from Corsa.
-                            if let Ok(Some(hover)) = bridge.hover(&uri, line, character).await {
-                                return Some(Self::convert_lsp_hover(hover));
-                            }
+                        // Request hover from Corsa.
+                        if let Ok(Some(hover)) = bridge.hover(&uri, line, character).await {
+                            return Some(Self::convert_lsp_hover(hover));
                         }
                     }
                 }

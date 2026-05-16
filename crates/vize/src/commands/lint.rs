@@ -6,14 +6,14 @@ use ignore::Walk;
 use rayon::prelude::*;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 use std::time::Instant;
 use vize_armature::Parser;
-use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
 use vize_carton::{
-    cstr, profiler::global_profiler, Allocator, CompactString, FxHashMap, String, ToCompactString,
+    Allocator, CompactString, FxHashMap, String, ToCompactString, cstr, profiler::global_profiler,
 };
 use vize_croquis::cross_file::{
     CrossFileAnalyzer, CrossFileDiagnostic, CrossFileDiagnosticKind, CrossFileOptions,
@@ -21,12 +21,12 @@ use vize_croquis::cross_file::{
 };
 use vize_croquis::{Analyzer, AnalyzerOptions, Croquis};
 use vize_patina::{
-    format_results, format_summary, HelpLevel, LintDiagnostic, LintPreset, LintResult, Linter,
-    OutputFormat,
+    HelpLevel, LintDiagnostic, LintPreset, LintResult, Linter, OutputFormat, format_results,
+    format_summary,
 };
 
 use crate::commands::profile::{
-    print_profile_report, ProfileFileRow, ProfilePhase, ProfilePhaseKind, ProfileReport,
+    ProfileFileRow, ProfilePhase, ProfilePhaseKind, ProfileReport, print_profile_report,
 };
 
 #[derive(Args)]
@@ -263,10 +263,10 @@ pub fn run(args: LintArgs) {
             format_summary(total_errors, total_warnings, files.len())
         );
         println!("Linted {} files in {:.4?}", files.len(), elapsed);
-        if args.cross_file_tree {
-            if let Some(tree) = cross_file_tree.as_deref() {
-                println!("\n{tree}");
-            }
+        if args.cross_file_tree
+            && let Some(tree) = cross_file_tree.as_deref()
+        {
+            println!("\n{tree}");
         }
     }
 
@@ -322,15 +322,15 @@ pub fn run(args: LintArgs) {
         ];
         let slow_threshold = Duration::from_millis(args.slow_threshold);
         let mut recommendations: Vec<String> = Vec::new();
-        if let Some(summary) = operation_summary.as_ref() {
-            if let Some(entry) = summary.entries.first() {
-                recommendations.push(cstr!(
-                    "Deepest hot operation: {} took {:.2}ms total across {} call(s).",
-                    entry.name,
-                    entry.total.as_secs_f64() * 1000.0,
-                    entry.count
-                ));
-            }
+        if let Some(summary) = operation_summary.as_ref()
+            && let Some(entry) = summary.entries.first()
+        {
+            recommendations.push(cstr!(
+                "Deepest hot operation: {} took {:.2}ms total across {} call(s).",
+                entry.name,
+                entry.total.as_secs_f64() * 1000.0,
+                entry.count
+            ));
         }
         for row in file_rows
             .iter()
@@ -375,11 +375,11 @@ pub fn run(args: LintArgs) {
         std::process::exit(1);
     }
 
-    if let Some(max) = args.max_warnings {
-        if total_warnings > max {
-            eprintln!("\nToo many warnings ({} > max {})", total_warnings, max);
-            std::process::exit(1);
-        }
+    if let Some(max) = args.max_warnings
+        && total_warnings > max
+    {
+        eprintln!("\nToo many warnings ({} > max {})", total_warnings, max);
+        std::process::exit(1);
     }
 }
 

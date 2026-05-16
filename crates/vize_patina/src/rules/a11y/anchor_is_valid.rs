@@ -84,11 +84,11 @@ impl Rule for AnchorIsValid {
                     return;
                 }
                 PropNode::Directive(dir) if dir.name == "bind" => {
-                    if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                        if arg.content == "href" {
-                            // Dynamic binding - assume valid
-                            return;
-                        }
+                    if let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                        && arg.content == "href"
+                    {
+                        // Dynamic binding - assume valid
+                        return;
                     }
                 }
                 _ => {}

@@ -19,9 +19,9 @@ pub use types::{TemplateGlobal, VirtualTsOptions, VirtualTsOutput, VizeMapping};
 
 #[cfg(test)]
 mod tests {
-    use super::helpers::{generate_template_context, get_dom_event_type, VUE_SETUP_HELPERS};
+    use super::helpers::{VUE_SETUP_HELPERS, generate_template_context, get_dom_event_type};
     use super::{
-        generate_virtual_ts, generate_virtual_ts_with_offsets, TemplateGlobal, VirtualTsOptions,
+        TemplateGlobal, VirtualTsOptions, generate_virtual_ts, generate_virtual_ts_with_offsets,
     };
 
     fn assert_virtual_ts_snapshot(name: &str, value: &str) {

@@ -1,13 +1,13 @@
 use oxc_allocator::Allocator as OxcAllocator;
 use oxc_ast::ast::{Argument, CallExpression, ChainElement, Expression, ExpressionStatement};
 use oxc_ast_visit::{
-    walk::{walk_call_expression, walk_expression_statement},
     Visit,
+    walk::{walk_call_expression, walk_expression_statement},
 };
 use oxc_parser::Parser as OxcParser;
 use oxc_span::{GetSpan, SourceType, Span};
 use oxc_syntax::operator::UnaryOperator;
-use vize_carton::{profile, String};
+use vize_carton::{String, profile};
 
 #[derive(Clone, Copy)]
 pub(super) struct RelativeRange {
@@ -87,10 +87,10 @@ pub(super) fn collect_template_call_ranges(
                 collect_expression_call_callee_ranges(&expression, source.len() as u32);
         }
         if include_floating_promises {
-            if allow_statement_fallback {
-                if let Some(range) = bare_handler_reference_range_for_expression(&expression) {
-                    ranges.floating_promises.push(range);
-                }
+            if allow_statement_fallback
+                && let Some(range) = bare_handler_reference_range_for_expression(&expression)
+            {
+                ranges.floating_promises.push(range);
             }
             profile!(
                 "patina.type_aware.template_floating.visit_expression",
@@ -542,7 +542,7 @@ fn is_handled_promise_chain(expression: &Expression<'_>) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{collect_template_call_ranges, FloatingPromiseRange, RelativeRange};
+    use super::{FloatingPromiseRange, RelativeRange, collect_template_call_ranges};
 
     fn range_slices<'a>(source: &'a str, ranges: &[RelativeRange]) -> Vec<&'a str> {
         ranges

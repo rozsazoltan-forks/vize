@@ -127,7 +127,9 @@ fn classifies_vue_boundaries() {
             .as_deref(),
         Some("server")
     );
-    assert!(classify_vite_plugin_request("/src/Foo.vue")
-        .boundary_kind
-        .is_none());
+    assert!(
+        classify_vite_plugin_request("/src/Foo.vue")
+            .boundary_kind
+            .is_none()
+    );
 }

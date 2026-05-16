@@ -296,25 +296,17 @@ fn extract_key_prop<'a>(
     for child in for_node.children.iter() {
         if let TemplateChildNode::Element(el) = child {
             for prop in el.props.iter() {
-                if let PropNode::Directive(dir) = prop {
-                    if dir.name.as_str() == "bind" {
-                        if let Some(ref arg) = dir.arg {
-                            if let ExpressionNode::Simple(key_arg) = arg {
-                                if key_arg.content.as_str() == "key" {
-                                    if let Some(ref exp) = dir.exp {
-                                        if let ExpressionNode::Simple(s) = exp {
-                                            let node = SimpleExpressionNode::new(
-                                                s.content.clone(),
-                                                s.is_static,
-                                                s.loc.clone(),
-                                            );
-                                            return Some(Box::new_in(node, ctx.allocator));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if let PropNode::Directive(dir) = prop
+                    && dir.name.as_str() == "bind"
+                    && let Some(ref arg) = dir.arg
+                    && let ExpressionNode::Simple(key_arg) = arg
+                    && key_arg.content.as_str() == "key"
+                    && let Some(ref exp) = dir.exp
+                    && let ExpressionNode::Simple(s) = exp
+                {
+                    let node =
+                        SimpleExpressionNode::new(s.content.clone(), s.is_static, s.loc.clone());
+                    return Some(Box::new_in(node, ctx.allocator));
                 }
             }
         }

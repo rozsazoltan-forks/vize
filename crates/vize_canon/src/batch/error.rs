@@ -1,9 +1,9 @@
 //! Error types for batch type checking.
 
 use std::path::{Path, PathBuf};
+use vize_carton::String;
 use vize_carton::append;
 use vize_carton::cstr;
-use vize_carton::String;
 
 /// Error type for Corsa-backed batch operations.
 #[derive(Debug, thiserror::Error)]
@@ -148,22 +148,21 @@ pub fn detect_package_manager(project_root: &Path) -> Option<PackageManager> {
 
     // 2. Detect from package.json packageManager field
     let pkg_json = project_root.join("package.json");
-    if let Ok(content) = std::fs::read_to_string(&pkg_json) {
-        if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
-            if let Some(pm) = json.get("packageManager").and_then(|v| v.as_str()) {
-                if pm.starts_with("pnpm") {
-                    return Some(PackageManager::Pnpm);
-                }
-                if pm.starts_with("yarn") {
-                    return Some(PackageManager::Yarn);
-                }
-                if pm.starts_with("bun") {
-                    return Some(PackageManager::Bun);
-                }
-                if pm.starts_with("npm") {
-                    return Some(PackageManager::Npm);
-                }
-            }
+    if let Ok(content) = std::fs::read_to_string(&pkg_json)
+        && let Ok(json) = serde_json::from_str::<serde_json::Value>(&content)
+        && let Some(pm) = json.get("packageManager").and_then(|v| v.as_str())
+    {
+        if pm.starts_with("pnpm") {
+            return Some(PackageManager::Pnpm);
+        }
+        if pm.starts_with("yarn") {
+            return Some(PackageManager::Yarn);
+        }
+        if pm.starts_with("bun") {
+            return Some(PackageManager::Bun);
+        }
+        if pm.starts_with("npm") {
+            return Some(PackageManager::Npm);
         }
     }
 

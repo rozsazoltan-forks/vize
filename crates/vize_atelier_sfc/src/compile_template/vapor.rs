@@ -1,7 +1,7 @@
 //! Vapor mode template compilation.
 
-use super::string_tracking::{count_braces_with_state, StringTrackState};
-use vize_atelier_vapor::{compile_vapor, VaporCompilerOptions};
+use super::string_tracking::{StringTrackState, count_braces_with_state};
+use vize_atelier_vapor::{VaporCompilerOptions, compile_vapor};
 use vize_carton::{Bump, String, ToCompactString};
 
 use crate::types::{BindingMetadata, SfcError, SfcTemplateBlock};
@@ -60,29 +60,29 @@ pub(crate) fn compile_template_block_vapor(
 /// Add scope ID to template string
 pub(super) fn add_scope_id_to_template(template_line: &str, scope_id: &str) -> String {
     // Find the template string content and add scope_id to the first element
-    if let Some(start) = template_line.find("\"<") {
-        if let Some(end) = template_line.rfind(">\"") {
-            let prefix = &template_line[..start + 2]; // up to and including "<"
-            let content = &template_line[start + 2..end + 1]; // element content
-            let suffix = &template_line[end + 1..]; // closing quote and paren
+    if let Some(start) = template_line.find("\"<")
+        && let Some(end) = template_line.rfind(">\"")
+    {
+        let prefix = &template_line[..start + 2]; // up to and including "<"
+        let content = &template_line[start + 2..end + 1]; // element content
+        let suffix = &template_line[end + 1..]; // closing quote and paren
 
-            // Find end of first tag name
-            if let Some(tag_end) = content.find(|c: char| c.is_whitespace() || c == '>') {
-                let tag_name = &content[..tag_end];
-                let rest = &content[tag_end..];
+        // Find end of first tag name
+        if let Some(tag_end) = content.find(|c: char| c.is_whitespace() || c == '>') {
+            let tag_name = &content[..tag_end];
+            let rest = &content[tag_end..];
 
-                // Insert scope_id attribute after tag name
-                let mut result = String::with_capacity(
-                    prefix.len() + tag_name.len() + scope_id.len() + rest.len() + suffix.len() + 1,
-                );
-                result.push_str(prefix);
-                result.push_str(tag_name);
-                result.push(' ');
-                result.push_str(scope_id);
-                result.push_str(rest);
-                result.push_str(suffix);
-                return result;
-            }
+            // Insert scope_id attribute after tag name
+            let mut result = String::with_capacity(
+                prefix.len() + tag_name.len() + scope_id.len() + rest.len() + suffix.len() + 1,
+            );
+            result.push_str(prefix);
+            result.push_str(tag_name);
+            result.push(' ');
+            result.push_str(scope_id);
+            result.push_str(rest);
+            result.push_str(suffix);
+            return result;
         }
     }
     template_line.to_compact_string()

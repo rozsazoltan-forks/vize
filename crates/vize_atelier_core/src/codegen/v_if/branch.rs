@@ -49,18 +49,18 @@ pub(super) fn generate_if_branch(
                 // Check if it's a template element - treat as fragment
                 if el.tag_type == ElementType::Template {
                     // Template with single child -> unwrap to single element
-                    if el.children.len() == 1 {
-                        if let TemplateChildNode::Element(inner) = &el.children[0] {
-                            // Check if inner element is a component
-                            if inner.tag_type == ElementType::Component {
-                                generate_if_branch_component(ctx, inner, branch, branch_index);
-                            } else if inner.tag_type == ElementType::Slot {
-                                generate_if_branch_slot(ctx, inner, branch, branch_index);
-                            } else {
-                                generate_if_branch_element(ctx, inner, branch, branch_index);
-                            }
-                            return;
+                    if el.children.len() == 1
+                        && let TemplateChildNode::Element(inner) = &el.children[0]
+                    {
+                        // Check if inner element is a component
+                        if inner.tag_type == ElementType::Component {
+                            generate_if_branch_component(ctx, inner, branch, branch_index);
+                        } else if inner.tag_type == ElementType::Slot {
+                            generate_if_branch_slot(ctx, inner, branch, branch_index);
+                        } else {
+                            generate_if_branch_element(ctx, inner, branch, branch_index);
                         }
+                        return;
                     }
                     // Template with multiple children -> fragment
                     generate_if_branch_template_fragment(ctx, &el.children, branch, branch_index);
@@ -158,22 +158,20 @@ fn generate_if_branch_component(
     // Handle dynamic component (<component :is="..."> / <Component :is="...">)
     if is_dynamic_component {
         let dynamic_is = el.props.iter().find_map(|p| {
-            if let PropNode::Directive(dir) = p {
-                if dir.name == "bind" {
-                    if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                        if arg.content == "is" {
-                            return dir.exp.as_ref();
-                        }
-                    }
-                }
+            if let PropNode::Directive(dir) = p
+                && dir.name == "bind"
+                && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                && arg.content == "is"
+            {
+                return dir.exp.as_ref();
             }
             None
         });
         let static_is = el.props.iter().find_map(|p| {
-            if let PropNode::Attribute(attr) = p {
-                if attr.name == "is" {
-                    return attr.value.as_ref().map(|v| v.content.as_str());
-                }
+            if let PropNode::Attribute(attr) = p
+                && attr.name == "is"
+            {
+                return attr.value.as_ref().map(|v| v.content.as_str());
             }
             None
         });
@@ -220,11 +218,11 @@ fn generate_if_branch_component(
         )
     };
 
-    if has_slot_children(el) {
-        if let Some(flag) = patch_flag {
-            let new_flag = flag & !1;
-            patch_flag = if new_flag > 0 { Some(new_flag) } else { None };
-        }
+    if has_slot_children(el)
+        && let Some(flag) = patch_flag
+    {
+        let new_flag = flag & !1;
+        patch_flag = if new_flag > 0 { Some(new_flag) } else { None };
     }
 
     if el.tag == "KeepAlive" || el.tag == "keep-alive" || has_dynamic_slots_flag(el) {
@@ -250,35 +248,35 @@ fn generate_if_branch_component(
         let mut first_merge_arg = true;
         // Add v-bind spreads
         for prop in el.props.iter() {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name == "bind" && dir.arg.is_none() {
-                    if let Some(exp) = &dir.exp {
-                        if !first_merge_arg {
-                            ctx.push(", ");
-                        }
-                        generate_expression(ctx, exp);
-                        first_merge_arg = false;
-                    }
+            if let PropNode::Directive(dir) = prop
+                && dir.name == "bind"
+                && dir.arg.is_none()
+                && let Some(exp) = &dir.exp
+            {
+                if !first_merge_arg {
+                    ctx.push(", ");
                 }
+                generate_expression(ctx, exp);
+                first_merge_arg = false;
             }
         }
 
         // Add v-on spreads wrapped with _toHandlers
         for prop in el.props.iter() {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name == "on" && dir.arg.is_none() {
-                    if let Some(exp) = &dir.exp {
-                        if !first_merge_arg {
-                            ctx.push(", ");
-                        }
-                        ctx.use_helper(RuntimeHelper::ToHandlers);
-                        ctx.push(ctx.helper(RuntimeHelper::ToHandlers));
-                        ctx.push("(");
-                        generate_expression(ctx, exp);
-                        ctx.push(", true)");
-                        first_merge_arg = false;
-                    }
+            if let PropNode::Directive(dir) = prop
+                && dir.name == "on"
+                && dir.arg.is_none()
+                && let Some(exp) = &dir.exp
+            {
+                if !first_merge_arg {
+                    ctx.push(", ");
                 }
+                ctx.use_helper(RuntimeHelper::ToHandlers);
+                ctx.push(ctx.helper(RuntimeHelper::ToHandlers));
+                ctx.push("(");
+                generate_expression(ctx, exp);
+                ctx.push(", true)");
+                first_merge_arg = false;
             }
         }
 
@@ -427,35 +425,35 @@ fn generate_if_branch_element(
         // Add all v-bind spreads
         let mut first_merge_arg = true;
         for prop in el.props.iter() {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name == "bind" && dir.arg.is_none() {
-                    if let Some(exp) = &dir.exp {
-                        if !first_merge_arg {
-                            ctx.push(", ");
-                        }
-                        generate_expression(ctx, exp);
-                        first_merge_arg = false;
-                    }
+            if let PropNode::Directive(dir) = prop
+                && dir.name == "bind"
+                && dir.arg.is_none()
+                && let Some(exp) = &dir.exp
+            {
+                if !first_merge_arg {
+                    ctx.push(", ");
                 }
+                generate_expression(ctx, exp);
+                first_merge_arg = false;
             }
         }
 
         // Add all v-on spreads wrapped with _toHandlers
         for prop in el.props.iter() {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name == "on" && dir.arg.is_none() {
-                    if let Some(exp) = &dir.exp {
-                        if !first_merge_arg {
-                            ctx.push(", ");
-                        }
-                        ctx.use_helper(RuntimeHelper::ToHandlers);
-                        ctx.push(ctx.helper(RuntimeHelper::ToHandlers));
-                        ctx.push("(");
-                        generate_expression(ctx, exp);
-                        ctx.push(", true)");
-                        first_merge_arg = false;
-                    }
+            if let PropNode::Directive(dir) = prop
+                && dir.name == "on"
+                && dir.arg.is_none()
+                && let Some(exp) = &dir.exp
+            {
+                if !first_merge_arg {
+                    ctx.push(", ");
                 }
+                ctx.use_helper(RuntimeHelper::ToHandlers);
+                ctx.push(ctx.helper(RuntimeHelper::ToHandlers));
+                ctx.push("(");
+                generate_expression(ctx, exp);
+                ctx.push(", true)");
+                first_merge_arg = false;
             }
         }
 

@@ -238,7 +238,7 @@ pub(super) fn should_skip_diagnostic(code: Option<u32>) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        map_batch_diagnostics, parse_diagnostic_code, parse_severity, uri_to_path, LineIndex,
+        LineIndex, map_batch_diagnostics, parse_diagnostic_code, parse_severity, uri_to_path,
     };
     use crate::batch::VirtualProject;
     use serde_json::json;

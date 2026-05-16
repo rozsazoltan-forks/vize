@@ -52,16 +52,15 @@ pub(super) fn generate_merged_event_handlers(
     // Output each handler as an element in the array
     let mut handler_idx = 0;
     for p in props {
-        if let PropNode::Directive(dir) = p {
-            if let Some(key) = get_von_event_key(dir) {
-                if key == target_event_key {
-                    if handler_idx > 0 {
-                        ctx.push(", ");
-                    }
-                    generate_von_handler_value(ctx, dir);
-                    handler_idx += 1;
-                }
+        if let PropNode::Directive(dir) = p
+            && let Some(key) = get_von_event_key(dir)
+            && key == target_event_key
+        {
+            if handler_idx > 0 {
+                ctx.push(", ");
             }
+            generate_von_handler_value(ctx, dir);
+            handler_idx += 1;
         }
     }
 

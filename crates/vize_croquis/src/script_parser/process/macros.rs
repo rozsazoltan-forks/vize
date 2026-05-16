@@ -12,7 +12,7 @@ use oxc_ast::ast::{
 };
 use oxc_span::GetSpan;
 
-use crate::macros::{MacroKind, PropsDestructuredBindings, DEFINE_PROPS, WITH_DEFAULTS};
+use crate::macros::{DEFINE_PROPS, MacroKind, PropsDestructuredBindings, WITH_DEFAULTS};
 use crate::provide::InjectPattern;
 use crate::reactivity::ReactiveKind;
 use vize_carton::CompactString;
@@ -147,23 +147,22 @@ pub(in crate::script_parser) fn process_variable_declarator(
 
             // Walk other expression types for nested scopes
             // Skip if we already extracted and processed a call expression to avoid double processing
-            if !call_extracted {
-                if let Some(init) = &declarator.init {
-                    walk_expression(result, init, source);
+            if !call_extracted && let Some(init) = &declarator.init {
+                walk_expression(result, init, source);
 
-                    // Check for ref.value extraction: const x = someRef.value
-                    check_ref_value_extraction(result, &declarator.id, init);
-                    // Check for reactive object property extraction: const x = props.x
-                    check_reactive_property_extraction(result, &declarator.id, init);
-                    // Check for getter-backed context extraction hidden behind wrappers
-                    check_getter_call_extraction(result, &declarator.id, init);
-                    // Check aliases of known plain snapshots: const alias = count
-                    check_reactive_plain_alias_extraction(result, &declarator.id, init);
+                // Check for ref.value extraction: const x = someRef.value
+                check_ref_value_extraction(result, &declarator.id, init);
+                // Check for reactive object property extraction: const x = props.x
+                check_reactive_property_extraction(result, &declarator.id, init);
+                // Check for getter-backed context extraction hidden behind wrappers
+                check_getter_call_extraction(result, &declarator.id, init);
+                // Check aliases of known plain snapshots: const alias = count
+                check_reactive_plain_alias_extraction(result, &declarator.id, init);
 
-                    // Check for Vue API aliases: const a = inject, const r = ref, etc.
-                    if let Expression::Identifier(id) = init {
-                        let api_name = id.name.as_str();
-                        match api_name {
+                // Check for Vue API aliases: const a = inject, const r = ref, etc.
+                if let Expression::Identifier(id) = init {
+                    let api_name = id.name.as_str();
+                    match api_name {
                             "inject" => {
                                 result.inject_aliases.insert(CompactString::new(name));
                             }
@@ -196,7 +195,6 @@ pub(in crate::script_parser) fn process_variable_declarator(
                             }
                             _ => {}
                         }
-                    }
                 }
             }
 
@@ -235,14 +233,12 @@ pub(in crate::script_parser) fn process_variable_declarator(
                                 return true;
                             }
                             // withDefaults(defineProps<...>(), {...})
-                            if name == WITH_DEFAULTS {
-                                if let Some(Argument::CallExpression(inner)) =
+                            if name == WITH_DEFAULTS
+                                && let Some(Argument::CallExpression(inner)) =
                                     call.arguments.first()
-                                {
-                                    if let Expression::Identifier(inner_id) = &inner.callee {
-                                        return inner_id.name.as_str() == DEFINE_PROPS;
-                                    }
-                                }
+                                && let Expression::Identifier(inner_id) = &inner.callee
+                            {
+                                return inner_id.name.as_str() == DEFINE_PROPS;
                             }
                         }
                         false
@@ -382,10 +378,8 @@ pub(in crate::script_parser) fn process_variable_declarator(
             }
 
             // If defineProps, process it first to extract prop definitions
-            if is_define_props {
-                if let Some(Expression::CallExpression(call)) = &declarator.init {
-                    process_call_expression(result, call, source);
-                }
+            if is_define_props && let Some(Expression::CallExpression(call)) = &declarator.init {
+                process_call_expression(result, call, source);
             }
 
             // Track props destructure bindings
@@ -451,36 +445,36 @@ pub(in crate::script_parser) fn process_variable_declarator(
             }
 
             // Handle rest element
-            if let Some(rest) = &obj.rest {
-                if let Some(name) = get_binding_pattern_name(&rest.argument) {
-                    let binding_type = if is_define_props {
-                        BindingType::Props
-                    } else {
-                        infer_destructure_binding_type(kind, declarator.init.as_ref())
-                    };
-                    result.bindings.add(name.as_str(), binding_type);
+            if let Some(rest) = &obj.rest
+                && let Some(name) = get_binding_pattern_name(&rest.argument)
+            {
+                let binding_type = if is_define_props {
+                    BindingType::Props
+                } else {
+                    infer_destructure_binding_type(kind, declarator.init.as_ref())
+                };
+                result.bindings.add(name.as_str(), binding_type);
 
-                    // Track rest binding
-                    if let Some(ref mut destructure) = props_destructure {
-                        destructure.rest_id = Some(CompactString::new(&name));
-                    }
+                // Track rest binding
+                if let Some(ref mut destructure) = props_destructure {
+                    destructure.rest_id = Some(CompactString::new(&name));
+                }
 
-                    if is_define_props {
-                        result.reactive_value_origins.insert(
-                            CompactString::new(&name),
-                            ReactiveValueOrigin::PropsDestructure {
-                                prop_name: CompactString::new("(rest)"),
-                            },
-                        );
-                    }
+                if is_define_props {
+                    result.reactive_value_origins.insert(
+                        CompactString::new(&name),
+                        ReactiveValueOrigin::PropsDestructure {
+                            prop_name: CompactString::new("(rest)"),
+                        },
+                    );
                 }
             }
 
             // Set props destructure in macro tracker
-            if let Some(destructure) = props_destructure {
-                if !destructure.is_empty() {
-                    result.macros.set_props_destructure(destructure);
-                }
+            if let Some(destructure) = props_destructure
+                && !destructure.is_empty()
+            {
+                result.macros.set_props_destructure(destructure);
             }
 
             // Direct `defineProps` destructure is handled by Vue's reactive props
@@ -522,10 +516,10 @@ pub(in crate::script_parser) fn process_variable_declarator(
                         destructured_items.push(CompactString::new(&name));
                     }
                 }
-                if let Some(rest) = &arr.rest {
-                    if let Some(name) = get_binding_pattern_name(&rest.argument) {
-                        destructured_items.push(CompactString::new(&name));
-                    }
+                if let Some(rest) = &arr.rest
+                    && let Some(name) = get_binding_pattern_name(&rest.argument)
+                {
+                    destructured_items.push(CompactString::new(&name));
                 }
 
                 if let Some(key) = call
@@ -572,10 +566,10 @@ pub(in crate::script_parser) fn process_variable_declarator(
                         destructured_items.push(CompactString::new(&name));
                     }
                 }
-                if let Some(rest) = &arr.rest {
-                    if let Some(name) = get_binding_pattern_name(&rest.argument) {
-                        destructured_items.push(CompactString::new(&name));
-                    }
+                if let Some(rest) = &arr.rest
+                    && let Some(name) = get_binding_pattern_name(&rest.argument)
+                {
+                    destructured_items.push(CompactString::new(&name));
                 }
 
                 result.provide_inject.add_indirect_destructure(
@@ -592,10 +586,10 @@ pub(in crate::script_parser) fn process_variable_declarator(
                     result.bindings.add(name.as_str(), arr_binding_type);
                 }
             }
-            if let Some(rest) = &arr.rest {
-                if let Some(name) = get_binding_pattern_name(&rest.argument) {
-                    result.bindings.add(name.as_str(), arr_binding_type);
-                }
+            if let Some(rest) = &arr.rest
+                && let Some(name) = get_binding_pattern_name(&rest.argument)
+            {
+                result.bindings.add(name.as_str(), arr_binding_type);
             }
         }
 
@@ -700,15 +694,15 @@ fn record_object_pattern_property_origins(
         );
     }
 
-    if let Some(rest) = &obj.rest {
-        if let Some(local_name) = get_binding_pattern_name(&rest.argument) {
-            result.reactive_value_origins.insert(
-                CompactString::new(&local_name),
-                ReactiveValueOrigin::ReactiveProperty {
-                    source_name,
-                    prop_name: CompactString::new("(rest)"),
-                },
-            );
-        }
+    if let Some(rest) = &obj.rest
+        && let Some(local_name) = get_binding_pattern_name(&rest.argument)
+    {
+        result.reactive_value_origins.insert(
+            CompactString::new(&local_name),
+            ReactiveValueOrigin::ReactiveProperty {
+                source_name,
+                prop_name: CompactString::new("(rest)"),
+            },
+        );
     }
 }

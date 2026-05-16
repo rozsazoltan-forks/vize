@@ -19,21 +19,21 @@ use oxc_ast::ast::{
 };
 use oxc_span::GetSpan;
 
+use crate::ScopeBinding;
 use crate::analysis::{
     ComponentRegistration, ImportStatementInfo, InvalidExport, InvalidExportKind, ReExportInfo,
     TypeExport, TypeExportKind,
 };
 use crate::scope::{BlockKind, BlockScopeData, ClosureScopeData, ExternalModuleScopeData};
-use crate::ScopeBinding;
 use vize_carton::CompactString;
 use vize_relief::BindingType;
 
+use super::ScriptParseResult;
 use super::extract::{
     detect_setup_context_violation, process_call_expression, process_invalid_export,
     process_type_export,
 };
 use super::walk::{extract_function_params, walk_expression, walk_statement};
-use super::ScriptParseResult;
 
 /// Process a single statement
 pub fn process_statement(result: &mut ScriptParseResult, stmt: &Statement<'_>, source: &str) {
@@ -141,22 +141,22 @@ pub fn process_statement(result: &mut ScriptParseResult, stmt: &Statement<'_>, s
                         }
                     };
 
-                    if source_name == "vue" {
-                        if let oxc_ast::ast::ImportDeclarationSpecifier::ImportSpecifier(s) = spec {
-                            let imported = s.imported.name().as_str();
-                            if is_vue_runtime_api(imported) && imported != name {
-                                result
-                                    .reactivity_aliases
-                                    .insert(CompactString::new(name), CompactString::new(imported));
-                                match imported {
-                                    "inject" => {
-                                        result.inject_aliases.insert(CompactString::new(name));
-                                    }
-                                    "provide" => {
-                                        result.provide_aliases.insert(CompactString::new(name));
-                                    }
-                                    _ => {}
+                    if source_name == "vue"
+                        && let oxc_ast::ast::ImportDeclarationSpecifier::ImportSpecifier(s) = spec
+                    {
+                        let imported = s.imported.name().as_str();
+                        if is_vue_runtime_api(imported) && imported != name {
+                            result
+                                .reactivity_aliases
+                                .insert(CompactString::new(name), CompactString::new(imported));
+                            match imported {
+                                "inject" => {
+                                    result.inject_aliases.insert(CompactString::new(name));
                                 }
+                                "provide" => {
+                                    result.provide_aliases.insert(CompactString::new(name));
+                                }
+                                _ => {}
                             }
                         }
                     }

@@ -85,17 +85,16 @@ pub(super) fn register_normal_script_bindings(content: &str, bindings: &mut Bind
             }
             // Register exported variable declarations: export const foo = ...
             Statement::ExportNamedDeclaration(decl) => {
-                if let Some(ref declaration) = decl.declaration {
-                    if let Declaration::VariableDeclaration(var_decl) = declaration {
-                        for declarator in &var_decl.declarations {
-                            if let oxc_ast::ast::BindingPattern::BindingIdentifier(id) =
-                                &declarator.id
-                            {
-                                bindings
-                                    .bindings
-                                    .entry(id.name.to_compact_string())
-                                    .or_insert(BindingType::SetupConst);
-                            }
+                if let Some(ref declaration) = decl.declaration
+                    && let Declaration::VariableDeclaration(var_decl) = declaration
+                {
+                    for declarator in &var_decl.declarations {
+                        if let oxc_ast::ast::BindingPattern::BindingIdentifier(id) = &declarator.id
+                        {
+                            bindings
+                                .bindings
+                                .entry(id.name.to_compact_string())
+                                .or_insert(BindingType::SetupConst);
                         }
                     }
                 }

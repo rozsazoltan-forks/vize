@@ -19,7 +19,7 @@ use crate::{
     lsp_client::paths::{corsa_search_roots, find_corsa_in_search_roots},
 };
 use oxc_span::SourceType;
-use vize_carton::{cstr, profile, String};
+use vize_carton::{String, cstr, profile};
 
 mod cli;
 mod diagnostics;
@@ -37,17 +37,17 @@ impl CorsaExecutor {
     /// Create a new executor by finding a local or global Corsa executable.
     pub fn new(project_root: &Path) -> Result<Self, CorsaNotFoundError> {
         let search_roots = corsa_search_roots(Some(project_root));
-        if let Some(local_corsa) = find_corsa_in_search_roots(&search_roots) {
-            if let Some(corsa_path) = normalize_corsa_path(PathBuf::from(local_corsa.as_str())) {
-                return Ok(Self { corsa_path });
-            }
+        if let Some(local_corsa) = find_corsa_in_search_roots(&search_roots)
+            && let Some(corsa_path) = normalize_corsa_path(PathBuf::from(local_corsa.as_str()))
+        {
+            return Ok(Self { corsa_path });
         }
 
         for executable in ["corsa", "tsgo"] {
-            if let Ok(global_corsa) = which::which(executable) {
-                if let Some(corsa_path) = normalize_corsa_path(global_corsa) {
-                    return Ok(Self { corsa_path });
-                }
+            if let Ok(global_corsa) = which::which(executable)
+                && let Some(corsa_path) = normalize_corsa_path(global_corsa)
+            {
+                return Ok(Self { corsa_path });
             }
         }
 

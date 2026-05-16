@@ -109,10 +109,10 @@ impl Rule for RequireTypedProps {
             .find(|c| matches!(c.kind, vize_croquis::macros::MacroKind::DefineProps));
 
         // If defineProps has type arguments, all props are typed
-        if let Some(call) = define_props_call {
-            if call.type_args.is_some() {
-                return;
-            }
+        if let Some(call) = define_props_call
+            && call.type_args.is_some()
+        {
+            return;
         }
 
         // Check each prop for runtime type information

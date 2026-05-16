@@ -13,10 +13,10 @@ mod tests;
 
 use crate::compile_script::artifacts::{erase_artifact_macro_statements, extract_macro_artifacts};
 use crate::compile_script::lazy_hydration::transform_lazy_hydration_macros;
-use crate::compile_script::{compile_script_setup_inline_with_context, TemplateParts};
+use crate::compile_script::{TemplateParts, compile_script_setup_inline_with_context};
 use crate::compile_template::{
-    compile_template_block, compile_template_block_vapor, extract_template_parts,
-    extract_template_parts_full, TemplateBlockCompileContext,
+    TemplateBlockCompileContext, compile_template_block, compile_template_block_vapor,
+    extract_template_parts, extract_template_parts_full,
 };
 use crate::rewrite_default::rewrite_default;
 use crate::script::ScriptCompileContext;
@@ -33,7 +33,7 @@ use self::styles::compile_styles;
 
 // Re-export ScriptCompileResult for public API
 pub use crate::compile_script::ScriptCompileResult;
-use vize_carton::{profile, String, ToCompactString};
+use vize_carton::{String, ToCompactString, profile};
 
 fn create_vapor_ssr_fallback_warning(descriptor: &SfcDescriptor) -> SfcError {
     SfcError {

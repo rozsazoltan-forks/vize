@@ -10,14 +10,14 @@ mod template;
 use std::path::Path;
 
 use vize_carton::{
-    source_range::{MappingData, SourceMap, SourceMapping, SourceRange},
     CompactString,
+    source_range::{MappingData, SourceMap, SourceMapping, SourceRange},
 };
+use vize_relief::BindingType;
 use vize_relief::ast::{
     DirectiveNode, ElementNode, ExpressionNode, ForNode, IfNode, InterpolationNode, PropNode,
     RootNode, TemplateChildNode,
 };
-use vize_relief::BindingType;
 
 use crate::analysis::BindingMetadata;
 use crate::import_resolver::ImportResolver;

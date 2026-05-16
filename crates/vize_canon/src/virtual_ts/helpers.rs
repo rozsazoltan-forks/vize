@@ -6,8 +6,8 @@
 use std::ops::Range;
 
 use super::types::VirtualTsOptions;
-use vize_carton::append;
 use vize_carton::String;
+use vize_carton::append;
 use vize_croquis::macros::{
     DEFINE_EMITS, DEFINE_EXPOSE, DEFINE_MODEL, DEFINE_PROPS, DEFINE_SLOTS, WITH_DEFAULTS,
 };

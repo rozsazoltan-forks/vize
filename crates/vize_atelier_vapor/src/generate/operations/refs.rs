@@ -2,7 +2,7 @@ use crate::ir::{
     ChildRefIRNode, GetTextChildIRNode, InsertNodeIRNode, NextRefIRNode, PrependNodeIRNode,
     SetTemplateRefIRNode,
 };
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 use super::super::context::GenerateContext;
 

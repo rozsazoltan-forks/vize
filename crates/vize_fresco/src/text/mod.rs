@@ -9,6 +9,6 @@ mod segment;
 mod width;
 mod wrap;
 
-pub use segment::{segment, segment_vec, SegmentedText, TextSegment, TextSegmentIter};
+pub use segment::{SegmentedText, TextSegment, TextSegmentIter, segment, segment_vec};
 pub use width::TextWidth;
 pub use wrap::{TextWrap, WrapMode};

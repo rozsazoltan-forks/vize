@@ -31,8 +31,8 @@ pub use self::macros::{
     is_macro_call_line, is_multiline_macro_start, is_paren_macro_start, is_props_destructure_line,
 };
 pub use self::props::{
-    extract_emit_names_from_type, extract_prop_types_from_type, extract_with_defaults_defaults,
-    is_valid_identifier, PropTypeInfo,
+    PropTypeInfo, extract_emit_names_from_type, extract_prop_types_from_type,
+    extract_with_defaults_defaults, is_valid_identifier,
 };
 use vize_carton::{String, ToCompactString};
 

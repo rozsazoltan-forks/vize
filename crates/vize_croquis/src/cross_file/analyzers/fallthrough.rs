@@ -10,7 +10,7 @@ use crate::cross_file::diagnostics::{
 };
 use crate::cross_file::graph::DependencyGraph;
 use crate::cross_file::registry::{FileId, ModuleRegistry};
-use vize_carton::{cstr, CompactString, FxHashMap, FxHashSet};
+use vize_carton::{CompactString, FxHashMap, FxHashSet, cstr};
 
 /// Information about fallthrough attributes for a component.
 #[derive(Debug, Clone)]

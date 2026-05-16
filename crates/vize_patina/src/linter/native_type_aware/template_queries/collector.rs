@@ -1,8 +1,8 @@
 use super::{
+    TemplateContext, TemplatePromiseQuery, TemplateQuery, TemplateQueryKind,
     absolute_expression_range,
-    calls::{collect_template_call_ranges, FloatingPromiseProbeTarget},
-    generated_offset_for_text, TemplateContext, TemplatePromiseQuery, TemplateQuery,
-    TemplateQueryKind,
+    calls::{FloatingPromiseProbeTarget, collect_template_call_ranges},
+    generated_offset_for_text,
 };
 use vize_carton::profile;
 use vize_croquis::virtual_ts::VirtualTsOutput;
@@ -302,21 +302,21 @@ fn collect_expression_query_sets(
     );
 
     if let Some(queries) = sinks.template_queries.as_deref_mut() {
-        if call_ranges.expression_consumes_source {
-            if let Some(generated_offset) = expression_generated_offset {
-                let generated_offset =
-                    expression_binding_generated_offset(&virtual_ts.content, generated_offset)
-                        .unwrap_or(generated_offset);
-                queries.push(TemplateQuery {
-                    kind: TemplateQueryKind::Expression,
-                    context,
-                    generated_offset,
-                    source_start,
-                    source_end,
-                    owner_start: source_start,
-                    owner_end: source_end,
-                });
-            }
+        if call_ranges.expression_consumes_source
+            && let Some(generated_offset) = expression_generated_offset
+        {
+            let generated_offset =
+                expression_binding_generated_offset(&virtual_ts.content, generated_offset)
+                    .unwrap_or(generated_offset);
+            queries.push(TemplateQuery {
+                kind: TemplateQueryKind::Expression,
+                context,
+                generated_offset,
+                source_start,
+                source_end,
+                owner_start: source_start,
+                owner_end: source_end,
+            });
         }
         for callee in call_ranges.callees {
             let callee_start = source_start + callee.start;

@@ -222,18 +222,18 @@ fn generate_block(
     // since the element itself IS the text node.
     for effect in block.effect.iter() {
         for op in effect.operations.iter() {
-            if let OperationNode::SetText(set_text) = op {
-                if !ctx.standalone_text_elements.contains(&set_text.element) {
-                    ctx.use_helper("txt");
-                    let var_name = ctx.next_text_node(set_text.element);
-                    let mut line = String::with_capacity(32);
-                    line.push_str("const ");
-                    line.push_str(&var_name);
-                    line.push_str(" = _txt(n");
-                    line.push_str(&set_text.element.to_compact_string());
-                    line.push(')');
-                    ctx.push_line(&line);
-                }
+            if let OperationNode::SetText(set_text) = op
+                && !ctx.standalone_text_elements.contains(&set_text.element)
+            {
+                ctx.use_helper("txt");
+                let var_name = ctx.next_text_node(set_text.element);
+                let mut line = String::with_capacity(32);
+                line.push_str("const ");
+                line.push_str(&var_name);
+                line.push_str(" = _txt(n");
+                line.push_str(&set_text.element.to_compact_string());
+                line.push(')');
+                ctx.push_line(&line);
             }
         }
     }

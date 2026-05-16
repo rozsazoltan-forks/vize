@@ -1,5 +1,5 @@
 use crate::ir::IRSlot;
-use vize_carton::{cstr, FxHashMap, String};
+use vize_carton::{FxHashMap, String, cstr};
 
 use super::super::{context::GenerateContext, generate_block};
 

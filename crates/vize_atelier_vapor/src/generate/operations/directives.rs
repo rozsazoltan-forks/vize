@@ -1,6 +1,6 @@
 use crate::ir::DirectiveIRNode;
 use vize_atelier_core::ExpressionNode;
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 use super::super::context::GenerateContext;
 

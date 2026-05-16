@@ -24,25 +24,25 @@ mod reactivity;
 mod setup_context;
 
 // Re-export analyzer types
-pub use boundary::{analyze_boundaries, BoundaryInfo, BoundaryKind};
-pub use component_resolution::{analyze_component_resolution, ComponentResolutionIssue};
-pub use element_id::{analyze_element_ids, UniqueIdIssue};
-pub use emit::{analyze_emits, EmitFlow};
-pub use event_bubbling::{analyze_event_bubbling, EventBubble};
-pub use fallthrough::{analyze_fallthrough, FallthroughInfo};
-pub use props_validation::{analyze_props_validation, PropsValidationIssue};
+pub use boundary::{BoundaryInfo, BoundaryKind, analyze_boundaries};
+pub use component_resolution::{ComponentResolutionIssue, analyze_component_resolution};
+pub use element_id::{UniqueIdIssue, analyze_element_ids};
+pub use emit::{EmitFlow, analyze_emits};
+pub use event_bubbling::{EventBubble, analyze_event_bubbling};
+pub use fallthrough::{FallthroughInfo, analyze_fallthrough};
+pub use props_validation::{PropsValidationIssue, analyze_props_validation};
 pub(crate) use provide_inject::{
-    analyze_provide_inject_with_index, build_provide_inject_tree_with_index, ProvideInjectIndex,
+    ProvideInjectIndex, analyze_provide_inject_with_index, build_provide_inject_tree_with_index,
 };
 pub use provide_inject::{ProvideInjectMatch, ProvideInjectTree};
-pub(crate) use race_conditions::analyze_race_conditions_with_index;
 pub use race_conditions::RaceConditionIssue;
-pub use reactivity::{analyze_reactivity, ReactivityIssue, ReactivityIssueKind};
+pub(crate) use race_conditions::analyze_race_conditions_with_index;
+pub use reactivity::{ReactivityIssue, ReactivityIssueKind, analyze_reactivity};
 
 // Cross-file reactivity tracking
 #[cfg(test)]
 pub(crate) use cross_file_reactivity::CrossFileReactivityIssueKind;
-pub use cross_file_reactivity::{analyze_cross_file_reactivity, CrossFileReactivityIssue};
+pub use cross_file_reactivity::{CrossFileReactivityIssue, analyze_cross_file_reactivity};
 
 // Setup context violation tracking
-pub use setup_context::{analyze_setup_context, SetupContextIssue};
+pub use setup_context::{SetupContextIssue, analyze_setup_context};

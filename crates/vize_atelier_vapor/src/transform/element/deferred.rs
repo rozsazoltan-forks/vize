@@ -123,10 +123,10 @@ pub(super) fn transform_element_with_dynamic_children<'a>(
 fn collect_dynamic_child_indices(el: &ElementNode<'_>) -> std::vec::Vec<usize> {
     let mut dynamic_child_indices = std::vec::Vec::new();
     for (i, child) in el.children.iter().enumerate() {
-        if let TemplateChildNode::Element(child_el) = child {
-            if !is_static_element(child_el) {
-                dynamic_child_indices.push(i);
-            }
+        if let TemplateChildNode::Element(child_el) = child
+            && !is_static_element(child_el)
+        {
+            dynamic_child_indices.push(i);
         }
     }
     dynamic_child_indices

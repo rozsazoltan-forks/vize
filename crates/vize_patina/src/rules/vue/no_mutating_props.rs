@@ -49,8 +49,8 @@ use vize_carton::FxHashSet;
 use vize_carton::String;
 use vize_carton::ToCompactString;
 use vize_croquis::reactivity::ReactiveKind;
-use vize_relief::ast::{DirectiveNode, ElementNode, PropNode, RootNode, TemplateChildNode};
 use vize_relief::BindingType;
+use vize_relief::ast::{DirectiveNode, ElementNode, PropNode, RootNode, TemplateChildNode};
 
 static META: RuleMeta = RuleMeta {
     name: "vue/no-mutating-props",
@@ -273,10 +273,8 @@ fn props_member_root(rest: &str) -> Option<&str> {
         return identifier_root(after_dot);
     }
 
-    if consumed_optional {
-        if let Some(name) = identifier_root(rest) {
-            return Some(name);
-        }
+    if consumed_optional && let Some(name) = identifier_root(rest) {
+        return Some(name);
     }
 
     let after_bracket = rest.strip_prefix('[')?.trim_start();
@@ -298,7 +296,7 @@ fn identifier_root(source: &str) -> Option<&str> {
 
 #[cfg(test)]
 mod tests {
-    use super::{is_prop_mutation_target, NoMutatingProps};
+    use super::{NoMutatingProps, is_prop_mutation_target};
     use crate::diagnostic::Severity;
     use crate::rule::{Rule, RuleCategory};
     use vize_carton::FxHashSet;

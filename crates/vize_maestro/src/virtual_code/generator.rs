@@ -4,8 +4,8 @@
 #![allow(clippy::disallowed_methods)]
 
 use vize_atelier_sfc::SfcDescriptor;
-use vize_carton::cstr;
 use vize_carton::Bump;
+use vize_carton::cstr;
 
 use super::{
     ScriptCodeGenerator, StyleCodeGenerator, TemplateCodeGenerator, VirtualDocument,
@@ -300,24 +300,27 @@ impl BlockType {
 /// Find which block contains the given offset in an SFC.
 pub fn find_block_at_offset(descriptor: &SfcDescriptor, offset: usize) -> Option<BlockType> {
     // Check template
-    if let Some(ref template) = descriptor.template {
-        if offset >= template.loc.start && offset < template.loc.end {
-            return Some(BlockType::Template);
-        }
+    if let Some(ref template) = descriptor.template
+        && offset >= template.loc.start
+        && offset < template.loc.end
+    {
+        return Some(BlockType::Template);
     }
 
     // Check script
-    if let Some(ref script) = descriptor.script {
-        if offset >= script.loc.start && offset < script.loc.end {
-            return Some(BlockType::Script);
-        }
+    if let Some(ref script) = descriptor.script
+        && offset >= script.loc.start
+        && offset < script.loc.end
+    {
+        return Some(BlockType::Script);
     }
 
     // Check script setup
-    if let Some(ref script_setup) = descriptor.script_setup {
-        if offset >= script_setup.loc.start && offset < script_setup.loc.end {
-            return Some(BlockType::ScriptSetup);
-        }
+    if let Some(ref script_setup) = descriptor.script_setup
+        && offset >= script_setup.loc.start
+        && offset < script_setup.loc.end
+    {
+        return Some(BlockType::ScriptSetup);
     }
 
     // Check styles
@@ -349,15 +352,17 @@ pub fn find_art_block_at_offset(source: &str, offset: usize) -> Option<BlockType
 
     if let Ok(descriptor) = vize_atelier_sfc::parse_sfc(source, options) {
         // Check script/script_setup/style blocks
-        if let Some(ref script) = descriptor.script {
-            if offset >= script.loc.start && offset < script.loc.end {
-                return Some(BlockType::Script);
-            }
+        if let Some(ref script) = descriptor.script
+            && offset >= script.loc.start
+            && offset < script.loc.end
+        {
+            return Some(BlockType::Script);
         }
-        if let Some(ref script_setup) = descriptor.script_setup {
-            if offset >= script_setup.loc.start && offset < script_setup.loc.end {
-                return Some(BlockType::ScriptSetup);
-            }
+        if let Some(ref script_setup) = descriptor.script_setup
+            && offset >= script_setup.loc.start
+            && offset < script_setup.loc.end
+        {
+            return Some(BlockType::ScriptSetup);
         }
         for (i, style) in descriptor.styles.iter().enumerate() {
             if offset >= style.loc.start && offset < style.loc.end {
@@ -408,8 +413,8 @@ pub fn find_art_block_at_offset(source: &str, offset: usize) -> Option<BlockType
 #[cfg(test)]
 mod tests {
     use super::{
-        find_art_block_at_offset, find_block_at_offset, ArtCursorPosition,
-        BatchVirtualCodeGenerator, BlockType, VirtualCodeGenerator, VirtualLanguage,
+        ArtCursorPosition, BatchVirtualCodeGenerator, BlockType, VirtualCodeGenerator,
+        VirtualLanguage, find_art_block_at_offset, find_block_at_offset,
     };
 
     #[test]
@@ -428,8 +433,8 @@ const message = ref('hello')
 
         let descriptor = vize_atelier_sfc::parse_sfc(source, Default::default()).unwrap();
 
-        let mut gen = VirtualCodeGenerator::new();
-        let docs = gen.generate(&descriptor, "test.vue");
+        let mut generator = VirtualCodeGenerator::new();
+        let docs = generator.generate(&descriptor, "test.vue");
 
         assert!(docs.template.is_some());
         assert!(docs.script_setup.is_some());

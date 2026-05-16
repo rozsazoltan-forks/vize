@@ -5,13 +5,13 @@ use std::{fs, path::PathBuf};
 use vize_carton::ToCompactString;
 use vize_carton::{Bump, BumpVec};
 
+#[cfg(feature = "native")]
+use super::CssTargets;
 use super::scoped::{
     add_scope_to_element, apply_scoped_css, transform_deep, transform_global, transform_slotted,
 };
 use super::transform::extract_and_transform_v_bind;
-#[cfg(feature = "native")]
-use super::CssTargets;
-use super::{bundle_css, compile_css, CssCompileOptions};
+use super::{CssCompileOptions, bundle_css, compile_css};
 
 #[test]
 fn test_compile_simple_css() {

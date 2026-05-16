@@ -6,9 +6,9 @@
 use oxc_ast::ast::Statement;
 
 use super::{
-    add_binding_pattern_to_scope, extract_function_params, extract_param_names, walk_expression,
     BindingType, BlockKind, BlockScopeData, ClosureScopeData, CompactString, GetSpan, ScopeBinding,
-    ScriptParseResult,
+    ScriptParseResult, add_binding_pattern_to_scope, extract_function_params, extract_param_names,
+    walk_expression,
 };
 
 /// Walk a statement to find nested scopes
@@ -90,25 +90,25 @@ pub(in crate::script_parser) fn walk_statement(
             }
             // Walk class body for methods
             for element in class.body.body.iter() {
-                if let oxc_ast::ast::ClassElement::MethodDefinition(method) = element {
-                    if let Some(body) = &method.value.body {
-                        let params = extract_function_params(&method.value.params);
-                        result.scopes.enter_closure_scope(
-                            ClosureScopeData {
-                                name: None,
-                                param_names: params,
-                                is_arrow: false,
-                                is_async: method.value.r#async,
-                                is_generator: method.value.generator,
-                            },
-                            method.span.start,
-                            method.span.end,
-                        );
-                        for stmt in body.statements.iter() {
-                            walk_statement(result, stmt, source);
-                        }
-                        result.scopes.exit_scope();
+                if let oxc_ast::ast::ClassElement::MethodDefinition(method) = element
+                    && let Some(body) = &method.value.body
+                {
+                    let params = extract_function_params(&method.value.params);
+                    result.scopes.enter_closure_scope(
+                        ClosureScopeData {
+                            name: None,
+                            param_names: params,
+                            is_arrow: false,
+                            is_async: method.value.r#async,
+                            is_generator: method.value.generator,
+                        },
+                        method.span.start,
+                        method.span.end,
+                    );
+                    for stmt in body.statements.iter() {
+                        walk_statement(result, stmt, source);
                     }
+                    result.scopes.exit_scope();
                 }
             }
         }

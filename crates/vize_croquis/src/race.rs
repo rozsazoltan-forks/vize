@@ -3,7 +3,7 @@
 //! The tracker stores parser-derived facts. Cross-file analyzers decide how
 //! strict each fact should be for lint/typecheck callers.
 
-use vize_carton::{cstr, CompactString};
+use vize_carton::{CompactString, cstr};
 
 /// A potentially racing async mutation pattern.
 #[derive(Debug, Clone, PartialEq, Eq)]

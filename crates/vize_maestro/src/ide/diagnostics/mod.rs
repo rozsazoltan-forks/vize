@@ -330,7 +330,7 @@ pub(super) fn offset_to_line_col(source: &str, offset: usize) -> (u32, u32) {
 
 #[cfg(test)]
 mod tests {
-    use super::{offset_to_line_col, sources, DiagnosticBuilder, DiagnosticService, Severity};
+    use super::{DiagnosticBuilder, DiagnosticService, Severity, offset_to_line_col, sources};
     use crate::server::ServerState;
     use tower_lsp::lsp_types::{DiagnosticSeverity, NumberOrString, Url};
 
@@ -418,12 +418,16 @@ mod tests {
 
         let diagnostics = DiagnosticService::collect(&state, &uri);
 
-        assert!(diagnostics
-            .iter()
-            .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::TYPE_CHECKER)));
-        assert!(!diagnostics
-            .iter()
-            .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::SFC_PARSER)));
+        assert!(
+            diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::TYPE_CHECKER))
+        );
+        assert!(
+            !diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::SFC_PARSER))
+        );
     }
 
     #[test]
@@ -491,9 +495,11 @@ mod tests {
 
         let diagnostics = DiagnosticService::collect(&state, &uri);
 
-        assert!(!diagnostics
-            .iter()
-            .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::SCRIPT_PARSER)));
+        assert!(
+            !diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::SCRIPT_PARSER))
+        );
     }
 
     #[test]
@@ -510,9 +516,11 @@ mod tests {
 
         let diagnostics = DiagnosticService::collect(&state, &uri);
 
-        assert!(!diagnostics
-            .iter()
-            .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::SCRIPT_PARSER)));
+        assert!(
+            !diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::SCRIPT_PARSER))
+        );
     }
 
     #[test]
@@ -528,9 +536,11 @@ mod tests {
 
         let diagnostics = DiagnosticService::collect(&state, &uri);
 
-        assert!(!diagnostics
-            .iter()
-            .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::SCRIPT_PARSER)));
+        assert!(
+            !diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.source.as_deref() == Some(sources::SCRIPT_PARSER))
+        );
     }
 
     #[test]

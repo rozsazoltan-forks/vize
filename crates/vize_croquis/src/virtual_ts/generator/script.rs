@@ -8,17 +8,17 @@ use super::{
     BindingMetadata, BindingType, CompactString, MacroTracker, Path, RootNode, ScopeChain,
     ScopeData, ScopeKind, ScriptParseResult, VirtualTsConfig, VirtualTsGenerator, VirtualTsOutput,
 };
-use vize_carton::{profile, String, ToCompactString};
+use vize_carton::{String, ToCompactString, profile};
 
 impl VirtualTsGenerator {
     /// Extract setup scope info from ScopeChain.
     fn extract_setup_info(scopes: &ScopeChain) -> (Option<CompactString>, bool) {
         // Find ScriptSetup scope and extract generic/async info
         for scope in scopes.iter() {
-            if scope.kind == ScopeKind::ScriptSetup {
-                if let ScopeData::ScriptSetup(data) = scope.data() {
-                    return (data.generic.clone(), data.is_async);
-                }
+            if scope.kind == ScopeKind::ScriptSetup
+                && let ScopeData::ScriptSetup(data) = scope.data()
+            {
+                return (data.generic.clone(), data.is_async);
             }
         }
         (None, false)
@@ -276,15 +276,15 @@ impl VirtualTsGenerator {
         self.emit_line("function useTemplateRef<T = any>(key: string): $Vue['ShallowRef']<T | null> { return undefined as unknown as $Vue['ShallowRef']<T | null>; }");
 
         // If macros were actually used, emit type aliases based on their type arguments
-        if let Some(props) = macros.define_props() {
-            if let Some(ref type_args) = props.type_args {
-                self.emit_line(&format!("type __Props = {};", type_args));
-            }
+        if let Some(props) = macros.define_props()
+            && let Some(ref type_args) = props.type_args
+        {
+            self.emit_line(&format!("type __Props = {};", type_args));
         }
-        if let Some(emits) = macros.define_emits() {
-            if let Some(ref type_args) = emits.type_args {
-                self.emit_line(&format!("type __Emits = {};", type_args));
-            }
+        if let Some(emits) = macros.define_emits()
+            && let Some(ref type_args) = emits.type_args
+        {
+            self.emit_line(&format!("type __Emits = {};", type_args));
         }
         if let Some(expose) = macros.define_expose() {
             // Generate exposed interface type for InstanceType and useTemplateRef
@@ -299,10 +299,10 @@ impl VirtualTsGenerator {
                 "type __ComponentInstance = $Vue['ComponentPublicInstance'] & __Exposed;",
             );
         }
-        if let Some(slots) = macros.define_slots() {
-            if let Some(ref type_args) = slots.type_args {
-                self.emit_line(&format!("type __Slots = {};", type_args));
-            }
+        if let Some(slots) = macros.define_slots()
+            && let Some(ref type_args) = slots.type_args
+        {
+            self.emit_line(&format!("type __Slots = {};", type_args));
         }
 
         self.emit_line("");

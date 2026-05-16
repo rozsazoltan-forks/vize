@@ -207,7 +207,7 @@ fn line_to_offset(source: &str, line: u32) -> u32 {
 
 #[cfg(test)]
 mod tests {
-    use super::{offset_to_line, SuppressionMap};
+    use super::{SuppressionMap, offset_to_line};
 
     #[test]
     fn test_valid_suppression() {

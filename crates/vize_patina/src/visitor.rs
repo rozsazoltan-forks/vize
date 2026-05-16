@@ -4,8 +4,8 @@
 
 use crate::context::{ElementContext, LintContext};
 use crate::rule::Rule;
-use vize_carton::directive::{parse_level_severity, parse_vize_directive, DirectiveKind};
-use vize_carton::{cstr, profile, CompactString};
+use vize_carton::directive::{DirectiveKind, parse_level_severity, parse_vize_directive};
+use vize_carton::{CompactString, cstr, profile};
 use vize_relief::ast::{
     CommentNode, ElementNode, ExpressionNode, PropNode, RootNode, TemplateChildNode,
 };
@@ -135,10 +135,10 @@ impl<'a, 'ctx, 'rules> LintVisitor<'a, 'ctx, 'rules> {
                 self.ctx.pop_ignore_region(line);
             }
             DirectiveKind::Level => {
-                if let Some(d) = parse_vize_directive(&comment.content, line, loc.start.offset) {
-                    if let Some(severity) = parse_level_severity(&d.payload) {
-                        self.ctx.set_severity_override_next_line(line, severity);
-                    }
+                if let Some(d) = parse_vize_directive(&comment.content, line, loc.start.offset)
+                    && let Some(severity) = parse_level_severity(&d.payload)
+                {
+                    self.ctx.set_severity_override_next_line(line, severity);
                 }
             }
             DirectiveKind::Deprecated => {
@@ -265,12 +265,11 @@ impl<'a, 'ctx, 'rules> LintVisitor<'a, 'ctx, 'rules> {
     #[inline]
     fn extract_v_for_vars(&self, el: &ElementNode<'a>) -> Vec<CompactString> {
         for prop in el.props.iter() {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name.as_str() == "for" {
-                    if let Some(exp) = &dir.exp {
-                        return parse_v_for_variables(exp);
-                    }
-                }
+            if let PropNode::Directive(dir) = prop
+                && dir.name.as_str() == "for"
+                && let Some(exp) = &dir.exp
+            {
+                return parse_v_for_variables(exp);
             }
         }
         Vec::new()
@@ -355,7 +354,7 @@ fn find_pattern(haystack: &[u8], needle: &[u8]) -> Option<usize> {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_v_for_variables, CompactString, ExpressionNode};
+    use super::{CompactString, ExpressionNode, parse_v_for_variables};
     use vize_carton::Bump;
     use vize_relief::ast::SimpleExpressionNode;
 

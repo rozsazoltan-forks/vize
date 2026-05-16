@@ -1,12 +1,12 @@
 use std::borrow::Cow;
 
-use vize_carton::{profile, String};
+use vize_carton::{String, profile};
 
-use crate::script::{transform_destructured_props, ScriptCompileContext};
+use crate::script::{ScriptCompileContext, transform_destructured_props};
 use crate::types::SfcError;
 
 use super::super::super::{
-    typescript::transform_typescript_to_js, ScriptCompileResult, TemplateParts,
+    ScriptCompileResult, TemplateParts, typescript::transform_typescript_to_js,
 };
 use super::{
     component_output::emit_component_definition,

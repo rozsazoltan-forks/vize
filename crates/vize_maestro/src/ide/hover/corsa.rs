@@ -67,33 +67,35 @@ impl HoverService {
         let descriptor = vize_atelier_sfc::parse_sfc(&ctx.content, options).ok()?;
 
         // Try script setup first
-        if let Some(ref script_setup) = descriptor.script_setup {
-            if sfc_offset >= script_setup.loc.start && sfc_offset <= script_setup.loc.end {
-                let relative_offset = sfc_offset - script_setup.loc.start;
-                if let Some(ref script_setup_doc) = virtual_docs.script_setup {
-                    return script_setup_doc
-                        .source_map
-                        .to_generated(relative_offset as u32)
-                        .map(|o| o as usize)
-                        .or(Some(relative_offset));
-                }
-                return Some(relative_offset);
+        if let Some(ref script_setup) = descriptor.script_setup
+            && sfc_offset >= script_setup.loc.start
+            && sfc_offset <= script_setup.loc.end
+        {
+            let relative_offset = sfc_offset - script_setup.loc.start;
+            if let Some(ref script_setup_doc) = virtual_docs.script_setup {
+                return script_setup_doc
+                    .source_map
+                    .to_generated(relative_offset as u32)
+                    .map(|o| o as usize)
+                    .or(Some(relative_offset));
             }
+            return Some(relative_offset);
         }
 
         // Try regular script
-        if let Some(ref script) = descriptor.script {
-            if sfc_offset >= script.loc.start && sfc_offset <= script.loc.end {
-                let relative_offset = sfc_offset - script.loc.start;
-                if let Some(ref script_doc) = virtual_docs.script {
-                    return script_doc
-                        .source_map
-                        .to_generated(relative_offset as u32)
-                        .map(|o| o as usize)
-                        .or(Some(relative_offset));
-                }
-                return Some(relative_offset);
+        if let Some(ref script) = descriptor.script
+            && sfc_offset >= script.loc.start
+            && sfc_offset <= script.loc.end
+        {
+            let relative_offset = sfc_offset - script.loc.start;
+            if let Some(ref script_doc) = virtual_docs.script {
+                return script_doc
+                    .source_map
+                    .to_generated(relative_offset as u32)
+                    .map(|o| o as usize)
+                    .or(Some(relative_offset));
             }
+            return Some(relative_offset);
         }
 
         None
@@ -119,38 +121,36 @@ impl HoverService {
         }
 
         // Try to get type information from Corsa via virtual TypeScript.
-        if let Some(bridge) = corsa_bridge {
-            if let Some(ref virtual_docs) = ctx.virtual_docs {
-                if let Some(template) = virtual_docs.art_template(info.variant_index) {
-                    // Convert the art variant relative offset through the template source map
-                    let relative_offset = info.relative_offset as u32;
-                    let vts_offset = template
-                        .source_map
-                        .to_generated(relative_offset)
-                        .map(|o| o as usize)
-                        .unwrap_or(relative_offset as usize);
+        if let Some(bridge) = corsa_bridge
+            && let Some(ref virtual_docs) = ctx.virtual_docs
+            && let Some(template) = virtual_docs.art_template(info.variant_index)
+        {
+            // Convert the art variant relative offset through the template source map
+            let relative_offset = info.relative_offset as u32;
+            let vts_offset = template
+                .source_map
+                .to_generated(relative_offset)
+                .map(|o| o as usize)
+                .unwrap_or(relative_offset as usize);
 
-                    let (line, character) =
-                        crate::ide::offset_to_position(&template.content, vts_offset);
+            let (line, character) = crate::ide::offset_to_position(&template.content, vts_offset);
 
-                    // Open/update virtual document
-                    if bridge.is_initialized() {
-                        let vdoc_uri = crate::ide::corsa_support::art_template_request_path(
-                            ctx.uri,
-                            info.variant_index,
-                        );
-                        let Ok(uri) = bridge
-                            .open_or_update_virtual_document(&vdoc_uri, &template.content)
-                            .await
-                        else {
-                            return Self::hover_template(ctx);
-                        };
+            // Open/update virtual document
+            if bridge.is_initialized() {
+                let vdoc_uri = crate::ide::corsa_support::art_template_request_path(
+                    ctx.uri,
+                    info.variant_index,
+                );
+                let Ok(uri) = bridge
+                    .open_or_update_virtual_document(&vdoc_uri, &template.content)
+                    .await
+                else {
+                    return Self::hover_template(ctx);
+                };
 
-                        // Request hover from Corsa.
-                        if let Ok(Some(hover)) = bridge.hover(&uri, line, character).await {
-                            return Some(Self::convert_lsp_hover(hover));
-                        }
-                    }
+                // Request hover from Corsa.
+                if let Ok(Some(hover)) = bridge.hover(&uri, line, character).await {
+                    return Some(Self::convert_lsp_hover(hover));
                 }
             }
         }

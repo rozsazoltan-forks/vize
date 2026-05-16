@@ -355,7 +355,7 @@ test("setup-moonbit smoke test validates the native async process runtime", () =
 
   assert.match(installer, /function hasExistingMoonInstall\(\)/);
   assert.match(installer, /\["run", "-q", "--target", "native", "-", "--"\]/);
-  assert.match(installer, /"moonbitlang\/async@0\.16\.8\/process"/);
+  assert.match(installer, /"moonbitlang\/async@0\.19\.0\/process"/);
   assert.match(installer, /@process\.run/);
 });
 

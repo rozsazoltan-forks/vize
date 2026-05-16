@@ -6,8 +6,8 @@ use crate::{
 };
 use oxc_ast::ast as oxc_ast_types;
 use oxc_ast_visit::{
-    walk::{walk_arrow_function_expression, walk_function},
     Visit,
+    walk::{walk_arrow_function_expression, walk_function},
 };
 use oxc_parser::Parser;
 use oxc_span::SourceType;
@@ -52,11 +52,11 @@ pub fn decode_html_entities(s: &str) -> String {
                     num_str.parse::<u32>().ok()
                 };
 
-                if let Some(cp) = codepoint {
-                    if let Some(decoded_char) = char::from_u32(cp) {
-                        result.push(decoded_char);
-                        continue;
-                    }
+                if let Some(cp) = codepoint
+                    && let Some(decoded_char) = char::from_u32(cp)
+                {
+                    result.push(decoded_char);
+                    continue;
                 }
             }
 
@@ -405,7 +405,7 @@ pub fn is_constant_simple_expression(
 }
 
 // Re-export from vize_carton for convenience
-pub use vize_carton::{camelize, capitalize, String};
+pub use vize_carton::{String, camelize, capitalize};
 
 /// Capitalize first letter of a string (alias for capitalize)
 #[inline]

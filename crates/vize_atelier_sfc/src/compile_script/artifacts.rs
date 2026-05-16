@@ -233,11 +233,13 @@ const msg = 'ready'
         assert!(artifacts[0].source.contains("definePage"));
         assert!(artifacts[0].content.contains("routeMeta"));
         assert_eq!(artifacts[0].start, 10 + content.find("definePage").unwrap());
-        assert!(artifacts[0]
-            .module_code
-            .as_ref()
-            .unwrap()
-            .contains("import { routeMeta } from './route'\nexport default {"));
+        assert!(
+            artifacts[0]
+                .module_code
+                .as_ref()
+                .unwrap()
+                .contains("import { routeMeta } from './route'\nexport default {")
+        );
     }
 
     #[test]
@@ -266,11 +268,13 @@ const msg = 'ready'
             artifacts[0].start,
             4 + content.find("definePageMeta").unwrap()
         );
-        assert!(artifacts[0]
-            .module_code
-            .as_ref()
-            .unwrap()
-            .contains("import { pageAlias } from './route'\nexport default {"));
+        assert!(
+            artifacts[0]
+                .module_code
+                .as_ref()
+                .unwrap()
+                .contains("import { pageAlias } from './route'\nexport default {")
+        );
     }
 
     #[test]
@@ -296,11 +300,13 @@ const msg = 'ready'
             artifacts[0].start,
             2 + content.find("defineRouteRules").unwrap()
         );
-        assert!(artifacts[0]
-            .module_code
-            .as_ref()
-            .unwrap()
-            .starts_with("export default {"));
+        assert!(
+            artifacts[0]
+                .module_code
+                .as_ref()
+                .unwrap()
+                .starts_with("export default {")
+        );
     }
 
     #[test]

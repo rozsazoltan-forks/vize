@@ -45,8 +45,8 @@
 use crate::context::LintContext;
 use crate::diagnostic::Severity;
 use crate::rule::{Rule, RuleCategory, RuleMeta};
-use vize_relief::ast::{ElementNode, ExpressionNode, InterpolationNode, RootNode};
 use vize_relief::BindingType;
+use vize_relief::ast::{ElementNode, ExpressionNode, InterpolationNode, RootNode};
 
 /// Browser-only global names that are NOT available in SSR
 const BROWSER_GLOBALS: &[&str] = &[
@@ -470,9 +470,9 @@ impl Rule for NoBrowserGlobalsInSsr {
 #[cfg(test)]
 mod tests {
     use super::NoBrowserGlobalsInSsr;
+    use crate::Linter;
     use crate::context::{LintContext, SsrMode};
     use crate::rule::{Rule, RuleRegistry};
-    use crate::Linter;
     use vize_carton::CompactString;
 
     fn lint_with_ssr(source: &str) -> Vec<CompactString> {

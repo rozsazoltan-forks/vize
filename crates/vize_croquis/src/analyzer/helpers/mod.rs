@@ -14,7 +14,7 @@ mod v_for;
 pub use identifiers::{extract_identifiers_oxc, strip_js_comments};
 pub use keywords::{is_builtin_directive, is_component_tag, is_keyword};
 pub use slots::{extract_inline_callback_params, extract_slot_props};
-pub use v_for::{parse_v_for_expression, parse_v_for_scope_expression, VForScopeAliases};
+pub use v_for::{VForScopeAliases, parse_v_for_expression, parse_v_for_scope_expression};
 
 /// Fast identifier validation using bytes
 #[inline]

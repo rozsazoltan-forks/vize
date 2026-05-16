@@ -9,7 +9,7 @@ use oxc_allocator::Allocator;
 use oxc_ast::ast::BindingPattern;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
-use vize_carton::{profile, smallvec, CompactString, SmallVec};
+use vize_carton::{CompactString, SmallVec, profile, smallvec};
 
 use super::is_valid_identifier_fast;
 
@@ -98,10 +98,10 @@ fn parse_slot_pattern(pattern_str: &str) -> SmallVec<[CompactString; 4]> {
 
     let mut props = SmallVec::new();
 
-    if let Some(oxc_ast::ast::Statement::VariableDeclaration(var_decl)) = ret.program.body.first() {
-        if let Some(declarator) = var_decl.declarations.first() {
-            extract_slot_binding_names(&declarator.id, &mut props);
-        }
+    if let Some(oxc_ast::ast::Statement::VariableDeclaration(var_decl)) = ret.program.body.first()
+        && let Some(declarator) = var_decl.declarations.first()
+    {
+        extract_slot_binding_names(&declarator.id, &mut props);
     }
 
     props

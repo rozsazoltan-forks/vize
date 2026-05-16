@@ -293,7 +293,7 @@ mod v_show {
 
 mod component {
     use super::compile_full;
-    use vize_atelier_ssr::{compile_ssr_with_options, SsrCompilerOptions};
+    use vize_atelier_ssr::{SsrCompilerOptions, compile_ssr_with_options};
     use vize_carton::Bump;
 
     #[test]
@@ -482,7 +482,7 @@ mod v_text {
 // =============================================================================
 
 mod scope_id {
-    use vize_atelier_ssr::{compile_ssr_with_options, SsrCompilerOptions};
+    use vize_atelier_ssr::{SsrCompilerOptions, compile_ssr_with_options};
     use vize_carton::{Bump, String};
 
     fn compile_with_scope_id(src: &str) -> String {
@@ -516,7 +516,7 @@ mod scope_id {
 // =============================================================================
 
 mod css_vars {
-    use vize_atelier_ssr::{compile_ssr_with_options, SsrCompilerOptions};
+    use vize_atelier_ssr::{SsrCompilerOptions, compile_ssr_with_options};
     use vize_carton::{Bump, String};
 
     fn compile_with_css_vars(src: &str) -> String {

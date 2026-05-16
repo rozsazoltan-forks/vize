@@ -2,9 +2,9 @@
 //!
 //! Run with: cargo bench -p vize_croquis --bench cross_file
 
-use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
+use criterion::{BatchSize, Criterion, black_box, criterion_group, criterion_main};
 use std::path::Path;
-use vize_carton::{cstr, CompactString};
+use vize_carton::{CompactString, cstr};
 use vize_croquis::cross_file::{CrossFileAnalyzer, CrossFileOptions};
 use vize_croquis::{Analyzer, AnalyzerOptions, Croquis};
 

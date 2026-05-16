@@ -110,10 +110,9 @@ fn collect_from_dir_filtered(
                     && is_supported_collect_file(path, vue_only)
                     && matcher.is_none_or(|matcher| matcher.matches(path))
                     && (!skip_generated || !is_generated_path(path))
+                    && let Ok(mut collected) = collected.lock()
                 {
-                    if let Ok(mut collected) = collected.lock() {
-                        collected.push(path.to_path_buf());
-                    }
+                    collected.push(path.to_path_buf());
                 }
             }
             ignore::WalkState::Continue
@@ -338,10 +337,9 @@ mod tests {
         fs::write(case_dir.join("src/nested/View.vue"), "").unwrap();
         fs::write(case_dir.join("src/nested/Skip.vue"), "").unwrap();
 
-        let files = collect_vue_files(&vec![case_dir
-            .join("src/nested/*.vue")
-            .display()
-            .to_string()]);
+        let files = collect_vue_files(&vec![
+            case_dir.join("src/nested/*.vue").display().to_string(),
+        ]);
 
         assert_eq!(
             files,

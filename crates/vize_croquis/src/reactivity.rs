@@ -292,17 +292,17 @@ impl ReactivityTracker {
         start: u32,
         end: u32,
     ) {
-        if let Some(source) = self.lookup(source_name.as_str()) {
-            if source.kind.needs_value_access() {
-                self.losses.push(ReactivityLoss {
-                    kind: ReactivityLossKind::RefValueExtract {
-                        source_name,
-                        target_name,
-                    },
-                    start,
-                    end,
-                });
-            }
+        if let Some(source) = self.lookup(source_name.as_str())
+            && source.kind.needs_value_access()
+        {
+            self.losses.push(ReactivityLoss {
+                kind: ReactivityLossKind::RefValueExtract {
+                    source_name,
+                    target_name,
+                },
+                start,
+                end,
+            });
         }
     }
 
@@ -315,18 +315,18 @@ impl ReactivityTracker {
         start: u32,
         end: u32,
     ) {
-        if let Some(source) = self.lookup(source_name.as_str()) {
-            if !source.kind.needs_value_access() {
-                self.losses.push(ReactivityLoss {
-                    kind: ReactivityLossKind::ReactivePropertyExtract {
-                        source_name,
-                        prop_name,
-                        target_name,
-                    },
-                    start,
-                    end,
-                });
-            }
+        if let Some(source) = self.lookup(source_name.as_str())
+            && !source.kind.needs_value_access()
+        {
+            self.losses.push(ReactivityLoss {
+                kind: ReactivityLossKind::ReactivePropertyExtract {
+                    source_name,
+                    prop_name,
+                    target_name,
+                },
+                start,
+                end,
+            });
         }
     }
 

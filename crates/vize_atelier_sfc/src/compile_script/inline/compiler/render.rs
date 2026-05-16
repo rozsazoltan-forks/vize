@@ -2,7 +2,7 @@ use vize_carton::String;
 
 use crate::script::ScriptCompileContext;
 
-use super::super::super::{import_utils::extract_import_identifiers, TemplateParts};
+use super::super::super::{TemplateParts, import_utils::extract_import_identifiers};
 
 const VAPOR_RENDER_ALIAS_BASE: &str = "__vaporRender";
 const VAPOR_TEMPLATE_REF_SETTER: &str = "vaporTemplateRefSetter";

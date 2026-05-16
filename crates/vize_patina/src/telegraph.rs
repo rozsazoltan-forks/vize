@@ -23,7 +23,7 @@
 
 #![allow(clippy::disallowed_macros)]
 
-use crate::diagnostic::{render_help, HelpRenderTarget, Severity};
+use crate::diagnostic::{HelpRenderTarget, Severity, render_help};
 use crate::linter::LintResult;
 use vize_carton::String;
 use vize_carton::ToCompactString;
@@ -129,8 +129,8 @@ impl Emitter for TextEmitter {
     }
 
     fn emit(&self, result: &LintResult, source: &str) -> String {
-        use crate::output::format_results;
         use crate::OutputFormat;
+        use crate::output::format_results;
 
         let files = vec![(result.filename.clone(), source.to_compact_string())];
         format_results(std::slice::from_ref(result), &files, OutputFormat::Text)
@@ -167,8 +167,8 @@ impl Emitter for JsonEmitter {
     }
 
     fn emit(&self, result: &LintResult, _source: &str) -> String {
-        use crate::output::format_results;
         use crate::OutputFormat;
+        use crate::output::format_results;
 
         let files: Vec<(String, String)> = vec![];
         format_results(std::slice::from_ref(result), &files, OutputFormat::Json)
@@ -347,7 +347,7 @@ pub struct OxlintBridge {
 
 #[cfg(test)]
 mod tests {
-    use super::{offset_to_line_col, LintResult, LspEmitter, Telegraph};
+    use super::{LintResult, LspEmitter, Telegraph, offset_to_line_col};
     use crate::diagnostic::LintDiagnostic;
     use vize_carton::ToCompactString;
 
@@ -367,13 +367,10 @@ mod tests {
     fn test_lsp_diagnostic_conversion() {
         let result = LintResult {
             filename: "test.vue".to_compact_string(),
-            diagnostics: vec![LintDiagnostic::error(
-                "vue/require-v-for-key",
-                "Missing key",
-                50,
-                70,
-            )
-            .with_help("Add :key attribute")],
+            diagnostics: vec![
+                LintDiagnostic::error("vue/require-v-for-key", "Missing key", 50, 70)
+                    .with_help("Add :key attribute"),
+            ],
             error_count: 1,
             warning_count: 0,
         };

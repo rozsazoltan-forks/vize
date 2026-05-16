@@ -7,7 +7,7 @@ use crate::cross_file::diagnostics::{
 };
 use crate::cross_file::graph::DependencyGraph;
 use crate::cross_file::registry::{FileId, ModuleRegistry};
-use vize_carton::{cstr, CompactString, FxHashSet, String};
+use vize_carton::{CompactString, FxHashSet, String, cstr};
 
 /// Information about a component resolution issue.
 #[derive(Debug, Clone)]
@@ -107,54 +107,52 @@ pub fn analyze_component_resolution(
 
         // Check for unresolved imports
         for scope in analysis.scopes.iter() {
-            if scope.kind == crate::scope::ScopeKind::ExternalModule {
-                if let crate::scope::ScopeData::ExternalModule(data) = scope.data() {
-                    let source = &data.source;
+            if scope.kind == crate::scope::ScopeKind::ExternalModule
+                && let crate::scope::ScopeData::ExternalModule(data) = scope.data()
+            {
+                let source = &data.source;
 
-                    // Skip node_modules imports (bare specifiers)
-                    if !source.starts_with('.')
-                        && !source.starts_with('/')
-                        && !source.starts_with('@')
-                    {
-                        continue;
-                    }
+                // Skip node_modules imports (bare specifiers)
+                if !source.starts_with('.') && !source.starts_with('/') && !source.starts_with('@')
+                {
+                    continue;
+                }
 
-                    // Skip @-prefixed imports that are likely aliases
-                    if source.starts_with('@') && !source.starts_with("@/") {
-                        continue;
-                    }
+                // Skip @-prefixed imports that are likely aliases
+                if source.starts_with('@') && !source.starts_with("@/") {
+                    continue;
+                }
 
-                    // Check if the import resolves to a known file
-                    let resolved = resolve_import(source, registry, entry.path.parent());
+                // Check if the import resolves to a known file
+                let resolved = resolve_import(source, registry, entry.path.parent());
 
-                    if !resolved {
-                        let issue = ComponentResolutionIssue {
-                            file_id,
-                            name: source.clone(),
-                            kind: ComponentResolutionIssueKind::UnresolvedImport,
-                            offset: scope.span.start,
-                        };
-                        issues.push(issue);
+                if !resolved {
+                    let issue = ComponentResolutionIssue {
+                        file_id,
+                        name: source.clone(),
+                        kind: ComponentResolutionIssueKind::UnresolvedImport,
+                        offset: scope.span.start,
+                    };
+                    issues.push(issue);
 
-                        let diagnostic = CrossFileDiagnostic::new(
-                            CrossFileDiagnosticKind::UnresolvedImport {
-                                specifier: source.clone(),
-                                import_offset: scope.span.start,
-                            },
-                            DiagnosticSeverity::Error,
-                            file_id,
-                            scope.span.start,
-                            cstr!(
-                                "**Unresolved Import**: Cannot find module `{}`\n\n\
+                    let diagnostic = CrossFileDiagnostic::new(
+                        CrossFileDiagnosticKind::UnresolvedImport {
+                            specifier: source.clone(),
+                            import_offset: scope.span.start,
+                        },
+                        DiagnosticSeverity::Error,
+                        file_id,
+                        scope.span.start,
+                        cstr!(
+                            "**Unresolved Import**: Cannot find module `{}`\n\n\
                                 - Check if the file exists at the specified path\n\
                                 - Verify the import path is correct (relative paths start with `./` or `../`)\n\
                                 - For alias imports like `@/`, ensure tsconfig paths are configured",
-                                source
-                            ),
-                        );
+                            source
+                        ),
+                    );
 
-                        diagnostics.push(diagnostic);
-                    }
+                    diagnostics.push(diagnostic);
                 }
             }
         }

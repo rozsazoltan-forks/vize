@@ -49,14 +49,12 @@ const INTERACTIVE_EVENTS: &[&str] = &[
 
 fn has_interactive_event(element: &ElementNode) -> bool {
     for prop in &element.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "on" {
-                if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                    if INTERACTIVE_EVENTS.contains(&arg.content.as_ref()) {
-                        return true;
-                    }
-                }
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "on"
+            && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+            && INTERACTIVE_EVENTS.contains(&arg.content.as_ref())
+        {
+            return true;
         }
     }
     false

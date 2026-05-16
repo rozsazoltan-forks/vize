@@ -12,19 +12,19 @@
 pub mod options;
 pub mod transforms;
 
-pub use options::{element_checks, event_modifiers, DomCompilerOptions};
+pub use options::{DomCompilerOptions, element_checks, event_modifiers};
 pub use transforms::{
-    generate_html_prop, generate_html_warning, generate_key_guard, generate_model_props,
-    generate_modifier_guard, generate_show_directive, generate_show_style, generate_text_children,
-    generate_text_content, get_model_event, get_model_helper, get_model_prop, is_v_html, is_v_show,
-    is_v_text, resolve_key_alias, EventModifiers, EventOptions, MouseModifiers,
-    PropagationModifiers, SystemModifiers, VModelModifiers, V_SHOW, V_TEXT,
+    EventModifiers, EventOptions, MouseModifiers, PropagationModifiers, SystemModifiers, V_SHOW,
+    V_TEXT, VModelModifiers, generate_html_prop, generate_html_warning, generate_key_guard,
+    generate_model_props, generate_modifier_guard, generate_show_directive, generate_show_style,
+    generate_text_children, generate_text_content, get_model_event, get_model_helper,
+    get_model_prop, is_v_html, is_v_show, is_v_text, resolve_key_alias,
 };
 
 // Re-export core types
 pub use vize_atelier_core::{
-    ast, codegen, errors, parser, runtime_helpers, tokenizer, transform, Allocator, CompilerError,
-    Namespace, RootNode, TemplateChildNode,
+    Allocator, CompilerError, Namespace, RootNode, TemplateChildNode, ast, codegen, errors, parser,
+    runtime_helpers, tokenizer, transform,
 };
 
 use vize_atelier_core::codegen::CodegenResult;
@@ -34,7 +34,7 @@ use vize_atelier_core::{
     parser::parse_with_options,
     transform::transform as do_transform,
 };
-use vize_carton::{profile, Bump, String};
+use vize_carton::{Bump, String, profile};
 use vize_croquis::Croquis;
 
 /// Compile a Vue template for DOM with default options
@@ -147,8 +147,8 @@ fn get_namespace(tag: &str, parent: Option<&str>) -> Namespace {
 #[cfg(test)]
 mod tests {
     use super::{
-        compile_template, compile_template_with_options, DomCompilerOptions, Namespace,
-        TemplateChildNode,
+        DomCompilerOptions, Namespace, TemplateChildNode, compile_template,
+        compile_template_with_options,
     };
     use vize_atelier_core::options::CodegenMode;
     use vize_carton::Bump;

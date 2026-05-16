@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use vize_carton::{profile, String};
+use vize_carton::{String, profile};
 
 use crate::script::ScriptCompileContext;
 
@@ -20,21 +20,21 @@ pub(super) fn emit_setup_body(
     has_css_vars: bool,
 ) {
     // Emit binding: const emit = __emit
-    if let Some(ref emits_macro) = ctx.macros.define_emits {
-        if let Some(ref binding_name) = emits_macro.binding_name {
-            output.extend_from_slice(b"const ");
-            output.extend_from_slice(binding_name.as_bytes());
-            output.extend_from_slice(b" = __emit\n");
-        }
+    if let Some(ref emits_macro) = ctx.macros.define_emits
+        && let Some(ref binding_name) = emits_macro.binding_name
+    {
+        output.extend_from_slice(b"const ");
+        output.extend_from_slice(binding_name.as_bytes());
+        output.extend_from_slice(b" = __emit\n");
     }
 
     // Props binding: const props = __props
-    if let Some(ref props_macro) = ctx.macros.define_props {
-        if let Some(ref binding_name) = props_macro.binding_name {
-            output.extend_from_slice(b"const ");
-            output.extend_from_slice(binding_name.as_bytes());
-            output.extend_from_slice(b" = __props\n");
-        }
+    if let Some(ref props_macro) = ctx.macros.define_props
+        && let Some(ref binding_name) = props_macro.binding_name
+    {
+        output.extend_from_slice(b"const ");
+        output.extend_from_slice(binding_name.as_bytes());
+        output.extend_from_slice(b" = __props\n");
     }
 
     // Model bindings: const model = _useModel(__props, 'modelValue')
@@ -49,12 +49,12 @@ pub(super) fn emit_setup_body(
     }
 
     // Slots binding: const slots = _useSlots()
-    if let Some(ref slots_macro) = ctx.macros.define_slots {
-        if let Some(ref binding_name) = slots_macro.binding_name {
-            output.extend_from_slice(b"const ");
-            output.extend_from_slice(binding_name.as_bytes());
-            output.extend_from_slice(b" = _useSlots()\n");
-        }
+    if let Some(ref slots_macro) = ctx.macros.define_slots
+        && let Some(ref binding_name) = slots_macro.binding_name
+    {
+        output.extend_from_slice(b"const ");
+        output.extend_from_slice(binding_name.as_bytes());
+        output.extend_from_slice(b" = _useSlots()\n");
     }
 
     // Output setup code lines (non-hoisted), transforming await expressions for async setup

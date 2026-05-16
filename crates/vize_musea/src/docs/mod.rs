@@ -27,7 +27,7 @@
 mod catalog;
 mod markdown;
 
-pub use catalog::{generate_catalog, generate_category_index, generate_tags_index, CatalogEntry};
+pub use catalog::{CatalogEntry, generate_catalog, generate_category_index, generate_tags_index};
 pub use markdown::{generate_component_doc, generate_variant_doc};
 
 use serde::{Deserialize, Serialize};
@@ -120,8 +120,8 @@ pub struct CatalogOutput {
 
 #[cfg(test)]
 mod tests {
-    use super::{generate_catalog, generate_component_doc, CatalogEntry, DocOptions};
-    use crate::{parse_art, ArtParseOptions};
+    use super::{CatalogEntry, DocOptions, generate_catalog, generate_component_doc};
+    use crate::{ArtParseOptions, parse_art};
     use vize_carton::Bump;
 
     #[test]

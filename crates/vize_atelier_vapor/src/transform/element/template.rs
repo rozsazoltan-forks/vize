@@ -11,14 +11,12 @@ pub(crate) fn generate_element_template(el: &ElementNode<'_>) -> String {
         .props
         .iter()
         .filter_map(|p| {
-            if let PropNode::Directive(dir) = p {
-                if dir.name.as_str() == "bind" {
-                    if let Some(ref arg) = dir.arg {
-                        if let ExpressionNode::Simple(key) = arg {
-                            return Some(key.content.as_str());
-                        }
-                    }
-                }
+            if let PropNode::Directive(dir) = p
+                && dir.name.as_str() == "bind"
+                && let Some(ref arg) = dir.arg
+                && let ExpressionNode::Simple(key) = arg
+            {
+                return Some(key.content.as_str());
             }
             None
         })

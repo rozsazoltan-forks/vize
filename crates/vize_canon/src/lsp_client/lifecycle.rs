@@ -1,8 +1,8 @@
 use super::{
+    CorsaProjectClient,
     bootstrap::resolve_corsa_executable,
     paths::{find_node_modules_with_vue, resolve_temp_dir_base},
     session::materialize_session_document,
-    CorsaProjectClient,
 };
 use corsa::{
     api::{FileChangeSummary, FileChanges},
@@ -13,7 +13,7 @@ use std::{
     path::{Path, PathBuf},
     sync::atomic::{AtomicUsize, Ordering},
 };
-use vize_carton::{cstr, String, ToCompactString};
+use vize_carton::{String, ToCompactString, cstr};
 
 impl CorsaProjectClient {
     /// Start a Corsa project session rooted at an isolated scratch workspace.

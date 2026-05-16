@@ -21,7 +21,7 @@ use vize_atelier_core::{
     parser::parse,
     transform::transform,
 };
-use vize_atelier_vapor::{compile_vapor as vapor_compile, VaporCompilerOptions};
+use vize_atelier_vapor::{VaporCompilerOptions, compile_vapor as vapor_compile};
 
 /// Compile Vue template to VDom render function
 #[napi]

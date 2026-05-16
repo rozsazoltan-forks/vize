@@ -227,14 +227,13 @@ pub fn extract_simple_bindings(content: &str, is_setup: bool) -> Vec<String> {
                 }
             }
             // Function declarations
-            else if trimmed.starts_with("function ") {
-                if let Some(rest) = trimmed.strip_prefix("function ") {
-                    if let Some(name) = rest.split('(').next() {
-                        let name = name.trim();
-                        if is_valid_identifier(name) {
-                            bindings.push(name.to_string());
-                        }
-                    }
+            else if trimmed.starts_with("function ")
+                && let Some(rest) = trimmed.strip_prefix("function ")
+                && let Some(name) = rest.split('(').next()
+            {
+                let name = name.trim();
+                if is_valid_identifier(name) {
+                    bindings.push(name.to_string());
                 }
             }
         }

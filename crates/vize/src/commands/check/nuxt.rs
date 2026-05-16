@@ -10,7 +10,7 @@ use oxc_ast::ast::{
 use oxc_parser::Parser;
 use oxc_span::SourceType;
 use vize_canon::virtual_ts::VirtualTsOptions;
-use vize_carton::{cstr, FxHashSet, String, ToCompactString};
+use vize_carton::{FxHashSet, String, ToCompactString, cstr};
 
 use super::dts::{parse_declared_global_values, rewrite_relative_specifier};
 

@@ -149,10 +149,10 @@ pub(crate) fn generate_slot_outlet_props_entries(ctx: &mut CodegenContext, el: &
         if is_slot_name_prop(prop) {
             return None;
         }
-        if let PropNode::Attribute(attr) = prop {
-            if attr.name.as_str() == "class" {
-                return attr.value.as_ref().map(|v| v.content.as_str());
-            }
+        if let PropNode::Attribute(attr) = prop
+            && attr.name.as_str() == "class"
+        {
+            return attr.value.as_ref().map(|v| v.content.as_str());
         }
         None
     });
@@ -161,10 +161,10 @@ pub(crate) fn generate_slot_outlet_props_entries(ctx: &mut CodegenContext, el: &
         if is_slot_name_prop(prop) {
             return None;
         }
-        if let PropNode::Attribute(attr) = prop {
-            if attr.name.as_str() == "style" {
-                return attr.value.as_ref().map(|v| v.content.as_str());
-            }
+        if let PropNode::Attribute(attr) = prop
+            && attr.name.as_str() == "style"
+        {
+            return attr.value.as_ref().map(|v| v.content.as_str());
         }
         None
     });
@@ -259,10 +259,10 @@ pub fn has_slot_children(el: &ElementNode<'_>) -> bool {
 
     // Check for v-slot on component root
     for prop in &el.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name.as_str() == "slot" {
-                return true;
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name.as_str() == "slot"
+        {
+            return true;
         }
     }
 
@@ -394,10 +394,10 @@ pub fn generate_slots(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
 
     // Check for v-slot on component root (shorthand for default slot)
     let root_slot = el.props.iter().find_map(|p| {
-        if let PropNode::Directive(dir) = p {
-            if dir.name.as_str() == "slot" {
-                return Some(dir.as_ref());
-            }
+        if let PropNode::Directive(dir) = p
+            && dir.name.as_str() == "slot"
+        {
+            return Some(dir.as_ref());
         }
         None
     });
@@ -456,90 +456,91 @@ pub fn generate_slots(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
         let mut first_slot = true;
 
         for child in &el.children {
-            if let TemplateChildNode::Element(template_el) = child {
-                if template_el.tag.as_str() == "template" && has_v_slot(template_el) {
-                    // This is a named slot template
-                    if let Some(slot_dir) = template_el.props.iter().find_map(|p| {
-                        if let PropNode::Directive(dir) = p {
-                            if dir.name.as_str() == "slot" {
-                                return Some(dir.as_ref());
-                            }
-                        }
-                        None
-                    }) {
-                        if !first_slot {
-                            ctx.push(",");
-                        }
-                        first_slot = false;
-                        ctx.newline();
-
-                        let slot_name = get_slot_name(slot_dir);
-                        let is_dynamic = slot_dir
-                            .arg
-                            .as_ref()
-                            .map(|arg| match arg {
-                                ExpressionNode::Simple(exp) => !exp.is_static,
-                                ExpressionNode::Compound(_) => true,
-                            })
-                            .unwrap_or(false);
-
-                        if is_dynamic {
-                            let trimmed_name = slot_name.trim();
-                            if trimmed_name.starts_with('`') && trimmed_name.ends_with('`') {
-                                // Template literal slot name: `item.name` → ["item.name"]
-                                let inner = &trimmed_name[1..trimmed_name.len() - 1];
-                                ctx.push("[\"");
-                                ctx.push(&escape_js_string(inner));
-                                ctx.push("\"]");
-                            } else {
-                                // Dynamic slot name: [_ctx.slotName]
-                                ctx.push("[");
-                                ctx.push("_ctx.");
-                                ctx.push(&slot_name);
-                                ctx.push("]");
-                            }
-                        } else if is_valid_js_identifier(&slot_name) {
-                            ctx.push(&slot_name);
-                        } else {
-                            ctx.push("\"");
-                            ctx.push(&escape_js_string(&slot_name));
-                            ctx.push("\"");
-                        }
-
-                        if slot_name.as_str() == "default" {
-                            has_generated_default = true;
-                        }
-
-                        ctx.push(": ");
-                        ctx.use_helper(RuntimeHelper::WithCtx);
-                        ctx.push(ctx.helper(RuntimeHelper::WithCtx));
-                        ctx.push("(");
-
-                        // Slot props - use raw source with default value prefix
-                        let params = if let Some(props_str) = get_slot_props(slot_dir) {
-                            let processed = prefix_slot_defaults(&props_str);
-                            ctx.push("(");
-                            ctx.push(&processed);
-                            ctx.push(")");
-                            extract_slot_params(&props_str)
-                        } else {
-                            ctx.push("()");
-                            vec![]
-                        };
-
-                        // Track slot params for stripping _ctx. prefix
-                        ctx.add_slot_params(&params);
-
-                        ctx.push(" => [");
-                        ctx.indent();
-                        generate_slot_children(ctx, &template_el.children);
-                        ctx.deindent();
-                        ctx.newline();
-                        ctx.push("])");
-
-                        // Remove slot params
-                        ctx.remove_slot_params(&params);
+            if let TemplateChildNode::Element(template_el) = child
+                && template_el.tag.as_str() == "template"
+                && has_v_slot(template_el)
+            {
+                // This is a named slot template
+                if let Some(slot_dir) = template_el.props.iter().find_map(|p| {
+                    if let PropNode::Directive(dir) = p
+                        && dir.name.as_str() == "slot"
+                    {
+                        return Some(dir.as_ref());
                     }
+                    None
+                }) {
+                    if !first_slot {
+                        ctx.push(",");
+                    }
+                    first_slot = false;
+                    ctx.newline();
+
+                    let slot_name = get_slot_name(slot_dir);
+                    let is_dynamic = slot_dir
+                        .arg
+                        .as_ref()
+                        .map(|arg| match arg {
+                            ExpressionNode::Simple(exp) => !exp.is_static,
+                            ExpressionNode::Compound(_) => true,
+                        })
+                        .unwrap_or(false);
+
+                    if is_dynamic {
+                        let trimmed_name = slot_name.trim();
+                        if trimmed_name.starts_with('`') && trimmed_name.ends_with('`') {
+                            // Template literal slot name: `item.name` → ["item.name"]
+                            let inner = &trimmed_name[1..trimmed_name.len() - 1];
+                            ctx.push("[\"");
+                            ctx.push(&escape_js_string(inner));
+                            ctx.push("\"]");
+                        } else {
+                            // Dynamic slot name: [_ctx.slotName]
+                            ctx.push("[");
+                            ctx.push("_ctx.");
+                            ctx.push(&slot_name);
+                            ctx.push("]");
+                        }
+                    } else if is_valid_js_identifier(&slot_name) {
+                        ctx.push(&slot_name);
+                    } else {
+                        ctx.push("\"");
+                        ctx.push(&escape_js_string(&slot_name));
+                        ctx.push("\"");
+                    }
+
+                    if slot_name.as_str() == "default" {
+                        has_generated_default = true;
+                    }
+
+                    ctx.push(": ");
+                    ctx.use_helper(RuntimeHelper::WithCtx);
+                    ctx.push(ctx.helper(RuntimeHelper::WithCtx));
+                    ctx.push("(");
+
+                    // Slot props - use raw source with default value prefix
+                    let params = if let Some(props_str) = get_slot_props(slot_dir) {
+                        let processed = prefix_slot_defaults(&props_str);
+                        ctx.push("(");
+                        ctx.push(&processed);
+                        ctx.push(")");
+                        extract_slot_params(&props_str)
+                    } else {
+                        ctx.push("()");
+                        vec![]
+                    };
+
+                    // Track slot params for stripping _ctx. prefix
+                    ctx.add_slot_params(&params);
+
+                    ctx.push(" => [");
+                    ctx.indent();
+                    generate_slot_children(ctx, &template_el.children);
+                    ctx.deindent();
+                    ctx.newline();
+                    ctx.push("])");
+
+                    // Remove slot params
+                    ctx.remove_slot_params(&params);
                 }
             }
         }
@@ -709,10 +710,11 @@ fn generate_conditional_slot(ctx: &mut CodegenContext, if_node: &IfNode<'_>) {
 
         // Find the slot template in this branch
         let slot_template = branch.children.iter().find_map(|child| {
-            if let TemplateChildNode::Element(el) = child {
-                if el.tag.as_str() == "template" && has_v_slot(el) {
-                    return Some(el.as_ref());
-                }
+            if let TemplateChildNode::Element(el) = child
+                && el.tag.as_str() == "template"
+                && has_v_slot(el)
+            {
+                return Some(el.as_ref());
             }
             None
         });
@@ -770,10 +772,11 @@ fn generate_looped_slot(ctx: &mut CodegenContext, for_node: &ForNode<'_>) {
 
     // Find the slot template in the for body
     let slot_template = for_node.children.iter().find_map(|child| {
-        if let TemplateChildNode::Element(el) = child {
-            if el.tag.as_str() == "template" && has_v_slot(el) {
-                return Some(el.as_ref());
-            }
+        if let TemplateChildNode::Element(el) = child
+            && el.tag.as_str() == "template"
+            && has_v_slot(el)
+        {
+            return Some(el.as_ref());
         }
         None
     });
@@ -796,10 +799,10 @@ fn generate_slot_object_entry(
     key_index: Option<usize>,
 ) {
     let slot_dir = template_el.props.iter().find_map(|p| {
-        if let PropNode::Directive(dir) = p {
-            if dir.name.as_str() == "slot" {
-                return Some(dir.as_ref());
-            }
+        if let PropNode::Directive(dir) = p
+            && dir.name.as_str() == "slot"
+        {
+            return Some(dir.as_ref());
         }
         None
     });

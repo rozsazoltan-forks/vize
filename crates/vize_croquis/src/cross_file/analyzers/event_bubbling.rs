@@ -9,7 +9,7 @@ use crate::cross_file::diagnostics::{
 };
 use crate::cross_file::graph::{DependencyEdge, DependencyGraph};
 use crate::cross_file::registry::{FileId, ModuleRegistry};
-use vize_carton::{cstr, CompactString, FxHashMap, FxHashSet};
+use vize_carton::{CompactString, FxHashMap, FxHashSet, cstr};
 
 /// Information about event bubbling.
 #[derive(Debug, Clone)]
@@ -92,31 +92,32 @@ pub fn analyze_event_bubbling(
 
             // Check for event modifier issues
             for file_id in &bubble.propagation_path {
-                if let Some(modifiers) = event_modifiers.get(file_id) {
-                    if let Some(mods) = modifiers.get(event_name) {
-                        for modifier in mods {
-                            if modifier == "stop" || modifier == "prevent" {
-                                diagnostics.push(
-                                    CrossFileDiagnostic::new(
-                                        CrossFileDiagnosticKind::EventModifierIssue {
-                                            event_name: event_name.clone(),
-                                            modifier: modifier.clone(),
-                                        },
-                                        DiagnosticSeverity::Info,
-                                        *file_id,
-                                        0,
-                                        cstr!(
-                                            "Event '{}' has .{} modifier which may prevent handling",
-                                            event_name, modifier
-                                        ),
-                                    )
-                                    .with_related(
-                                        source_id,
-                                        *offset,
-                                        "Event is emitted here",
+                if let Some(modifiers) = event_modifiers.get(file_id)
+                    && let Some(mods) = modifiers.get(event_name)
+                {
+                    for modifier in mods {
+                        if modifier == "stop" || modifier == "prevent" {
+                            diagnostics.push(
+                                CrossFileDiagnostic::new(
+                                    CrossFileDiagnosticKind::EventModifierIssue {
+                                        event_name: event_name.clone(),
+                                        modifier: modifier.clone(),
+                                    },
+                                    DiagnosticSeverity::Info,
+                                    *file_id,
+                                    0,
+                                    cstr!(
+                                        "Event '{}' has .{} modifier which may prevent handling",
+                                        event_name,
+                                        modifier
                                     ),
-                                );
-                            }
+                                )
+                                .with_related(
+                                    source_id,
+                                    *offset,
+                                    "Event is emitted here",
+                                ),
+                            );
                         }
                     }
                 }
@@ -160,11 +161,11 @@ fn trace_event_propagation(
         path.push(parent);
 
         // Check if parent handles this event
-        if let Some(handlers) = event_handlers.get(&parent) {
-            if handlers.contains(event_name) {
-                handler = Some(parent);
-                break;
-            }
+        if let Some(handlers) = event_handlers.get(&parent)
+            && handlers.contains(event_name)
+        {
+            handler = Some(parent);
+            break;
         }
 
         current = parent;
@@ -195,16 +196,16 @@ fn extract_event_handlers(
 
     // Look for event handler scopes
     for scope in analysis.scopes.iter() {
-        if scope.kind == crate::scope::ScopeKind::EventHandler {
-            if let crate::scope::ScopeData::EventHandler(data) = scope.data() {
-                handlers.insert(data.event_name.clone());
+        if scope.kind == crate::scope::ScopeKind::EventHandler
+            && let crate::scope::ScopeData::EventHandler(data) = scope.data()
+        {
+            handlers.insert(data.event_name.clone());
 
-                // Parse modifiers from handler expression if present
-                if let Some(ref expr) = data.handler_expression {
-                    let mods = extract_modifiers(expr);
-                    if !mods.is_empty() {
-                        modifiers.insert(data.event_name.clone(), mods);
-                    }
+            // Parse modifiers from handler expression if present
+            if let Some(ref expr) = data.handler_expression {
+                let mods = extract_modifiers(expr);
+                if !mods.is_empty() {
+                    modifiers.insert(data.event_name.clone(), mods);
                 }
             }
         }

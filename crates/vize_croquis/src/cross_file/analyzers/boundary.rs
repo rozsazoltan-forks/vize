@@ -237,10 +237,10 @@ fn is_in_client_only_context(analysis: &crate::Croquis, offset: u32) -> bool {
 
             // Check parents
             for &parent_id in &scope.parents {
-                if let Some(parent) = analysis.scopes.get_scope(parent_id) {
-                    if parent.kind == crate::scope::ScopeKind::ClientOnly {
-                        return true;
-                    }
+                if let Some(parent) = analysis.scopes.get_scope(parent_id)
+                    && parent.kind == crate::scope::ScopeKind::ClientOnly
+                {
+                    return true;
                 }
             }
         }

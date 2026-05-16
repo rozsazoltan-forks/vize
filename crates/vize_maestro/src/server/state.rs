@@ -2,8 +2,8 @@
 #![allow(clippy::disallowed_types, clippy::disallowed_methods)]
 
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use dashmap::DashMap;
 use parking_lot::RwLock;
@@ -750,7 +750,7 @@ fn format_options_from_config(config: &FormatterConfig) -> vize_glyph::FormatOpt
 #[cfg(test)]
 mod tests {
     use super::ServerState;
-    use crate::virtual_code::{find_art_block_at_offset, ArtCursorPosition, BlockType};
+    use crate::virtual_code::{ArtCursorPosition, BlockType, find_art_block_at_offset};
     use tower_lsp::lsp_types::Url;
 
     #[test]
@@ -967,9 +967,11 @@ const secondaryLabel = ref('secondary')
         assert!(default_template.content.contains("primaryLabel"));
         assert!(secondary_template.content.contains("secondaryLabel"));
         assert!(!secondary_template.uri.ends_with(".__template.ts"));
-        assert!(secondary_template
-            .uri
-            .contains(".art_variant_1.template.ts"));
+        assert!(
+            secondary_template
+                .uri
+                .contains(".art_variant_1.template.ts")
+        );
 
         let offset = source.rfind("secondaryLabel").unwrap() + 1;
         let info = match find_art_block_at_offset(source, offset) {

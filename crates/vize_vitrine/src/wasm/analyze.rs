@@ -26,7 +26,7 @@ fn to_sfc_utf16_range(source: &str, base_offset: u32, start: u32, end: u32) -> (
 #[allow(clippy::disallowed_macros)]
 pub fn analyze_sfc_wasm(source: &str, options: JsValue) -> Result<JsValue, JsValue> {
     use vize_atelier_core::parser::parse;
-    use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+    use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
     use vize_croquis::{Analyzer, AnalyzerOptions};
 
     let filename: String = js_sys::Reflect::get(&options, &JsValue::from_str("filename"))

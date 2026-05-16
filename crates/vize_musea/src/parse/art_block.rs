@@ -2,7 +2,7 @@
 //!
 //! High-performance parser for extracting the `<art>` block and its metadata.
 
-use super::{extract_attr, has_attr, BlockInfo};
+use super::{BlockInfo, extract_attr, has_attr};
 use crate::types::{ArtMetadata, ArtParseError, ArtStatus};
 use memchr::{memchr, memmem};
 use vize_carton::Bump;

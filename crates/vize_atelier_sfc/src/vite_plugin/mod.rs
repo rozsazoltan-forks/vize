@@ -13,4 +13,4 @@ mod style;
 #[cfg(test)]
 mod tests;
 
-pub use request::{classify_vite_plugin_request, VitePluginRequest};
+pub use request::{VitePluginRequest, classify_vite_plugin_request};

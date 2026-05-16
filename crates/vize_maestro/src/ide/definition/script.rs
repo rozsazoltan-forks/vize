@@ -6,8 +6,9 @@
 use tower_lsp::lsp_types::{GotoDefinitionResponse, Location, Position, Range};
 
 use super::{
+    IdeContext,
     bindings::{BindingKind, BindingLocation},
-    helpers, IdeContext,
+    helpers,
 };
 use crate::virtual_code::BlockType;
 use vize_carton::cstr;
@@ -72,24 +73,24 @@ pub(crate) fn definition_in_style(ctx: &IdeContext) -> Option<GotoDefinitionResp
             ..Default::default()
         };
 
-        if let Ok(descriptor) = vize_atelier_sfc::parse_sfc(&ctx.content, options) {
-            if let Some(ref script_setup) = descriptor.script_setup {
-                let content = script_setup.content.as_ref();
-                if let Some(binding_loc) = find_binding_location_raw(content, &word) {
-                    let sfc_offset = script_setup.loc.start + binding_loc.offset;
-                    let (line, character) = helpers::offset_to_position(&ctx.content, sfc_offset);
+        if let Ok(descriptor) = vize_atelier_sfc::parse_sfc(&ctx.content, options)
+            && let Some(ref script_setup) = descriptor.script_setup
+        {
+            let content = script_setup.content.as_ref();
+            if let Some(binding_loc) = find_binding_location_raw(content, &word) {
+                let sfc_offset = script_setup.loc.start + binding_loc.offset;
+                let (line, character) = helpers::offset_to_position(&ctx.content, sfc_offset);
 
-                    return Some(GotoDefinitionResponse::Scalar(Location {
-                        uri: ctx.uri.clone(),
-                        range: Range {
-                            start: Position { line, character },
-                            end: Position {
-                                line,
-                                character: character + word.len() as u32,
-                            },
+                return Some(GotoDefinitionResponse::Scalar(Location {
+                    uri: ctx.uri.clone(),
+                    range: Range {
+                        start: Position { line, character },
+                        end: Position {
+                            line,
+                            character: character + word.len() as u32,
                         },
-                    }));
-                }
+                    },
+                }));
             }
         }
     }

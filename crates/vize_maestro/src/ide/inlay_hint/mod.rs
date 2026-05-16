@@ -83,18 +83,18 @@ impl InlayHintService {
         }
 
         // Find usages of props in template (all props are available in template)
-        if let Some(ref template) = descriptor.template {
-            if !all_prop_names.is_empty() {
-                let prop_refs: Vec<&str> = all_prop_names.iter().map(|s| s.as_str()).collect();
-                Self::collect_template_props_hints(
-                    &template.content,
-                    template.loc.start,
-                    content,
-                    &prop_refs,
-                    range,
-                    &mut hints,
-                );
-            }
+        if let Some(ref template) = descriptor.template
+            && !all_prop_names.is_empty()
+        {
+            let prop_refs: Vec<&str> = all_prop_names.iter().map(|s| s.as_str()).collect();
+            Self::collect_template_props_hints(
+                &template.content,
+                template.loc.start,
+                content,
+                &prop_refs,
+                range,
+                &mut hints,
+            );
         }
 
         hints

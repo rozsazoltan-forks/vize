@@ -35,14 +35,14 @@ pub(super) fn transform_component<'a>(
     let mut has_v_slot_on_component = false;
     let mut slot_props_expr: Option<String> = None;
     for prop in el.props.iter() {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name.as_str() == "slot" {
-                has_v_slot_on_component = true;
-                if let Some(ref exp) = dir.exp {
-                    if let ExpressionNode::Simple(s) = exp {
-                        slot_props_expr = Some(s.content.clone());
-                    }
-                }
+        if let PropNode::Directive(dir) = prop
+            && dir.name.as_str() == "slot"
+        {
+            has_v_slot_on_component = true;
+            if let Some(ref exp) = dir.exp
+                && let ExpressionNode::Simple(s) = exp
+            {
+                slot_props_expr = Some(s.content.clone());
             }
         }
     }
@@ -55,15 +55,15 @@ pub(super) fn transform_component<'a>(
                     continue;
                 }
                 if dir.name.as_str() == "show" {
-                    if let Some(ref exp) = dir.exp {
-                        if let ExpressionNode::Simple(s) = exp {
-                            let node = SimpleExpressionNode::new(
-                                s.content.clone(),
-                                s.is_static,
-                                s.loc.clone(),
-                            );
-                            v_show_exp = Some(Box::new_in(node, ctx.allocator));
-                        }
+                    if let Some(ref exp) = dir.exp
+                        && let ExpressionNode::Simple(s) = exp
+                    {
+                        let node = SimpleExpressionNode::new(
+                            s.content.clone(),
+                            s.is_static,
+                            s.loc.clone(),
+                        );
+                        v_show_exp = Some(Box::new_in(node, ctx.allocator));
                     }
                     continue;
                 }
@@ -71,15 +71,15 @@ pub(super) fn transform_component<'a>(
                     if let Some(ref arg) = dir.arg {
                         if let ExpressionNode::Simple(key_exp) = arg {
                             if kind == ComponentKind::Dynamic && key_exp.content.as_str() == "is" {
-                                if let Some(ref exp) = dir.exp {
-                                    if let ExpressionNode::Simple(val_exp) = exp {
-                                        let node = SimpleExpressionNode::new(
-                                            val_exp.content.clone(),
-                                            val_exp.is_static,
-                                            val_exp.loc.clone(),
-                                        );
-                                        is_expr = Some(Box::new_in(node, ctx.allocator));
-                                    }
+                                if let Some(ref exp) = dir.exp
+                                    && let ExpressionNode::Simple(val_exp) = exp
+                                {
+                                    let node = SimpleExpressionNode::new(
+                                        val_exp.content.clone(),
+                                        val_exp.is_static,
+                                        val_exp.loc.clone(),
+                                    );
+                                    is_expr = Some(Box::new_in(node, ctx.allocator));
                                 }
                                 continue;
                             }
@@ -90,15 +90,15 @@ pub(super) fn transform_component<'a>(
                             );
                             let key = Box::new_in(key_node, ctx.allocator);
                             let mut values = Vec::new_in(ctx.allocator);
-                            if let Some(ref exp) = dir.exp {
-                                if let ExpressionNode::Simple(val_exp) = exp {
-                                    let val_node = SimpleExpressionNode::new(
-                                        val_exp.content.clone(),
-                                        val_exp.is_static,
-                                        val_exp.loc.clone(),
-                                    );
-                                    values.push(Box::new_in(val_node, ctx.allocator));
-                                }
+                            if let Some(ref exp) = dir.exp
+                                && let ExpressionNode::Simple(val_exp) = exp
+                            {
+                                let val_node = SimpleExpressionNode::new(
+                                    val_exp.content.clone(),
+                                    val_exp.is_static,
+                                    val_exp.loc.clone(),
+                                );
+                                values.push(Box::new_in(val_node, ctx.allocator));
                             }
                             props.push(IRProp {
                                 key,
@@ -106,62 +106,61 @@ pub(super) fn transform_component<'a>(
                                 is_component: true,
                             });
                         }
-                    } else if let Some(ref exp) = dir.exp {
-                        if let ExpressionNode::Simple(val_exp) = exp {
-                            let key_node =
-                                SimpleExpressionNode::new("$", true, SourceLocation::STUB);
-                            let key = Box::new_in(key_node, ctx.allocator);
-                            let mut values = Vec::new_in(ctx.allocator);
+                    } else if let Some(ref exp) = dir.exp
+                        && let ExpressionNode::Simple(val_exp) = exp
+                    {
+                        let key_node = SimpleExpressionNode::new("$", true, SourceLocation::STUB);
+                        let key = Box::new_in(key_node, ctx.allocator);
+                        let mut values = Vec::new_in(ctx.allocator);
+                        let val_node = SimpleExpressionNode::new(
+                            val_exp.content.clone(),
+                            val_exp.is_static,
+                            val_exp.loc.clone(),
+                        );
+                        values.push(Box::new_in(val_node, ctx.allocator));
+                        props.push(IRProp {
+                            key,
+                            values,
+                            is_component: true,
+                        });
+                    }
+                } else if dir.name.as_str() == "on" {
+                    if let Some(ref arg) = dir.arg
+                        && let ExpressionNode::Simple(event_exp) = arg
+                    {
+                        let event_name = event_exp.content.as_str();
+                        let on_name = if event_name.is_empty() {
+                            String::from("on")
+                        } else {
+                            let mut s = String::from("on");
+                            let mut chars = event_name.chars();
+                            if let Some(c) = chars.next() {
+                                s.push(c.to_ascii_uppercase());
+                            }
+                            for c in chars {
+                                s.push(c);
+                            }
+                            s
+                        };
+                        let key_node =
+                            SimpleExpressionNode::new(on_name, true, event_exp.loc.clone());
+                        let key = Box::new_in(key_node, ctx.allocator);
+                        let mut values = Vec::new_in(ctx.allocator);
+                        if let Some(ref exp) = dir.exp
+                            && let ExpressionNode::Simple(val_exp) = exp
+                        {
                             let val_node = SimpleExpressionNode::new(
                                 val_exp.content.clone(),
                                 val_exp.is_static,
                                 val_exp.loc.clone(),
                             );
                             values.push(Box::new_in(val_node, ctx.allocator));
-                            props.push(IRProp {
-                                key,
-                                values,
-                                is_component: true,
-                            });
                         }
-                    }
-                } else if dir.name.as_str() == "on" {
-                    if let Some(ref arg) = dir.arg {
-                        if let ExpressionNode::Simple(event_exp) = arg {
-                            let event_name = event_exp.content.as_str();
-                            let on_name = if event_name.is_empty() {
-                                String::from("on")
-                            } else {
-                                let mut s = String::from("on");
-                                let mut chars = event_name.chars();
-                                if let Some(c) = chars.next() {
-                                    s.push(c.to_ascii_uppercase());
-                                }
-                                for c in chars {
-                                    s.push(c);
-                                }
-                                s
-                            };
-                            let key_node =
-                                SimpleExpressionNode::new(on_name, true, event_exp.loc.clone());
-                            let key = Box::new_in(key_node, ctx.allocator);
-                            let mut values = Vec::new_in(ctx.allocator);
-                            if let Some(ref exp) = dir.exp {
-                                if let ExpressionNode::Simple(val_exp) = exp {
-                                    let val_node = SimpleExpressionNode::new(
-                                        val_exp.content.clone(),
-                                        val_exp.is_static,
-                                        val_exp.loc.clone(),
-                                    );
-                                    values.push(Box::new_in(val_node, ctx.allocator));
-                                }
-                            }
-                            props.push(IRProp {
-                                key,
-                                values,
-                                is_component: true,
-                            });
-                        }
+                        props.push(IRProp {
+                            key,
+                            values,
+                            is_component: true,
+                        });
                     }
                 } else if dir.name.as_str() == "model" {
                     transform_component_v_model(ctx, dir, &mut props);
@@ -217,50 +216,49 @@ pub(super) fn transform_component<'a>(
 
         if has_named_slots {
             for child in el.children.iter() {
-                if let TemplateChildNode::Element(child_el) = child {
-                    if child_el.tag_type == ElementType::Template {
-                        for prop in child_el.props.iter() {
-                            if let PropNode::Directive(dir) = prop {
-                                if dir.name.as_str() == "slot" {
-                                    let (slot_name, is_static_name) = if let Some(ref arg) = dir.arg
-                                    {
-                                        match arg {
-                                            ExpressionNode::Simple(exp) => {
-                                                (exp.content.clone(), exp.is_static)
-                                            }
-                                            _ => (String::from("default"), true),
-                                        }
-                                    } else {
-                                        (String::from("default"), true)
-                                    };
-                                    if !is_static_name {
-                                        has_dynamic_slot = true;
+                if let TemplateChildNode::Element(child_el) = child
+                    && child_el.tag_type == ElementType::Template
+                {
+                    for prop in child_el.props.iter() {
+                        if let PropNode::Directive(dir) = prop
+                            && dir.name.as_str() == "slot"
+                        {
+                            let (slot_name, is_static_name) = if let Some(ref arg) = dir.arg {
+                                match arg {
+                                    ExpressionNode::Simple(exp) => {
+                                        (exp.content.clone(), exp.is_static)
                                     }
-                                    let fn_exp = dir.exp.as_ref().and_then(|exp| match exp {
-                                        ExpressionNode::Simple(s) => {
-                                            let node = SimpleExpressionNode::new(
-                                                s.content.clone(),
-                                                false,
-                                                SourceLocation::STUB,
-                                            );
-                                            Some(Box::new_in(node, ctx.allocator))
-                                        }
-                                        _ => None,
-                                    });
-                                    let slot_block = transform_children(ctx, &child_el.children);
-                                    let _template_id = ctx.next_id(); // consume ID for template wrapper
-                                    let name_exp = SimpleExpressionNode::new(
-                                        slot_name,
-                                        is_static_name,
+                                    _ => (String::from("default"), true),
+                                }
+                            } else {
+                                (String::from("default"), true)
+                            };
+                            if !is_static_name {
+                                has_dynamic_slot = true;
+                            }
+                            let fn_exp = dir.exp.as_ref().and_then(|exp| match exp {
+                                ExpressionNode::Simple(s) => {
+                                    let node = SimpleExpressionNode::new(
+                                        s.content.clone(),
+                                        false,
                                         SourceLocation::STUB,
                                     );
-                                    slots.push(IRSlot {
-                                        name: Box::new_in(name_exp, ctx.allocator),
-                                        fn_exp,
-                                        block: slot_block,
-                                    });
+                                    Some(Box::new_in(node, ctx.allocator))
                                 }
-                            }
+                                _ => None,
+                            });
+                            let slot_block = transform_children(ctx, &child_el.children);
+                            let _template_id = ctx.next_id(); // consume ID for template wrapper
+                            let name_exp = SimpleExpressionNode::new(
+                                slot_name,
+                                is_static_name,
+                                SourceLocation::STUB,
+                            );
+                            slots.push(IRSlot {
+                                name: Box::new_in(name_exp, ctx.allocator),
+                                fn_exp,
+                                block: slot_block,
+                            });
                         }
                     }
                 }

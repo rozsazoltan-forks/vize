@@ -16,7 +16,7 @@ mod visit_element;
 mod tests;
 
 use super::Analyzer;
-use vize_carton::{profile, CompactString};
+use vize_carton::{CompactString, profile};
 use vize_relief::ast::{ExpressionNode, RootNode, TemplateChildNode};
 
 impl Analyzer {

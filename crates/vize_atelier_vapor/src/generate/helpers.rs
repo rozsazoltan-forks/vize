@@ -1,7 +1,7 @@
 //! Effect generation and inline operation helpers.
 
 use crate::ir::{IREffect, OperationNode};
-use vize_carton::{cstr, FxHashMap, String};
+use vize_carton::{FxHashMap, String, cstr};
 
 use super::{context::GenerateContext, operations::generate_operation, setup::is_svg_tag};
 

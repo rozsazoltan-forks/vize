@@ -80,7 +80,7 @@ use tower_lsp::{LspService, Server};
 
 /// Initialize file-based logging to node_modules/.vize/lsp.log
 fn init_file_logging() {
-    use std::fs::{create_dir_all, OpenOptions};
+    use std::fs::{OpenOptions, create_dir_all};
     use std::sync::Once;
     use tracing_subscriber::fmt::writer::MakeWriterExt;
 

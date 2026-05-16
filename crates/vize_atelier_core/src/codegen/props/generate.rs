@@ -288,10 +288,10 @@ fn generate_props_object_inner(
 
     for prop in props {
         // Skip v-slot directive (handled separately in slots codegen)
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "slot" {
-                continue;
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "slot"
+        {
+            continue;
         }
 
         // Skip `is` prop when generating for dynamic components
@@ -302,7 +302,7 @@ fn generate_props_object_inner(
                     if dir.name == "bind"
                         && matches!(&dir.arg, Some(ExpressionNode::Simple(exp)) if exp.content == "is") =>
                 {
-                    continue
+                    continue;
                 }
                 _ => {}
             }
@@ -391,36 +391,36 @@ fn generate_props_object_inner(
                 // Only add comma if directive produces valid output
                 if is_supported_directive(dir) {
                     // Check for duplicate v-on events that should be merged into arrays
-                    if dir.name == "on" {
-                        if let Some(event_key) = get_von_event_key(dir) {
-                            let count = scan.event_counts.count(&event_key);
-                            if count > 1 {
-                                let emitted_events =
-                                    emitted_events.get_or_insert_with(FxHashSet::default);
-                                if emitted_events.contains(&event_key) {
-                                    // Skip: already emitted as part of array
-                                    continue;
-                                }
-                                // First occurrence: emit as array with all handlers for this event
-                                emitted_events.insert(event_key.clone());
-                                if !first {
-                                    ctx.push(",");
-                                }
-                                if multiline {
-                                    ctx.newline();
-                                } else if !first {
-                                    ctx.push(" ");
-                                }
-                                first = false;
-                                generate_merged_event_handlers(
-                                    ctx,
-                                    props,
-                                    &event_key,
-                                    scan.static_class,
-                                    scan.static_style,
-                                );
+                    if dir.name == "on"
+                        && let Some(event_key) = get_von_event_key(dir)
+                    {
+                        let count = scan.event_counts.count(&event_key);
+                        if count > 1 {
+                            let emitted_events =
+                                emitted_events.get_or_insert_with(FxHashSet::default);
+                            if emitted_events.contains(&event_key) {
+                                // Skip: already emitted as part of array
                                 continue;
                             }
+                            // First occurrence: emit as array with all handlers for this event
+                            emitted_events.insert(event_key.clone());
+                            if !first {
+                                ctx.push(",");
+                            }
+                            if multiline {
+                                ctx.newline();
+                            } else if !first {
+                                ctx.push(" ");
+                            }
+                            first = false;
+                            generate_merged_event_handlers(
+                                ctx,
+                                props,
+                                &event_key,
+                                scan.static_class,
+                                scan.static_style,
+                            );
+                            continue;
                         }
                     }
 

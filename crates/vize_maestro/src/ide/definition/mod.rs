@@ -12,7 +12,7 @@ mod script;
 mod service;
 mod template;
 
-pub use bindings::{extract_bindings_with_locations, BindingKind, BindingLocation};
+pub use bindings::{BindingKind, BindingLocation, extract_bindings_with_locations};
 
 use super::IdeContext;
 
@@ -25,7 +25,7 @@ mod tests {
 
     use tower_lsp::lsp_types::{GotoDefinitionResponse, Location, Url};
 
-    use super::{bindings, helpers, script, BindingKind, DefinitionService};
+    use super::{BindingKind, DefinitionService, bindings, helpers, script};
     use crate::{ide::IdeContext, server::ServerState};
 
     #[test]

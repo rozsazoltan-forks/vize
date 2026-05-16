@@ -7,11 +7,11 @@ use super::{
     helpers::{generated_text_range, is_reserved_identifier},
     types::VizeMapping,
 };
+use vize_carton::FxHashSet;
+use vize_carton::String;
 use vize_carton::append;
 use vize_carton::cstr;
 use vize_carton::profile;
-use vize_carton::FxHashSet;
-use vize_carton::String;
 use vize_croquis::analysis::ComponentUsage;
 use vize_croquis::analyzer::strip_js_comments;
 
@@ -125,53 +125,53 @@ pub(crate) fn generate_component_prop_checks(
         if prop.name.as_str() == "key" || prop.name.as_str() == "ref" {
             continue;
         }
-        if let Some(ref value) = prop.value {
-            if prop.is_dynamic {
-                let prop_src_start = (template_offset + prop.start) as usize;
-                let prop_src_end = (template_offset + prop.end) as usize;
-                let value = profile!(
-                    "canon.virtual_ts.prop_check.strip_comments",
-                    strip_js_comments(value.as_str())
-                );
-                let trimmed_value = value.as_ref().trim();
-                let rewritten_value =
-                    rewrite_reserved_template_prop(trimmed_value, template_prop_names);
-                let generated_value = rewritten_value
-                    .as_ref()
-                    .map_or_else(|| value.as_ref(), |s| s.as_str());
-                append!(
-                    *ts,
-                    "{indent}// @vize-map: prop -> {prop_src_start}:{prop_src_end}\n",
-                );
+        if let Some(ref value) = prop.value
+            && prop.is_dynamic
+        {
+            let prop_src_start = (template_offset + prop.start) as usize;
+            let prop_src_end = (template_offset + prop.end) as usize;
+            let value = profile!(
+                "canon.virtual_ts.prop_check.strip_comments",
+                strip_js_comments(value.as_str())
+            );
+            let trimmed_value = value.as_ref().trim();
+            let rewritten_value =
+                rewrite_reserved_template_prop(trimmed_value, template_prop_names);
+            let generated_value = rewritten_value
+                .as_ref()
+                .map_or_else(|| value.as_ref(), |s| s.as_str());
+            append!(
+                *ts,
+                "{indent}// @vize-map: prop -> {prop_src_start}:{prop_src_end}\n",
+            );
 
-                let safe_prop_name = prop.name.replace('-', "_");
-                let expr_indent = if usage.vif_guard.is_some() {
-                    cstr!("{indent}  ")
-                } else {
-                    indent.into()
-                };
+            let safe_prop_name = prop.name.replace('-', "_");
+            let expr_indent = if usage.vif_guard.is_some() {
+                cstr!("{indent}  ")
+            } else {
+                indent.into()
+            };
 
-                if let Some(ref guard) = usage.vif_guard {
-                    append!(*ts, "{indent}if ({guard}) {{\n");
-                }
+            if let Some(ref guard) = usage.vif_guard {
+                append!(*ts, "{indent}if ({guard}) {{\n");
+            }
 
-                let gen_stmt_start = ts.len();
-                let check_name = cstr!("__vize_prop_check_{idx}_{safe_prop_name}");
-                append!(
-                    *ts,
-                    "{expr_indent}const {check_name}: __{component_name}_{idx}_prop_{safe_prop_name} = {};\n",
-                    generated_value,
-                );
-                let gen_stmt_end = ts.len();
-                append!(*ts, "{expr_indent}void {check_name};\n");
-                mappings.push(VizeMapping {
-                    gen_range: gen_stmt_start..gen_stmt_end,
-                    src_range: prop_src_start..prop_src_end,
-                });
+            let gen_stmt_start = ts.len();
+            let check_name = cstr!("__vize_prop_check_{idx}_{safe_prop_name}");
+            append!(
+                *ts,
+                "{expr_indent}const {check_name}: __{component_name}_{idx}_prop_{safe_prop_name} = {};\n",
+                generated_value,
+            );
+            let gen_stmt_end = ts.len();
+            append!(*ts, "{expr_indent}void {check_name};\n");
+            mappings.push(VizeMapping {
+                gen_range: gen_stmt_start..gen_stmt_end,
+                src_range: prop_src_start..prop_src_end,
+            });
 
-                if usage.vif_guard.is_some() {
-                    append!(*ts, "{indent}}}\n");
-                }
+            if usage.vif_guard.is_some() {
+                append!(*ts, "{indent}}}\n");
             }
         }
     }

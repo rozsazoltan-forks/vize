@@ -9,10 +9,10 @@ use oxc_parser::Parser;
 use oxc_span::SourceType;
 use vize_carton::FxHashMap;
 
-use super::collector::collect_identifier_rewrites;
-use super::helpers::{transform_props_text_based, PROPS_REST_SENTINEL};
 use super::PropsDestructuredBindings;
-use vize_carton::{profile, String, ToCompactString};
+use super::collector::collect_identifier_rewrites;
+use super::helpers::{PROPS_REST_SENTINEL, transform_props_text_based};
+use vize_carton::{String, ToCompactString, profile};
 
 /// Transform destructured props references in source code.
 /// Rewrites `foo` to `__props.foo` for destructured props.

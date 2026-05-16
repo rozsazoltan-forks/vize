@@ -132,21 +132,18 @@ impl<'a> SsrCodegenContext<'a> {
 
         for prop in &el.props {
             if let PropNode::Directive(dir) = prop {
-                if dir.name == "bind" {
-                    if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                        if arg.content == "name" {
-                            if let Some(ExpressionNode::Simple(exp)) = &dir.exp {
-                                return exp.content.to_compact_string();
-                            }
-                        }
-                    }
+                if dir.name == "bind"
+                    && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                    && arg.content == "name"
+                    && let Some(ExpressionNode::Simple(exp)) = &dir.exp
+                {
+                    return exp.content.to_compact_string();
                 }
-            } else if let PropNode::Attribute(attr) = prop {
-                if attr.name == "name" {
-                    if let Some(value) = &attr.value {
-                        return value.content.to_compact_string();
-                    }
-                }
+            } else if let PropNode::Attribute(attr) = prop
+                && attr.name == "name"
+                && let Some(value) = &attr.value
+            {
+                return value.content.to_compact_string();
             }
         }
         "default".to_compact_string()

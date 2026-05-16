@@ -79,17 +79,17 @@ impl Rule for NoChildContent {
     }
 
     fn enter_element<'a>(&self, ctx: &mut LintContext<'a>, element: &ElementNode<'a>) {
-        if let Some(directive_name) = Self::has_v_html_or_v_text(element) {
-            if Self::has_child_content(element) {
-                ctx.error_with_help(
-                    ctx.t_fmt(
-                        "vue/no-child-content.message",
-                        &[("directive", directive_name)],
-                    ),
-                    &element.loc,
-                    ctx.t("vue/no-child-content.help"),
-                );
-            }
+        if let Some(directive_name) = Self::has_v_html_or_v_text(element)
+            && Self::has_child_content(element)
+        {
+            ctx.error_with_help(
+                ctx.t_fmt(
+                    "vue/no-child-content.message",
+                    &[("directive", directive_name)],
+                ),
+                &element.loc,
+                ctx.t("vue/no-child-content.help"),
+            );
         }
     }
 }

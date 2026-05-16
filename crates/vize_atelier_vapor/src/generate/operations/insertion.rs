@@ -1,5 +1,5 @@
 use crate::ir::{BlockIRNode, OperationNode};
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 use super::super::context::GenerateContext;
 

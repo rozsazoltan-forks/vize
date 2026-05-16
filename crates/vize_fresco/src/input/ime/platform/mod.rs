@@ -97,11 +97,11 @@ impl PlatformIme for TerminalIme {
                 {
                     // In a real implementation, this would handle romaji->kana conversion etc.
                     // For now, we just pass through printable characters
-                    if key.is_printable() {
-                        if let crate::input::keyboard::Key::Char(c) = key.key {
-                            // Simple passthrough for now
-                            return Some(ImeEvent::Commit(c.to_compact_string()));
-                        }
+                    if key.is_printable()
+                        && let crate::input::keyboard::Key::Char(c) = key.key
+                    {
+                        // Simple passthrough for now
+                        return Some(ImeEvent::Commit(c.to_compact_string()));
                     }
                 }
 

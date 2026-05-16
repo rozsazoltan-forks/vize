@@ -1,7 +1,7 @@
-use vize_carton::{profile, String};
+use vize_carton::{String, profile};
 
-use super::super::super::function_mode::dedupe_imports;
 use super::super::super::TemplateParts;
+use super::super::super::function_mode::dedupe_imports;
 use super::parser::parse_script_content;
 
 pub(super) struct PreambleState {

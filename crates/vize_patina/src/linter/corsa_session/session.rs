@@ -1,10 +1,10 @@
 use super::{
+    CorsaTypeAwareSession,
     errors::{compact_error, io_error_message},
     paths::{
-        allocate_session_root, path_to_wire, resolve_corsa_executable, resolve_project_root,
-        TSCONFIG_CONTENTS, TSCONFIG_FILE_NAME, VIRTUAL_FILE_NAME,
+        TSCONFIG_CONTENTS, TSCONFIG_FILE_NAME, VIRTUAL_FILE_NAME, allocate_session_root,
+        path_to_wire, resolve_corsa_executable, resolve_project_root,
     },
-    CorsaTypeAwareSession,
 };
 use corsa::{
     api::{
@@ -13,7 +13,7 @@ use corsa::{
     },
     runtime::block_on,
 };
-use vize_carton::{profile, String, ToCompactString};
+use vize_carton::{String, ToCompactString, profile};
 
 impl CorsaTypeAwareSession {
     pub(in crate::linter) fn new(filename: &str) -> Result<Self, String> {

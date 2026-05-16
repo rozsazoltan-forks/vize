@@ -3,7 +3,7 @@
 //! Provides efficient lookup and tracking of symbols across
 //! the entire compilation unit.
 
-use vize_carton::{bitflags, FxHashMap, String};
+use vize_carton::{FxHashMap, String, bitflags};
 use vize_relief::BindingType;
 
 use crate::{ScopeBinding, ScopeId};
@@ -149,11 +149,11 @@ impl SymbolTable {
 
     /// Add a reference to a symbol
     pub fn add_reference(&mut self, name: &str, offset: u32) -> bool {
-        if let Some(&id) = self.name_to_id.get(name) {
-            if let Some(symbol) = self.symbols.get_mut(id.as_u32() as usize) {
-                symbol.add_reference(offset);
-                return true;
-            }
+        if let Some(&id) = self.name_to_id.get(name)
+            && let Some(symbol) = self.symbols.get_mut(id.as_u32() as usize)
+        {
+            symbol.add_reference(offset);
+            return true;
         }
         false
     }

@@ -236,9 +236,11 @@ mod tests {
         };
 
         assert!(result.content.starts_with("$event => ("));
-        assert!(result
-            .content
-            .contains("selectedFolders.value = selectedFolders.value.filter("));
+        assert!(
+            result
+                .content
+                .contains("selectedFolders.value = selectedFolders.value.filter(")
+        );
         assert!(result.content.contains("folder.value.id"));
     }
 }

@@ -33,7 +33,7 @@ use crate::scope::{
     VueGlobalScopeData,
 };
 use crate::setup_context::SetupContextTracker;
-use vize_carton::{profile, CompactString, FxHashMap, FxHashSet};
+use vize_carton::{CompactString, FxHashMap, FxHashSet, profile};
 
 pub use process::process_statement;
 
@@ -375,7 +375,7 @@ pub fn parse_script(source: &str) -> ScriptParseResult {
 #[cfg(test)]
 mod tests {
     use super::{parse_script, parse_script_setup};
-    use vize_carton::{append, cstr, CompactString};
+    use vize_carton::{CompactString, append, cstr};
 
     #[test]
     fn test_parse_define_props_type() {
@@ -937,9 +937,11 @@ const a = ctx.second()
         );
 
         let losses = result.reactivity.losses();
-        assert!(!losses
-            .iter()
-            .any(|loss| matches!(&loss.kind, ReactivityLossKind::PropsDestructure { .. })));
+        assert!(
+            !losses
+                .iter()
+                .any(|loss| matches!(&loss.kind, ReactivityLossKind::PropsDestructure { .. }))
+        );
         assert!(losses.iter().any(|loss| matches!(
             &loss.kind,
             ReactivityLossKind::PlainValueAlias {

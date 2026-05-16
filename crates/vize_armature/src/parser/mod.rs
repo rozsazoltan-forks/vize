@@ -150,10 +150,10 @@ impl<'a> Parser<'a> {
         self.handle_unclosed_elements();
 
         // Condense whitespace if needed
-        if let Some(ref mut root) = self.root {
-            if self.options.whitespace == WhitespaceStrategy::Condense {
-                condense_whitespace(&mut root.children, self.options.is_pre_tag);
-            }
+        if let Some(ref mut root) = self.root
+            && self.options.whitespace == WhitespaceStrategy::Condense
+        {
+            condense_whitespace(&mut root.children, self.options.is_pre_tag);
         }
 
         let root = self.root.take().unwrap();

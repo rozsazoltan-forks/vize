@@ -9,8 +9,8 @@ use vize_carton::{FxHashSet, String, ToCompactString};
 use crate::parse_sfc;
 use crate::types::SfcParseOptions;
 
-use super::helpers::is_import_type_only;
 use super::ScriptCompileContext;
+use super::helpers::is_import_type_only;
 
 const RESOLVE_EXTENSIONS: &[&str] = &[
     ".ts", ".tsx", ".d.ts", ".mts", ".cts", ".js", ".jsx", ".vue",

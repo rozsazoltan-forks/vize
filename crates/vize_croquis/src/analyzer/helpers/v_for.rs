@@ -11,7 +11,7 @@ use oxc_allocator::Allocator;
 use oxc_ast::ast::BindingPattern;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
-use vize_carton::{profile, smallvec, CompactString, SmallVec, String};
+use vize_carton::{CompactString, SmallVec, String, profile, smallvec};
 
 use super::is_valid_identifier_fast;
 
@@ -260,10 +260,10 @@ fn parse_v_for_pattern(
 
     let mut vars = SmallVec::new();
 
-    if let Some(oxc_ast::ast::Statement::VariableDeclaration(var_decl)) = ret.program.body.first() {
-        if let Some(declarator) = var_decl.declarations.first() {
-            extract_binding_names(&declarator.id, &mut vars);
-        }
+    if let Some(oxc_ast::ast::Statement::VariableDeclaration(var_decl)) = ret.program.body.first()
+        && let Some(declarator) = var_decl.declarations.first()
+    {
+        extract_binding_names(&declarator.id, &mut vars);
     }
 
     (vars, source)
@@ -283,10 +283,10 @@ fn extract_binding_names_from_pattern(pattern: &str) -> SmallVec<[CompactString;
     );
 
     let mut vars = SmallVec::new();
-    if let Some(oxc_ast::ast::Statement::VariableDeclaration(var_decl)) = ret.program.body.first() {
-        if let Some(declarator) = var_decl.declarations.first() {
-            extract_binding_names4(&declarator.id, &mut vars);
-        }
+    if let Some(oxc_ast::ast::Statement::VariableDeclaration(var_decl)) = ret.program.body.first()
+        && let Some(declarator) = var_decl.declarations.first()
+    {
+        extract_binding_names4(&declarator.id, &mut vars);
     }
     vars
 }

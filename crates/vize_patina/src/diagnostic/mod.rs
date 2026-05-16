@@ -8,12 +8,12 @@
 pub mod formatting;
 mod types;
 
-pub use formatting::{render_help, HelpRenderTarget};
+pub use formatting::{HelpRenderTarget, render_help};
 pub use types::{Fix, HelpLevel, LintDiagnostic, LintSummary, Severity, TextEdit};
 
 #[cfg(test)]
 mod tests {
-    use super::{formatting, render_help, HelpLevel, HelpRenderTarget};
+    use super::{HelpLevel, HelpRenderTarget, formatting, render_help};
     use vize_carton::ToCompactString;
 
     #[test]

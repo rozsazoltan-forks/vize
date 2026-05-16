@@ -40,7 +40,7 @@ pub(super) fn parse_script_content(
     let mut in_destructure_call = false;
     let mut destructure_call_paren_depth: i32 = 0;
     let mut destructure_call_keep_lines = false; // true for regular function calls (keep args in output)
-                                                 // Track multiline object literals: const xxx = { ... }
+    // Track multiline object literals: const xxx = { ... }
     let mut in_object_literal = false;
     let mut object_literal_buffer = String::default();
     let mut object_literal_brace_depth: i32 = 0;
@@ -50,7 +50,7 @@ pub(super) fn parse_script_content(
     let mut in_ts_type = false;
     let mut ts_type_depth: i32 = 0; // Track angle brackets and parens for complex types
     let mut ts_type_pending_end = false; // True when type may have ended on `}` but need to check next line
-                                         // Track template literals (backtick strings) to skip content inside them
+    // Track template literals (backtick strings) to skip content inside them
     let mut in_template_literal = false;
 
     for line in content.lines() {
@@ -336,11 +336,9 @@ pub(super) fn parse_script_content(
 
         // Handle TypeScript interface declarations (collect for TS output, skip for JS)
         if in_ts_interface {
-            if is_ts {
-                if let Some(last) = ts_declarations.last_mut() {
-                    last.push('\n');
-                    last.push_str(line);
-                }
+            if is_ts && let Some(last) = ts_declarations.last_mut() {
+                last.push('\n');
+                last.push_str(line);
             }
             ts_interface_brace_depth += trimmed.matches('{').count() as i32;
             ts_interface_brace_depth -= trimmed.matches('}').count() as i32;
@@ -399,11 +397,9 @@ pub(super) fn parse_script_content(
                 ts_type_pending_end = false;
                 if is_type_continuation {
                     // Continue the type - next union/intersection variant
-                    if is_ts {
-                        if let Some(last) = ts_declarations.last_mut() {
-                            last.push('\n');
-                            last.push_str(line);
-                        }
+                    if is_ts && let Some(last) = ts_declarations.last_mut() {
+                        last.push('\n');
+                        last.push_str(line);
                     }
                     let cleaned = strip_comments_for_counting(trimmed);
                     let line_no_arrow = cleaned.replace("=>", "__");
@@ -422,11 +418,9 @@ pub(super) fn parse_script_content(
             }
 
             if in_ts_type {
-                if is_ts {
-                    if let Some(last) = ts_declarations.last_mut() {
-                        last.push('\n');
-                        last.push_str(line);
-                    }
+                if is_ts && let Some(last) = ts_declarations.last_mut() {
+                    last.push('\n');
+                    last.push_str(line);
                 }
                 // Track balanced brackets for complex types like: type X = { a: string } | { b: number }
                 // Strip `=>` before counting angle brackets to avoid misinterpreting arrow functions

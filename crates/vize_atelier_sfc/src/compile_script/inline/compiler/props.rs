@@ -56,19 +56,16 @@ pub(super) fn build_props_emits(
                     props_emits_buf.extend_from_slice(name.as_bytes());
                     props_emits_buf.extend_from_slice(b": { type: ");
                     props_emits_buf.extend_from_slice(runtime_js_type.as_bytes());
-                    if needs_prop_type {
-                        if let Some(ref ts_type) = prop_type.ts_type {
-                            if resolved_js_type == "null" {
-                                props_emits_buf.extend_from_slice(b" as unknown as PropType<");
-                            } else {
-                                props_emits_buf.extend_from_slice(b" as PropType<");
-                            }
-                            // Normalize multi-line types to single line
-                            let normalized =
-                                ts_type.split_whitespace().collect::<Vec<_>>().join(" ");
-                            props_emits_buf.extend_from_slice(normalized.as_bytes());
-                            props_emits_buf.push(b'>');
+                    if needs_prop_type && let Some(ref ts_type) = prop_type.ts_type {
+                        if resolved_js_type == "null" {
+                            props_emits_buf.extend_from_slice(b" as unknown as PropType<");
+                        } else {
+                            props_emits_buf.extend_from_slice(b" as PropType<");
                         }
+                        // Normalize multi-line types to single line
+                        let normalized = ts_type.split_whitespace().collect::<Vec<_>>().join(" ");
+                        props_emits_buf.extend_from_slice(normalized.as_bytes());
+                        props_emits_buf.push(b'>');
                     }
                     props_emits_buf.extend_from_slice(b", required: ");
                     props_emits_buf.extend_from_slice(if prop_type.optional {
@@ -77,22 +74,20 @@ pub(super) fn build_props_emits(
                         b"true"
                     });
                     let mut has_default = false;
-                    if let Some(ref defaults) = with_defaults_args {
-                        if let Some(default_val) = defaults.get(name.as_str()) {
-                            props_emits_buf.extend_from_slice(b", default: ");
-                            props_emits_buf.extend_from_slice(default_val.as_bytes());
-                            has_default = true;
-                        }
+                    if let Some(ref defaults) = with_defaults_args
+                        && let Some(default_val) = defaults.get(name.as_str())
+                    {
+                        props_emits_buf.extend_from_slice(b", default: ");
+                        props_emits_buf.extend_from_slice(default_val.as_bytes());
+                        has_default = true;
                     }
-                    if !has_default {
-                        if let Some(ref destructure) = ctx.macros.props_destructure {
-                            if let Some(binding) = destructure.bindings.get(name.as_str()) {
-                                if let Some(ref default_val) = binding.default {
-                                    props_emits_buf.extend_from_slice(b", default: ");
-                                    props_emits_buf.extend_from_slice(default_val.as_bytes());
-                                }
-                            }
-                        }
+                    if !has_default
+                        && let Some(ref destructure) = ctx.macros.props_destructure
+                        && let Some(binding) = destructure.bindings.get(name.as_str())
+                        && let Some(ref default_val) = binding.default
+                    {
+                        props_emits_buf.extend_from_slice(b", default: ");
+                        props_emits_buf.extend_from_slice(default_val.as_bytes());
                     }
                     props_emits_buf.extend_from_slice(b" }");
                     if item_idx < total_items {

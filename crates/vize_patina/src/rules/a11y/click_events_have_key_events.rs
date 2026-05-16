@@ -45,28 +45,27 @@ impl ClickEventsHaveKeyEvents {
     /// Check if element has a role that makes it interactive
     fn has_interactive_role(element: &ElementNode) -> bool {
         for prop in &element.props {
-            if let PropNode::Attribute(attr) = prop {
-                if attr.name == "role" {
-                    if let Some(value) = &attr.value {
-                        return matches!(
-                            value.content.as_ref(),
-                            "button"
-                                | "link"
-                                | "checkbox"
-                                | "menuitem"
-                                | "menuitemcheckbox"
-                                | "menuitemradio"
-                                | "option"
-                                | "radio"
-                                | "searchbox"
-                                | "switch"
-                                | "textbox"
-                                | "tab"
-                                | "treeitem"
-                                | "gridcell"
-                        );
-                    }
-                }
+            if let PropNode::Attribute(attr) = prop
+                && attr.name == "role"
+                && let Some(value) = &attr.value
+            {
+                return matches!(
+                    value.content.as_ref(),
+                    "button"
+                        | "link"
+                        | "checkbox"
+                        | "menuitem"
+                        | "menuitemcheckbox"
+                        | "menuitemradio"
+                        | "option"
+                        | "radio"
+                        | "searchbox"
+                        | "switch"
+                        | "textbox"
+                        | "tab"
+                        | "treeitem"
+                        | "gridcell"
+                );
             }
         }
         false
@@ -75,14 +74,12 @@ impl ClickEventsHaveKeyEvents {
     /// Check if element has a click handler
     fn has_click_handler(element: &ElementNode) -> bool {
         for prop in &element.props {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name == "on" {
-                    if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                        if arg.content == "click" {
-                            return true;
-                        }
-                    }
-                }
+            if let PropNode::Directive(dir) = prop
+                && dir.name == "on"
+                && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                && arg.content == "click"
+            {
+                return true;
             }
         }
         false
@@ -91,14 +88,12 @@ impl ClickEventsHaveKeyEvents {
     /// Check if element has a keyboard event handler
     fn has_keyboard_handler(element: &ElementNode) -> bool {
         for prop in &element.props {
-            if let PropNode::Directive(dir) = prop {
-                if dir.name == "on" {
-                    if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                        if matches!(arg.content.as_ref(), "keydown" | "keyup" | "keypress") {
-                            return true;
-                        }
-                    }
-                }
+            if let PropNode::Directive(dir) = prop
+                && dir.name == "on"
+                && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                && matches!(arg.content.as_ref(), "keydown" | "keyup" | "keypress")
+            {
+                return true;
             }
         }
         false

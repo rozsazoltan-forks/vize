@@ -4,14 +4,14 @@
 //! is kept here for the focused unit tests that exercise import rewriting and
 //! baseline batch behavior in isolation.
 
+use super::SfcBlockType;
 use super::import_rewriter::ImportRewriter;
 use super::source_map::{SfcBlockRange, SfcSourceMap};
-use super::SfcBlockType;
 use crate::virtual_ts::VizeMapping;
 use vize_atelier_sfc::SfcDescriptor;
+use vize_carton::String;
 use vize_carton::append;
 use vize_carton::cstr;
-use vize_carton::String;
 use vize_croquis::{Analyzer, AnalyzerOptions, Croquis};
 
 /// Result of virtual TypeScript generation.

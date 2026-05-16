@@ -10,7 +10,7 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 
-use crate::typecheck::{type_check_sfc, TypeCheckOptions, TypeSeverity};
+use crate::typecheck::{TypeCheckOptions, TypeSeverity, type_check_sfc};
 
 /// Type check options for NAPI
 #[napi(object)]
@@ -145,7 +145,7 @@ pub fn generate_declaration_napi(
     options: Option<DeclarationOptionsNapi>,
 ) -> Result<DeclarationResultNapi> {
     use std::mem;
-    use vize_atelier_sfc::{parse_sfc, SfcDescriptor, SfcParseOptions};
+    use vize_atelier_sfc::{SfcDescriptor, SfcParseOptions, parse_sfc};
     use vize_croquis::declaration_ts::{
         generate_declaration_ts, generate_declaration_ts_with_split_scripts,
     };

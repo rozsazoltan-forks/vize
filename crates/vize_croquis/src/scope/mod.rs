@@ -23,7 +23,7 @@ pub use chain::{Scope, ScopeChain};
 pub use types::{
     BindingFlags, BlockKind, BlockScopeData, CallbackScopeData, ClientOnlyScopeData,
     ClosureScopeData, EventHandlerScopeData, ExternalModuleScopeData, JsGlobalScopeData, JsRuntime,
-    NonScriptSetupScopeData, ParamNames, ParentScopes, ScopeBinding, ScopeData, ScopeId, ScopeKind,
-    ScriptSetupScopeData, Span, UniversalScopeData, VForScopeData, VSlotScopeData,
-    VueGlobalScopeData, PARAM_INLINE_CAP,
+    NonScriptSetupScopeData, PARAM_INLINE_CAP, ParamNames, ParentScopes, ScopeBinding, ScopeData,
+    ScopeId, ScopeKind, ScriptSetupScopeData, Span, UniversalScopeData, VForScopeData,
+    VSlotScopeData, VueGlobalScopeData,
 };

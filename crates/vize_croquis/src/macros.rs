@@ -576,9 +576,9 @@ impl MacroTracker {
 #[cfg(test)]
 mod tests {
     use super::{
-        artifact_macro_names, is_artifact_macro, is_compile_time_macro,
-        is_ecosystem_compile_time_macro, is_runtime_erased_macro, macro_artifact_kind,
-        macro_lifecycle, runtime_erased_macro_names, MacroKind, MacroLifecycle, MacroTracker,
+        MacroKind, MacroLifecycle, MacroTracker, artifact_macro_names, is_artifact_macro,
+        is_compile_time_macro, is_ecosystem_compile_time_macro, is_runtime_erased_macro,
+        macro_artifact_kind, macro_lifecycle, runtime_erased_macro_names,
     };
     use vize_carton::CompactString;
 

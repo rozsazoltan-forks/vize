@@ -162,10 +162,10 @@ fn hoist_static_inner<'a>(
                 // They must use createElementBlock for proper block tracking
                 // Only hoist their props instead
                 if is_root {
-                    if let TemplateChildNode::Element(el) = &mut children[i] {
-                        if has_static_props(el) {
-                            hoist_element_props(ctx, el, allocator);
-                        }
+                    if let TemplateChildNode::Element(el) = &mut children[i]
+                        && has_static_props(el)
+                    {
+                        hoist_element_props(ctx, el, allocator);
                     }
                 } else {
                     // Non-root static elements can be fully hoisted
@@ -182,10 +182,10 @@ fn hoist_static_inner<'a>(
             }
             StaticType::HasDynamicText => {
                 // Element has static props but dynamic text - hoist the props only
-                if let TemplateChildNode::Element(el) = &mut children[i] {
-                    if has_static_props(el) {
-                        hoist_element_props(ctx, el, allocator);
-                    }
+                if let TemplateChildNode::Element(el) = &mut children[i]
+                    && has_static_props(el)
+                {
+                    hoist_element_props(ctx, el, allocator);
                 }
             }
             StaticType::NotStatic => {
@@ -313,13 +313,13 @@ fn create_children_expression<'a>(
     }
 
     // For a single text child, use Single variant with Text
-    if children.len() == 1 {
-        if let TemplateChildNode::Text(text) = &children[0] {
-            let text_node = TextNode::new(text.content.clone(), text.loc.clone());
-            return Some(VNodeChildren::Single(TemplateTextChildNode::Text(
-                Box::new_in(text_node, allocator),
-            )));
-        }
+    if children.len() == 1
+        && let TemplateChildNode::Text(text) = &children[0]
+    {
+        let text_node = TextNode::new(text.content.clone(), text.loc.clone());
+        return Some(VNodeChildren::Single(TemplateTextChildNode::Text(
+            Box::new_in(text_node, allocator),
+        )));
     }
 
     // For multiple text children, combine them
@@ -441,10 +441,10 @@ fn hoist_element_props<'a>(
 pub fn should_use_block(el: &ElementNode<'_>) -> bool {
     // Use block for elements with v-for, v-if, or components
     for prop in el.props.iter() {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "for" || dir.name == "if" {
-                return true;
-            }
+        if let PropNode::Directive(dir) = prop
+            && (dir.name == "for" || dir.name == "if")
+        {
+            return true;
         }
     }
 

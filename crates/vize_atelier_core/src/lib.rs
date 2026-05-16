@@ -43,15 +43,17 @@ pub use vize_relief::{ast, errors, options};
 // Re-export from vize_armature (parser, tokenizer)
 pub use vize_armature as parser;
 pub use vize_armature::tokenizer;
-pub use vize_armature::{parse, parse_with_options, Parser};
+pub use vize_armature::{Parser, parse, parse_with_options};
 
-pub use codegen::{generate, CodegenContext, CodegenResult};
-pub use runtime_helpers::{get_vnode_block_helper, get_vnode_helper, RuntimeHelpers};
+pub use codegen::{CodegenContext, CodegenResult, generate};
+pub use runtime_helpers::{RuntimeHelpers, get_vnode_block_helper, get_vnode_helper};
 pub use transform::{
-    transform, DirectiveTransform, DirectiveTransformResult, ExitFn, NodeTransform, ParentNode,
-    StructuralDirectiveTransform, TransformContext,
+    DirectiveTransform, DirectiveTransformResult, ExitFn, NodeTransform, ParentNode,
+    StructuralDirectiveTransform, TransformContext, transform,
 };
 pub use transforms::{
+    ChildrenType, EventModifiers, MemoInfo, PropItem, SlotInfo, SlotOutletInfo, StaticType,
+    TextCallExpression, TextPart, TransformPropsExpression, TransformVNodeCall, VModelModifiers,
     build_element_codegen, build_props, build_text_call, camelize, collect_slots,
     condense_whitespace, count_dynamic_children, create_on_name, generate_memo_check,
     generate_v_memo_wrapper, generate_v_once_wrapper, get_bind_name, get_bind_value,
@@ -66,9 +68,7 @@ pub use transforms::{
     process_v_memo, process_v_on, remove_for_directive, remove_if_directive, remove_v_memo,
     remove_v_once, resolve_element_type, should_use_block, strip_typescript_from_expression,
     supports_v_model, transform_slot_outlet, transform_text_children, transform_v_model,
-    transform_v_once, ChildrenType, EventModifiers, MemoInfo, PropItem, SlotInfo, SlotOutletInfo,
-    StaticType, TextCallExpression, TextPart, TransformPropsExpression, TransformVNodeCall,
-    VModelModifiers,
+    transform_v_once,
 };
 
 /// Re-export allocator types for convenience

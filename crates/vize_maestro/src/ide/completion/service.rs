@@ -18,7 +18,7 @@ use vize_canon::{CorsaBridge, LspCompletionItem, LspDocumentation};
 use super::{is_inside_html_comment, script, style, template};
 #[cfg(feature = "native")]
 use crate::ide::corsa_support;
-use crate::ide::{ecosystem, IdeContext};
+use crate::ide::{IdeContext, ecosystem};
 use crate::virtual_code::{ArtCursorPosition, BlockType};
 
 impl super::CompletionService {
@@ -197,34 +197,34 @@ impl super::CompletionService {
         info: &crate::virtual_code::ArtVariantInfo,
         bridge: &CorsaBridge,
     ) -> Vec<CompletionItem> {
-        if let Some(ref virtual_docs) = ctx.virtual_docs {
-            if let Some(tmpl) = virtual_docs.art_template(info.variant_index) {
-                // Convert the art variant relative offset through the template source map
-                let relative_offset = info.relative_offset as u32;
-                let vts_offset = tmpl
-                    .source_map
-                    .to_generated(relative_offset)
-                    .map(|o| o as usize)
-                    .unwrap_or(relative_offset as usize);
+        if let Some(ref virtual_docs) = ctx.virtual_docs
+            && let Some(tmpl) = virtual_docs.art_template(info.variant_index)
+        {
+            // Convert the art variant relative offset through the template source map
+            let relative_offset = info.relative_offset as u32;
+            let vts_offset = tmpl
+                .source_map
+                .to_generated(relative_offset)
+                .map(|o| o as usize)
+                .unwrap_or(relative_offset as usize);
 
-                let (line, character) = crate::ide::offset_to_position(&tmpl.content, vts_offset);
+            let (line, character) = crate::ide::offset_to_position(&tmpl.content, vts_offset);
 
-                if bridge.is_initialized() {
-                    let request_path =
-                        corsa_support::art_template_request_path(ctx.uri, info.variant_index);
-                    let Ok(uri) = bridge
-                        .open_or_update_virtual_document(&request_path, &tmpl.content)
-                        .await
-                    else {
-                        return vec![];
-                    };
+            if bridge.is_initialized() {
+                let request_path =
+                    corsa_support::art_template_request_path(ctx.uri, info.variant_index);
+                let Ok(uri) = bridge
+                    .open_or_update_virtual_document(&request_path, &tmpl.content)
+                    .await
+                else {
+                    return vec![];
+                };
 
-                    if let Ok(items) = bridge.completion(&uri, line, character).await {
-                        return items
-                            .into_iter()
-                            .map(Self::convert_lsp_completion)
-                            .collect();
-                    }
+                if let Ok(items) = bridge.completion(&uri, line, character).await {
+                    return items
+                        .into_iter()
+                        .map(Self::convert_lsp_completion)
+                        .collect();
                 }
             }
         }
@@ -238,30 +238,27 @@ impl super::CompletionService {
         ctx: &IdeContext<'_>,
         bridge: &CorsaBridge,
     ) -> Vec<CompletionItem> {
-        if let Some(ref virtual_docs) = ctx.virtual_docs {
-            if let Some(ref tmpl) = virtual_docs.template {
-                if let Some(vts_offset) =
-                    crate::ide::hover::HoverService::sfc_to_virtual_ts_offset(ctx, ctx.offset)
-                {
-                    let (line, character) =
-                        crate::ide::offset_to_position(&tmpl.content, vts_offset);
+        if let Some(ref virtual_docs) = ctx.virtual_docs
+            && let Some(ref tmpl) = virtual_docs.template
+            && let Some(vts_offset) =
+                crate::ide::hover::HoverService::sfc_to_virtual_ts_offset(ctx, ctx.offset)
+        {
+            let (line, character) = crate::ide::offset_to_position(&tmpl.content, vts_offset);
 
-                    if bridge.is_initialized() {
-                        let request_path = corsa_support::template_request_path(ctx.uri);
-                        let Ok(uri) = bridge
-                            .open_or_update_virtual_document(&request_path, &tmpl.content)
-                            .await
-                        else {
-                            return vec![];
-                        };
+            if bridge.is_initialized() {
+                let request_path = corsa_support::template_request_path(ctx.uri);
+                let Ok(uri) = bridge
+                    .open_or_update_virtual_document(&request_path, &tmpl.content)
+                    .await
+                else {
+                    return vec![];
+                };
 
-                        if let Ok(items) = bridge.completion(&uri, line, character).await {
-                            return items
-                                .into_iter()
-                                .map(Self::convert_lsp_completion)
-                                .collect();
-                        }
-                    }
+                if let Ok(items) = bridge.completion(&uri, line, character).await {
+                    return items
+                        .into_iter()
+                        .map(Self::convert_lsp_completion)
+                        .collect();
                 }
             }
         }
@@ -283,29 +280,28 @@ impl super::CompletionService {
                 virtual_docs.script.as_ref()
             };
 
-            if let Some(s) = script_doc {
-                if let Some(vts_offset) =
+            if let Some(s) = script_doc
+                && let Some(vts_offset) =
                     crate::ide::hover::HoverService::sfc_to_virtual_ts_script_offset(
                         ctx, ctx.offset,
                     )
-                {
-                    let (line, character) = crate::ide::offset_to_position(&s.content, vts_offset);
+            {
+                let (line, character) = crate::ide::offset_to_position(&s.content, vts_offset);
 
-                    if bridge.is_initialized() {
-                        let request_path = corsa_support::script_request_path(ctx.uri, is_setup);
-                        let Ok(uri) = bridge
-                            .open_or_update_virtual_document(&request_path, &s.content)
-                            .await
-                        else {
-                            return vec![];
-                        };
+                if bridge.is_initialized() {
+                    let request_path = corsa_support::script_request_path(ctx.uri, is_setup);
+                    let Ok(uri) = bridge
+                        .open_or_update_virtual_document(&request_path, &s.content)
+                        .await
+                    else {
+                        return vec![];
+                    };
 
-                        if let Ok(items) = bridge.completion(&uri, line, character).await {
-                            return items
-                                .into_iter()
-                                .map(Self::convert_lsp_completion)
-                                .collect();
-                        }
+                    if let Ok(items) = bridge.completion(&uri, line, character).await {
+                        return items
+                            .into_iter()
+                            .map(Self::convert_lsp_completion)
+                            .collect();
                     }
                 }
             }

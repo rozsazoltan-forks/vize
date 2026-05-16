@@ -4,7 +4,7 @@
 //! SFC script into a lightweight `.d.ts` surface for Vue component consumers.
 
 use crate::{Croquis, ScopeData, ScopeKind};
-use vize_carton::{append, cstr, SmallVec, String};
+use vize_carton::{SmallVec, String, append, cstr};
 
 /// Result of declaration generation.
 #[derive(Debug, Clone, Default)]
@@ -410,16 +410,20 @@ const slots = defineSlots<{
         let summary = analyzer.finish();
         let output = generate_declaration_ts(&summary, Some(script));
 
-        assert!(output
-            .content
-            .contains("import type { User } from './types'"));
+        assert!(
+            output
+                .content
+                .contains("import type { User } from './types'")
+        );
         assert!(output.content.contains("interface PublicProps"));
         assert!(output.content.contains("export type Props = PublicProps;"));
         assert!(output.content.contains("export type Emits = {"));
         assert!(output.content.contains("export type Slots = {"));
-        assert!(output
-            .content
-            .contains("export default __vize_component__;"));
+        assert!(
+            output
+                .content
+                .contains("export default __vize_component__;")
+        );
     }
 
     #[test]

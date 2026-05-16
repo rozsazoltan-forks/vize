@@ -138,14 +138,12 @@ where
     'a: 'b,
 {
     for prop in &el.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "bind" {
-                if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                    if arg.content == "key" {
-                        return dir.exp.as_ref();
-                    }
-                }
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "bind"
+            && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+            && arg.content == "key"
+        {
+            return dir.exp.as_ref();
         }
     }
     None
@@ -157,12 +155,11 @@ pub(crate) fn has_other_props(el: &ElementNode<'_>) -> bool {
         PropNode::Attribute(_) => true,
         PropNode::Directive(dir) => {
             // Skip key binding (already handled separately)
-            if dir.name == "bind" {
-                if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                    if arg.content == "key" {
-                        return false;
-                    }
-                }
+            if dir.name == "bind"
+                && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                && arg.content == "key"
+            {
+                return false;
             }
             // Skip v-for directive (handled by parent)
             if dir.name == "for" {
@@ -180,12 +177,11 @@ pub(crate) fn has_other_props(el: &ElementNode<'_>) -> bool {
 /// Check if prop should be skipped for v-for item (key binding and v-for directive)
 pub(crate) fn should_skip_prop(p: &PropNode<'_>) -> bool {
     if let PropNode::Directive(dir) = p {
-        if dir.name == "bind" {
-            if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                if arg.content == "key" {
-                    return true;
-                }
-            }
+        if dir.name == "bind"
+            && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+            && arg.content == "key"
+        {
+            return true;
         }
         // Skip v-for directive
         if dir.name == "for" {

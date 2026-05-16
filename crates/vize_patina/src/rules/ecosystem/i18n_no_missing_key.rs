@@ -11,7 +11,7 @@ use crate::diagnostic::{LintDiagnostic, Severity};
 use crate::rule::{Rule, RuleCategory, RuleMeta};
 use memchr::memmem;
 use serde_json::Value;
-use vize_atelier_sfc::{parse_sfc, SfcCustomBlock, SfcParseOptions};
+use vize_atelier_sfc::{SfcCustomBlock, SfcParseOptions, parse_sfc};
 use vize_carton::{CompactString, FxHashSet, String};
 
 static META: RuleMeta = RuleMeta {
@@ -269,7 +269,7 @@ fn sfc_parse_options(filename: &str) -> SfcParseOptions {
 #[cfg(test)]
 #[allow(clippy::disallowed_macros)]
 mod tests {
-    use super::{translation_literals, VueI18nNoMissingKey};
+    use super::{VueI18nNoMissingKey, translation_literals};
     use crate::linter::Linter;
     use crate::rule::RuleRegistry;
 

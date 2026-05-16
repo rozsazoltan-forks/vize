@@ -7,12 +7,12 @@
 use super::corsa_session::CorsaTypeAwareSession;
 use crate::{
     diagnostic::{HelpLevel, LintDiagnostic},
-    preset::{builtin_script_rule_names, LintPreset},
+    preset::{LintPreset, builtin_script_rule_names},
     rule::RuleRegistry,
 };
 #[cfg(not(target_arch = "wasm32"))]
 use std::sync::Mutex;
-use vize_carton::{i18n::Locale, FxHashSet, String};
+use vize_carton::{FxHashSet, String, i18n::Locale};
 
 /// Lint result for a single file.
 #[derive(Debug, Clone)]

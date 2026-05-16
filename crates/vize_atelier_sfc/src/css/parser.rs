@@ -69,22 +69,22 @@ pub(crate) fn compile_css_internal(
         }
     };
 
-    if minify {
-        if let Err(e) = stylesheet.minify(lightningcss::stylesheet::MinifyOptions {
+    if minify
+        && let Err(e) = stylesheet.minify(lightningcss::stylesheet::MinifyOptions {
             targets,
             ..Default::default()
-        }) {
-            let mut errors = Vec::with_capacity(1);
-            let mut message = String::from("CSS minify error: ");
-            use std::fmt::Write as _;
-            let _ = write!(&mut message, "{:?}", e);
-            errors.push(message);
-            return CssInternalResult {
-                code: css.to_compact_string(),
-                errors,
-                exports: None,
-            };
-        }
+        })
+    {
+        let mut errors = Vec::with_capacity(1);
+        let mut message = String::from("CSS minify error: ");
+        use std::fmt::Write as _;
+        let _ = write!(&mut message, "{:?}", e);
+        errors.push(message);
+        return CssInternalResult {
+            code: css.to_compact_string(),
+            errors,
+            exports: None,
+        };
     }
 
     let printer_options = PrinterOptions {
@@ -176,20 +176,20 @@ pub(crate) fn bundle_css_internal(
         }
     };
 
-    if minify {
-        if let Err(e) = stylesheet.minify(MinifyOptions {
+    if minify
+        && let Err(e) = stylesheet.minify(MinifyOptions {
             targets,
             ..Default::default()
-        }) {
-            let mut message = String::from("CSS minify error: ");
-            use std::fmt::Write as _;
-            let _ = write!(&mut message, "{:?}", e);
-            return CssInternalResult {
-                code: String::from(""),
-                errors: vec![message],
-                exports: None,
-            };
-        }
+        })
+    {
+        let mut message = String::from("CSS minify error: ");
+        use std::fmt::Write as _;
+        let _ = write!(&mut message, "{:?}", e);
+        return CssInternalResult {
+            code: String::from(""),
+            errors: vec![message],
+            exports: None,
+        };
     }
 
     let printer_options = PrinterOptions {

@@ -15,7 +15,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(js_name = "analyzeCrossFile")]
 pub fn analyze_cross_file_wasm(files: JsValue, options: JsValue) -> Result<JsValue, JsValue> {
     use vize_atelier_core::parser::parse;
-    use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+    use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
     use vize_croquis::cross_file::CrossFileAnalyzer;
     use vize_croquis::{Analyzer, AnalyzerOptions};
 

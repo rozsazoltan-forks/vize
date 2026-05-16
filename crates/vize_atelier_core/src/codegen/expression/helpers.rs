@@ -14,10 +14,10 @@ use vize_carton::ToCompactString;
 /// This is a context-aware version that uses `$setup.` for setup bindings in function mode.
 pub(crate) fn prefix_identifiers_with_context(content: &str, ctx: &CodegenContext) -> String {
     use oxc_allocator::Allocator as OxcAllocator;
+    use oxc_ast_visit::Visit;
     use oxc_ast_visit::walk::{
         walk_assignment_expression, walk_object_property, walk_update_expression,
     };
-    use oxc_ast_visit::Visit;
     use oxc_parser::Parser;
     use oxc_span::SourceType;
     use vize_carton::FxHashSet;
@@ -126,75 +126,75 @@ pub(crate) fn prefix_identifiers_with_context(content: &str, ctx: &CodegenContex
         }
 
         fn visit_object_property(&mut self, prop: &oxc_ast::ast::ObjectProperty<'_>) {
-            if prop.shorthand {
-                if let oxc_ast::ast::PropertyKey::StaticIdentifier(ident) = &prop.key {
-                    let name = ident.name.as_str();
+            if prop.shorthand
+                && let oxc_ast::ast::PropertyKey::StaticIdentifier(ident) = &prop.key
+            {
+                let name = ident.name.as_str();
 
-                    // Skip if local variable, global, or slot param
-                    if self.local_vars.contains(name)
-                        || is_global_allowed(name)
-                        || self.ctx.is_slot_param(name)
-                    {
-                        return;
-                    }
+                // Skip if local variable, global, or slot param
+                if self.local_vars.contains(name)
+                    || is_global_allowed(name)
+                    || self.ctx.is_slot_param(name)
+                {
+                    return;
+                }
 
-                    let mut is_ref = false;
-                    let mut needs_unref = false;
-                    let prefix = if let Some(ref metadata) = self.ctx.options.binding_metadata {
-                        if let Some(binding_type) = metadata.bindings.get(name) {
-                            is_ref = self.ctx.options.inline
-                                && matches!(binding_type, BindingType::SetupRef);
-                            needs_unref = self.ctx.options.inline
-                                && matches!(
-                                    binding_type,
-                                    BindingType::SetupLet | BindingType::SetupMaybeRef
-                                );
-                            match binding_type {
-                                BindingType::Props | BindingType::PropsAliased => "$props.",
-                                _ => {
-                                    if self.ctx.options.inline {
-                                        ""
-                                    } else {
-                                        "$setup."
-                                    }
+                let mut is_ref = false;
+                let mut needs_unref = false;
+                let prefix = if let Some(ref metadata) = self.ctx.options.binding_metadata {
+                    if let Some(binding_type) = metadata.bindings.get(name) {
+                        is_ref = self.ctx.options.inline
+                            && matches!(binding_type, BindingType::SetupRef);
+                        needs_unref = self.ctx.options.inline
+                            && matches!(
+                                binding_type,
+                                BindingType::SetupLet | BindingType::SetupMaybeRef
+                            );
+                        match binding_type {
+                            BindingType::Props | BindingType::PropsAliased => "$props.",
+                            _ => {
+                                if self.ctx.options.inline {
+                                    ""
+                                } else {
+                                    "$setup."
                                 }
                             }
-                        } else {
-                            "_ctx."
                         }
                     } else {
                         "_ctx."
-                    };
-
-                    if !prefix.is_empty() || is_ref || needs_unref {
-                        let start = (prop.span.start - self.offset) as usize;
-                        let end = (prop.span.end - self.offset) as usize;
-                        let (value_prefix, value_suffix) = if needs_unref {
-                            ("_unref(", ")")
-                        } else if is_ref {
-                            ("", ".value")
-                        } else {
-                            ("", "")
-                        };
-                        let mut replacement = String::with_capacity(
-                            name.len()
-                                + 2
-                                + value_prefix.len()
-                                + prefix.len()
-                                + name.len()
-                                + value_suffix.len(),
-                        );
-                        replacement.push_str(name);
-                        replacement.push_str(": ");
-                        replacement.push_str(value_prefix);
-                        if !needs_unref {
-                            replacement.push_str(prefix);
-                        }
-                        replacement.push_str(name);
-                        replacement.push_str(value_suffix);
-                        self.rewrites.push((start, end, replacement));
-                        return;
                     }
+                } else {
+                    "_ctx."
+                };
+
+                if !prefix.is_empty() || is_ref || needs_unref {
+                    let start = (prop.span.start - self.offset) as usize;
+                    let end = (prop.span.end - self.offset) as usize;
+                    let (value_prefix, value_suffix) = if needs_unref {
+                        ("_unref(", ")")
+                    } else if is_ref {
+                        ("", ".value")
+                    } else {
+                        ("", "")
+                    };
+                    let mut replacement = String::with_capacity(
+                        name.len()
+                            + 2
+                            + value_prefix.len()
+                            + prefix.len()
+                            + name.len()
+                            + value_suffix.len(),
+                    );
+                    replacement.push_str(name);
+                    replacement.push_str(": ");
+                    replacement.push_str(value_prefix);
+                    if !needs_unref {
+                        replacement.push_str(prefix);
+                    }
+                    replacement.push_str(name);
+                    replacement.push_str(value_suffix);
+                    self.rewrites.push((start, end, replacement));
+                    return;
                 }
             }
 

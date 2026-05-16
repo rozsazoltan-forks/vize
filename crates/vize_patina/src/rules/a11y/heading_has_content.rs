@@ -31,10 +31,10 @@ impl HeadingHasContent {
     fn has_accessible_content(element: &ElementNode) -> bool {
         // Check for aria-label
         for prop in &element.props {
-            if let PropNode::Attribute(attr) = prop {
-                if attr.name == "aria-label" {
-                    return true;
-                }
+            if let PropNode::Attribute(attr) = prop
+                && attr.name == "aria-label"
+            {
+                return true;
             }
         }
 
@@ -70,14 +70,12 @@ impl Rule for HeadingHasContent {
 
         // Check for aria-hidden="true" (skip check if hidden)
         for prop in &element.props {
-            if let PropNode::Attribute(attr) = prop {
-                if attr.name == "aria-hidden" {
-                    if let Some(val) = &attr.value {
-                        if val.content == "true" {
-                            return;
-                        }
-                    }
-                }
+            if let PropNode::Attribute(attr) = prop
+                && attr.name == "aria-hidden"
+                && let Some(val) = &attr.value
+                && val.content == "true"
+            {
+                return;
             }
         }
 

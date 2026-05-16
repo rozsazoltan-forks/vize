@@ -330,18 +330,26 @@ mod tests {
             transform_lazy_hydration_macros(content).expect("macro should be transformed");
 
         assert!(!transformed.code.contains("defineLazyHydrationComponent"));
-        assert!(transformed
-            .code
-            .contains("__vizeCreateLazyVisibleComponent"));
-        assert!(transformed
-            .code
-            .contains("\"./components/MyComponent.vue\", () => import"));
-        assert!(transformed
-            .preamble
-            .contains("hydrateOnVisible as __vizeHydrateOnVisible"));
-        assert!(transformed
-            .preamble
-            .contains("const __vizeCreateLazyVisibleComponent"));
+        assert!(
+            transformed
+                .code
+                .contains("__vizeCreateLazyVisibleComponent")
+        );
+        assert!(
+            transformed
+                .code
+                .contains("\"./components/MyComponent.vue\", () => import")
+        );
+        assert!(
+            transformed
+                .preamble
+                .contains("hydrateOnVisible as __vizeHydrateOnVisible")
+        );
+        assert!(
+            transformed
+                .preamble
+                .contains("const __vizeCreateLazyVisibleComponent")
+        );
     }
 
     #[test]
@@ -369,8 +377,10 @@ const LazyHydrationMyComponent = defineLazyHydrationComponent(
 
         assert!(!transformed.code.contains("defineLazyHydrationComponent"));
         assert!(transformed.code.contains("__vizeCreateLazyTimeComponent"));
-        assert!(transformed
-            .preamble
-            .contains("const __vizeCreateLazyTimeComponent"));
+        assert!(
+            transformed
+                .preamble
+                .contains("const __vizeCreateLazyTimeComponent")
+        );
     }
 }

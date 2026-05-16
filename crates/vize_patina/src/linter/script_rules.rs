@@ -3,7 +3,7 @@ use crate::rules::script::{
     NoGetCurrentInstance, NoNextTick, NoOptionsApi, PiniaPreferStoreToRefs, ScriptRule,
     VueRouterPreferNamedPush, VueTestUtilsNoHtmlSnapshot,
 };
-use vize_atelier_sfc::{parse_sfc, SfcDescriptor, SfcParseOptions};
+use vize_atelier_sfc::{SfcDescriptor, SfcParseOptions, parse_sfc};
 use vize_carton::profile;
 
 pub(crate) const RULE_NO_OPTIONS_API: &str = "script/no-options-api";

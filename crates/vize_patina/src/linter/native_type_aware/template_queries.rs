@@ -102,7 +102,9 @@ impl TemplatePromiseQuery {
             TemplateContext::Event => {
                 "Move async work into a named handler and `await` it, or prefix the call with `void` when fire-and-forget behavior is intentional."
             }
-            TemplateContext::Binding | TemplateContext::Directive | TemplateContext::Interpolation => {
+            TemplateContext::Binding
+            | TemplateContext::Directive
+            | TemplateContext::Interpolation => {
                 "Resolve the Promise in `<script setup>` and expose settled state to the template instead of creating async work during render."
             }
         };

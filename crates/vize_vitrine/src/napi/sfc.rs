@@ -14,7 +14,7 @@ use glob::glob;
 use napi::bindgen_prelude::{Error, Result, Status};
 use napi_derive::napi;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::{
     fs,
     sync::atomic::{AtomicUsize, Ordering},
@@ -214,7 +214,7 @@ pub struct BatchCompileResultWithFilesNapi {
 /// Parse SFC (.vue file) - returns lightweight result for speed
 #[napi(js_name = "parseSfc")]
 pub fn parse_sfc(source: String, options: Option<SfcParseOptionsNapi>) -> Result<Value> {
-    use vize_atelier_sfc::{parse_sfc as sfc_parse, SfcParseOptions};
+    use vize_atelier_sfc::{SfcParseOptions, parse_sfc as sfc_parse};
 
     let opts = options.unwrap_or_default();
     let parse_opts = SfcParseOptions {
@@ -300,8 +300,8 @@ pub fn compile_sfc(
     options: Option<SfcCompileOptionsNapi>,
 ) -> Result<SfcCompileResultNapi> {
     use vize_atelier_sfc::{
-        compile_sfc as sfc_compile, parse_sfc as sfc_parse, ScriptCompileOptions,
-        SfcCompileOptions, SfcParseOptions, StyleCompileOptions, TemplateCompileOptions,
+        ScriptCompileOptions, SfcCompileOptions, SfcParseOptions, StyleCompileOptions,
+        TemplateCompileOptions, compile_sfc as sfc_compile, parse_sfc as sfc_parse,
     };
 
     let opts = options.unwrap_or_default();
@@ -437,8 +437,8 @@ pub fn compile_sfc_batch(
 ) -> Result<BatchCompileResultNapi> {
     use std::time::Instant;
     use vize_atelier_sfc::{
-        compile_sfc as sfc_compile, parse_sfc as sfc_parse, ScriptCompileOptions,
-        SfcCompileOptions, SfcParseOptions, StyleCompileOptions, TemplateCompileOptions,
+        ScriptCompileOptions, SfcCompileOptions, SfcParseOptions, StyleCompileOptions,
+        TemplateCompileOptions, compile_sfc as sfc_compile, parse_sfc as sfc_parse,
     };
 
     let opts = options.unwrap_or_default();
@@ -600,8 +600,8 @@ pub fn compile_sfc_batch_with_results(
     use std::sync::Mutex;
     use std::time::Instant;
     use vize_atelier_sfc::{
-        compile_sfc as sfc_compile, parse_sfc as sfc_parse, ScriptCompileOptions,
-        SfcCompileOptions, SfcParseOptions, StyleCompileOptions, TemplateCompileOptions,
+        ScriptCompileOptions, SfcCompileOptions, SfcParseOptions, StyleCompileOptions,
+        TemplateCompileOptions, compile_sfc as sfc_compile, parse_sfc as sfc_parse,
     };
 
     let opts = options.unwrap_or_default();
@@ -837,7 +837,7 @@ pub fn compile_css_napi(
     source: String,
     options: Option<CssCompileOptionsNapi>,
 ) -> Result<CssCompileResultNapi> {
-    use vize_atelier_sfc::{compile_css, CssCompileOptions, CssTargets};
+    use vize_atelier_sfc::{CssCompileOptions, CssTargets, compile_css};
 
     let opts = options.unwrap_or_default();
 

@@ -46,103 +46,103 @@ pub(crate) fn complete_template(ctx: &IdeContext) -> Vec<CompletionItem> {
         ..Default::default()
     };
 
-    if let Ok(descriptor) = vize_atelier_sfc::parse_sfc(&ctx.content, options) {
-        if let Some(ref script_setup) = descriptor.script_setup {
-            let mut analyzer = Analyzer::with_options(AnalyzerOptions {
-                analyze_script: true,
+    if let Ok(descriptor) = vize_atelier_sfc::parse_sfc(&ctx.content, options)
+        && let Some(ref script_setup) = descriptor.script_setup
+    {
+        let mut analyzer = Analyzer::with_options(AnalyzerOptions {
+            analyze_script: true,
+            ..Default::default()
+        });
+        analyzer.analyze_script_setup(&script_setup.content);
+        let croquis = analyzer.finish();
+
+        // Add bindings with accurate type information
+        for (name, binding_type) in croquis.bindings.iter() {
+            let (kind, type_detail, doc) = items::binding_type_to_completion_info(binding_type);
+            #[allow(clippy::disallowed_macros)]
+            items_vec.push(CompletionItem {
+                label: name.to_string(),
+                kind: Some(kind),
+                label_details: Some(CompletionItemLabelDetails {
+                    detail: Some(type_detail.clone()),
+                    description: None,
+                }),
+                detail: Some(type_detail),
+                documentation: Some(Documentation::MarkupContent(MarkupContent {
+                    kind: MarkupKind::Markdown,
+                    value: doc,
+                })),
+                sort_text: Some(format!("0{}", name)),
                 ..Default::default()
             });
-            analyzer.analyze_script_setup(&script_setup.content);
-            let croquis = analyzer.finish();
+        }
 
-            // Add bindings with accurate type information
-            for (name, binding_type) in croquis.bindings.iter() {
-                let (kind, type_detail, doc) = items::binding_type_to_completion_info(binding_type);
-                #[allow(clippy::disallowed_macros)]
-                items_vec.push(CompletionItem {
-                    label: name.to_string(),
-                    kind: Some(kind),
-                    label_details: Some(CompletionItemLabelDetails {
-                        detail: Some(type_detail.clone()),
-                        description: None,
-                    }),
-                    detail: Some(type_detail),
-                    documentation: Some(Documentation::MarkupContent(MarkupContent {
-                        kind: MarkupKind::Markdown,
-                        value: doc,
-                    })),
-                    sort_text: Some(format!("0{}", name)),
-                    ..Default::default()
-                });
-            }
+        // Add props with type information
+        for prop in croquis.macros.props() {
+            let prop_type = prop
+                .prop_type
+                .as_ref()
+                .map(|t| t.as_str())
+                .unwrap_or("unknown");
+            let required = if prop.required { "" } else { "?" };
 
-            // Add props with type information
-            for prop in croquis.macros.props() {
-                let prop_type = prop
-                    .prop_type
-                    .as_ref()
-                    .map(|t| t.as_str())
-                    .unwrap_or("unknown");
-                let required = if prop.required { "" } else { "?" };
+            #[allow(clippy::disallowed_macros)]
+            items_vec.push(CompletionItem {
+                label: prop.name.to_string(),
+                kind: Some(CompletionItemKind::PROPERTY),
+                label_details: Some(CompletionItemLabelDetails {
+                    detail: Some(format!(": {}{}", prop_type, required)),
+                    description: None,
+                }),
+                detail: Some(format!("prop: {}", prop_type)),
+                documentation: Some(Documentation::MarkupContent(MarkupContent {
+                    kind: MarkupKind::Markdown,
+                    value: format!(
+                        "**Prop** `{}`\n\n```typescript\n{}: {}{}\n```\n\n{}",
+                        prop.name,
+                        prop.name,
+                        prop_type,
+                        if prop.required { "" } else { " // optional" },
+                        if prop.default_value.is_some() {
+                            "Has default value"
+                        } else {
+                            ""
+                        }
+                    ),
+                })),
+                sort_text: Some(format!("0{}", prop.name)),
+                ..Default::default()
+            });
+        }
 
-                #[allow(clippy::disallowed_macros)]
-                items_vec.push(CompletionItem {
-                    label: prop.name.to_string(),
-                    kind: Some(CompletionItemKind::PROPERTY),
-                    label_details: Some(CompletionItemLabelDetails {
-                        detail: Some(format!(": {}{}", prop_type, required)),
-                        description: None,
-                    }),
-                    detail: Some(format!("prop: {}", prop_type)),
-                    documentation: Some(Documentation::MarkupContent(MarkupContent {
-                        kind: MarkupKind::Markdown,
-                        value: format!(
-                            "**Prop** `{}`\n\n```typescript\n{}: {}{}\n```\n\n{}",
-                            prop.name,
-                            prop.name,
-                            prop_type,
-                            if prop.required { "" } else { " // optional" },
-                            if prop.default_value.is_some() {
-                                "Has default value"
-                            } else {
-                                ""
-                            }
-                        ),
-                    })),
-                    sort_text: Some(format!("0{}", prop.name)),
-                    ..Default::default()
-                });
-            }
-
-            // Add reactive sources with special handling
-            for source in croquis.reactivity.sources() {
-                let kind_str = source.kind.to_display();
-                #[allow(clippy::disallowed_macros)]
-                items_vec.push(CompletionItem {
-                    label: source.name.to_string(),
-                    kind: Some(CompletionItemKind::VARIABLE),
-                    label_details: Some(CompletionItemLabelDetails {
-                        detail: Some(format!(" ({})", kind_str)),
-                        description: None,
-                    }),
-                    detail: Some(format!("Reactive: {}", kind_str)),
-                    documentation: Some(Documentation::MarkupContent(MarkupContent {
-                        kind: MarkupKind::Markdown,
-                        value: format!(
-                            "**{}** `{}`\n\n{}\n\nAuto-unwrapped in template.",
-                            kind_str,
-                            source.name,
-                            if source.kind.needs_value_access() {
-                                "Needs `.value` in script"
-                            } else {
-                                "Direct access (no `.value` needed)"
-                            }
-                        ),
-                    })),
-                    sort_text: Some(format!("0{}", source.name)),
-                    ..Default::default()
-                });
-            }
+        // Add reactive sources with special handling
+        for source in croquis.reactivity.sources() {
+            let kind_str = source.kind.to_display();
+            #[allow(clippy::disallowed_macros)]
+            items_vec.push(CompletionItem {
+                label: source.name.to_string(),
+                kind: Some(CompletionItemKind::VARIABLE),
+                label_details: Some(CompletionItemLabelDetails {
+                    detail: Some(format!(" ({})", kind_str)),
+                    description: None,
+                }),
+                detail: Some(format!("Reactive: {}", kind_str)),
+                documentation: Some(Documentation::MarkupContent(MarkupContent {
+                    kind: MarkupKind::Markdown,
+                    value: format!(
+                        "**{}** `{}`\n\n{}\n\nAuto-unwrapped in template.",
+                        kind_str,
+                        source.name,
+                        if source.kind.needs_value_access() {
+                            "Needs `.value` in script"
+                        } else {
+                            "Direct access (no `.value` needed)"
+                        }
+                    ),
+                })),
+                sort_text: Some(format!("0{}", source.name)),
+                ..Default::default()
+            });
         }
     }
 

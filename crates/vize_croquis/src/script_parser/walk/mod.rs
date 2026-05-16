@@ -16,15 +16,15 @@ mod statements;
 use oxc_ast::ast::{BindingPattern, Expression};
 use oxc_span::GetSpan;
 
-use crate::scope::{BlockKind, BlockScopeData, ClientOnlyScopeData, ClosureScopeData};
 use crate::ScopeBinding;
+use crate::scope::{BlockKind, BlockScopeData, ClientOnlyScopeData, ClosureScopeData};
 use vize_carton::CompactString;
 use vize_relief::BindingType;
 
+use super::ScriptParseResult;
 use super::extract::{
     detect_call_argument_reactivity_loss, detect_provide_inject_call, detect_race_condition_call,
 };
-use super::ScriptParseResult;
 
 pub(in crate::script_parser) use expressions::{walk_call_arguments, walk_expression};
 pub(in crate::script_parser) use statements::walk_statement;

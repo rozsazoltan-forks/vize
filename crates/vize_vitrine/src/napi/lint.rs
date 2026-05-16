@@ -14,7 +14,7 @@ use glob::glob;
 use napi::bindgen_prelude::{Error, Result, Status};
 use napi_derive::napi;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::{
     fs,
     sync::atomic::{AtomicUsize, Ordering},
@@ -160,7 +160,7 @@ const fn severity_name(severity: vize_patina::Severity) -> &'static str {
 
 fn collect_patina_rule_metadata() -> Vec<PatinaRuleMetaNapi<'static>> {
     use vize_carton::FxHashSet;
-    use vize_patina::{builtin_script_rules, LintPreset, Linter, RuleRegistry};
+    use vize_patina::{LintPreset, Linter, RuleRegistry, builtin_script_rules};
 
     let linter = Linter::with_preset(LintPreset::Opinionated);
     let happy_path_rules: FxHashSet<&'static str> =
@@ -336,17 +336,19 @@ pub fn lint_patina_sfc(source: String, options: Option<PatinaLintOptionsNapi>) -
 #[napi(js_name = "getPatinaRules")]
 pub fn get_patina_rules() -> Result<Value> {
     let rule_metadata = collect_patina_rule_metadata();
-    Ok(json!(rule_metadata
-        .iter()
-        .map(|rule| json!({
-            "name": rule.name,
-            "description": rule.description,
-            "category": rule.category,
-            "fixable": rule.fixable,
-            "defaultSeverity": rule.default_severity,
-            "presets": rule.presets,
-        }))
-        .collect::<Vec<_>>()))
+    Ok(json!(
+        rule_metadata
+            .iter()
+            .map(|rule| json!({
+                "name": rule.name,
+                "description": rule.description,
+                "category": rule.category,
+                "fixable": rule.fixable,
+                "defaultSeverity": rule.default_severity,
+                "presets": rule.presets,
+            }))
+            .collect::<Vec<_>>()
+    ))
 }
 
 /// Lint Vue SFC files matching patterns (native multithreading, .gitignore-aware)
@@ -354,7 +356,7 @@ pub fn get_patina_rules() -> Result<Value> {
 pub fn lint(patterns: Vec<String>, options: Option<LintOptionsNapi>) -> Result<LintResultNapi> {
     use ignore::Walk;
     use std::time::Instant;
-    use vize_patina::{format_results, format_summary, HelpLevel, Linter, OutputFormat};
+    use vize_patina::{HelpLevel, Linter, OutputFormat, format_results, format_summary};
 
     let opts = options.unwrap_or_default();
     let start = Instant::now();

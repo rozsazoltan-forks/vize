@@ -260,7 +260,7 @@ impl DiagnosticService {
 
     /// Generate virtual TypeScript for a Vue SFC.
     pub(super) fn generate_virtual_ts(uri: &Url, content: &str) -> Option<VirtualTsResult> {
-        use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+        use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
         use vize_canon::virtual_ts::generate_virtual_ts;
         use vize_croquis::{Analyzer, AnalyzerOptions};
 
@@ -433,7 +433,7 @@ impl DiagnosticService {
     /// Uses the default variant's template as the synthetic template,
     /// and the script_setup block from the SFC parse.
     pub(super) fn generate_virtual_ts_for_art(uri: &Url, content: &str) -> Option<VirtualTsResult> {
-        use vize_atelier_sfc::{parse_sfc, SfcParseOptions};
+        use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
         use vize_canon::virtual_ts::generate_virtual_ts;
         use vize_croquis::{Analyzer, AnalyzerOptions};
 

@@ -7,17 +7,17 @@ use vize_croquis::{BindingType, Croquis, ScopeData, ScopeKind};
 
 use super::{
     helpers::{
-        generate_template_context, to_safe_identifier, IMPORT_META_AUGMENTATION,
-        SETUP_SCOPE_HELPER_NAMES, VUE_SETUP_HELPERS, VUE_TYPE_HELPERS,
+        IMPORT_META_AUGMENTATION, SETUP_SCOPE_HELPER_NAMES, VUE_SETUP_HELPERS, VUE_TYPE_HELPERS,
+        generate_template_context, to_safe_identifier,
     },
     props::{collect_template_prop_names, generate_props_type, generate_props_variables},
     scope::generate_scope_closures,
     types::{VirtualTsOptions, VirtualTsOutput, VizeMapping},
 };
+use vize_carton::String;
 use vize_carton::append;
 use vize_carton::cstr;
 use vize_carton::profile;
-use vize_carton::String;
 
 /// Generate virtual TypeScript from Vue SFC analysis.
 ///
@@ -85,10 +85,11 @@ pub fn generate_virtual_ts_with_offsets(
         .unwrap_or((None, false));
 
     // Also detect top-level await in script content (Vue 3 script setup supports this)
-    if let Some(script) = script_content {
-        if script.contains("await ") && !is_async {
-            is_async = true;
-        }
+    if let Some(script) = script_content
+        && script.contains("await ")
+        && !is_async
+    {
+        is_async = true;
     }
 
     // ImportMeta augmentation (must be at top level, before any code)
@@ -479,25 +480,25 @@ pub fn generate_virtual_ts_with_offsets(
     // Reference props destructure bindings at setup scope level.
     // These variables are declared in user script (e.g., `const { foo } = defineProps<...>()`)
     // but shadowed inside __template() by generate_props_variables, so void them here.
-    if let Some(destructure) = summary.macros.props_destructure() {
-        if !destructure.bindings.is_empty() {
-            ts.push_str("\n  // Reference destructured props (prevent TS6133)\n  ");
-            let mut first = true;
-            for binding in destructure.bindings.values() {
-                if !first {
-                    ts.push(' ');
-                }
-                append!(ts, "void {};", binding.local);
-                first = false;
+    if let Some(destructure) = summary.macros.props_destructure()
+        && !destructure.bindings.is_empty()
+    {
+        ts.push_str("\n  // Reference destructured props (prevent TS6133)\n  ");
+        let mut first = true;
+        for binding in destructure.bindings.values() {
+            if !first {
+                ts.push(' ');
             }
-            if let Some(ref rest) = destructure.rest_id {
-                if !first {
-                    ts.push(' ');
-                }
-                append!(ts, "void {};", rest);
-            }
-            ts.push('\n');
+            append!(ts, "void {};", binding.local);
+            first = false;
         }
+        if let Some(ref rest) = destructure.rest_id {
+            if !first {
+                ts.push(' ');
+            }
+            append!(ts, "void {};", rest);
+        }
+        ts.push('\n');
     }
 
     // Return exposed object from __setup() so its type can be extracted at module level.
@@ -634,16 +635,16 @@ fn extract_import_names(import_text: &str) -> Vec<&str> {
     } else {
         // Handle `import Name from "..."`
         let text = import_text.trim();
-        if let Some(rest) = text.strip_prefix("import ") {
-            if let Some(from_pos) = rest.find(" from ") {
-                let name = rest[..from_pos].trim();
-                if !name.is_empty()
-                    && !name.contains('{')
-                    && !name.contains('*')
-                    && name.chars().all(|c| c.is_alphanumeric() || c == '_')
-                {
-                    names.push(name);
-                }
+        if let Some(rest) = text.strip_prefix("import ")
+            && let Some(from_pos) = rest.find(" from ")
+        {
+            let name = rest[..from_pos].trim();
+            if !name.is_empty()
+                && !name.contains('{')
+                && !name.contains('*')
+                && name.chars().all(|c| c.is_alphanumeric() || c == '_')
+            {
+                names.push(name);
             }
         }
     }

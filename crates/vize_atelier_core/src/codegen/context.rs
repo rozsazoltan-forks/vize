@@ -4,11 +4,11 @@ use crate::ast::RuntimeHelper;
 use crate::options::CodegenOptions;
 
 use super::helpers::default_helper_alias;
-use vize_carton::camelize;
-use vize_carton::capitalize;
 use vize_carton::FxHashSet;
 use vize_carton::String;
 use vize_carton::ToCompactString;
+use vize_carton::camelize;
+use vize_carton::capitalize;
 
 /// Code generation context using byte buffer for performance
 pub struct CodegenContext {

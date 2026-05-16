@@ -3,7 +3,7 @@
 use vize_carton::{String, ToCompactString};
 
 use super::string_tracking::{
-    compact_render_body, count_braces_with_state, count_parens_with_state, StringTrackState,
+    StringTrackState, compact_render_body, count_braces_with_state, count_parens_with_state,
 };
 
 fn is_vapor_template_declaration(line: &str) -> bool {

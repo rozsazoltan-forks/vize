@@ -34,14 +34,12 @@ impl DocumentLinkService {
         // Collect links from script setup
         if let Some(ref script_setup) = descriptor.script_setup {
             // src attribute
-            if let Some(ref src) = script_setup.src {
-                if let Some((start, end)) =
+            if let Some(ref src) = script_setup.src
+                && let Some((start, end)) =
                     Self::find_src_attr_range(content, script_setup.loc.start)
-                {
-                    if let Some(target) = Self::resolve_path(src, base_path.as_deref()) {
-                        links.push(Self::create_link(content, start, end, target));
-                    }
-                }
+                && let Some(target) = Self::resolve_path(src, base_path.as_deref())
+            {
+                links.push(Self::create_link(content, start, end, target));
             }
 
             // Import statements
@@ -57,12 +55,11 @@ impl DocumentLinkService {
         // Collect links from script
         if let Some(ref script) = descriptor.script {
             // src attribute
-            if let Some(ref src) = script.src {
-                if let Some((start, end)) = Self::find_src_attr_range(content, script.loc.start) {
-                    if let Some(target) = Self::resolve_path(src, base_path.as_deref()) {
-                        links.push(Self::create_link(content, start, end, target));
-                    }
-                }
+            if let Some(ref src) = script.src
+                && let Some((start, end)) = Self::find_src_attr_range(content, script.loc.start)
+                && let Some(target) = Self::resolve_path(src, base_path.as_deref())
+            {
+                links.push(Self::create_link(content, start, end, target));
             }
 
             // Import statements
@@ -76,25 +73,22 @@ impl DocumentLinkService {
         }
 
         // Collect links from template src
-        if let Some(ref template) = descriptor.template {
-            if let Some(ref src) = template.src {
-                if let Some((start, end)) = Self::find_src_attr_range(content, template.loc.start) {
-                    if let Some(target) = Self::resolve_path(src, base_path.as_deref()) {
-                        links.push(Self::create_link(content, start, end, target));
-                    }
-                }
-            }
+        if let Some(ref template) = descriptor.template
+            && let Some(ref src) = template.src
+            && let Some((start, end)) = Self::find_src_attr_range(content, template.loc.start)
+            && let Some(target) = Self::resolve_path(src, base_path.as_deref())
+        {
+            links.push(Self::create_link(content, start, end, target));
         }
 
         // Collect links from styles
         for style in &descriptor.styles {
             // src attribute
-            if let Some(ref src) = style.src {
-                if let Some((start, end)) = Self::find_src_attr_range(content, style.loc.start) {
-                    if let Some(target) = Self::resolve_path(src, base_path.as_deref()) {
-                        links.push(Self::create_link(content, start, end, target));
-                    }
-                }
+            if let Some(ref src) = style.src
+                && let Some((start, end)) = Self::find_src_attr_range(content, style.loc.start)
+                && let Some(target) = Self::resolve_path(src, base_path.as_deref())
+            {
+                links.push(Self::create_link(content, start, end, target));
             }
 
             // @import statements
@@ -157,12 +151,12 @@ impl DocumentLinkService {
             // Find string literal (the path)
             if let Some((path, rel_start, rel_end)) = Self::extract_import_path(stmt) {
                 // Only link relative imports (start with . or /)
-                if path.starts_with('.') || path.starts_with('/') {
-                    if let Some(target) = Self::resolve_path(&path, base_path) {
-                        let abs_start = base_offset + start + rel_start;
-                        let abs_end = base_offset + start + rel_end;
-                        links.push(Self::create_link(full_content, abs_start, abs_end, target));
-                    }
+                if (path.starts_with('.') || path.starts_with('/'))
+                    && let Some(target) = Self::resolve_path(&path, base_path)
+                {
+                    let abs_start = base_offset + start + rel_start;
+                    let abs_end = base_offset + start + rel_end;
+                    links.push(Self::create_link(full_content, abs_start, abs_end, target));
                 }
             }
 
@@ -242,24 +236,23 @@ impl DocumentLinkService {
             if let Some(url_content) = trimmed.strip_prefix("url(") {
                 if let Some((path, s, e)) = Self::extract_string_literal(url_content.trim_start()) {
                     let inner_ws = url_content.len() - url_content.trim_start().len();
-                    if path.starts_with('.') || path.starts_with('/') {
-                        if let Some(target) = Self::resolve_path(&path, base_path) {
-                            let abs_start = base_offset + start + 7 + ws_len + 4 + inner_ws + s;
-                            let abs_end = base_offset + start + 7 + ws_len + 4 + inner_ws + e;
-                            links.push(Self::create_link(full_content, abs_start, abs_end, target));
-                        }
+                    if (path.starts_with('.') || path.starts_with('/'))
+                        && let Some(target) = Self::resolve_path(&path, base_path)
+                    {
+                        let abs_start = base_offset + start + 7 + ws_len + 4 + inner_ws + s;
+                        let abs_end = base_offset + start + 7 + ws_len + 4 + inner_ws + e;
+                        links.push(Self::create_link(full_content, abs_start, abs_end, target));
                     }
                 }
             }
             // @import "path" or @import 'path'
-            else if let Some((path, s, e)) = Self::extract_string_literal(trimmed) {
-                if path.starts_with('.') || path.starts_with('/') {
-                    if let Some(target) = Self::resolve_path(&path, base_path) {
-                        let abs_start = base_offset + start + 7 + ws_len + s;
-                        let abs_end = base_offset + start + 7 + ws_len + e;
-                        links.push(Self::create_link(full_content, abs_start, abs_end, target));
-                    }
-                }
+            else if let Some((path, s, e)) = Self::extract_string_literal(trimmed)
+                && (path.starts_with('.') || path.starts_with('/'))
+                && let Some(target) = Self::resolve_path(&path, base_path)
+            {
+                let abs_start = base_offset + start + 7 + ws_len + s;
+                let abs_end = base_offset + start + 7 + ws_len + e;
+                links.push(Self::create_link(full_content, abs_start, abs_end, target));
             }
 
             pos = start + 8;

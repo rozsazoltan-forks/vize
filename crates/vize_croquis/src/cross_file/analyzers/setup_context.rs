@@ -11,8 +11,8 @@ use crate::cross_file::diagnostics::{
 use crate::cross_file::graph::DependencyGraph;
 use crate::cross_file::registry::{FileId, ModuleRegistry};
 use crate::setup_context::{SetupContextViolation, SetupContextViolationKind, ViolationSeverity};
-use vize_carton::cstr;
 use vize_carton::CompactString;
+use vize_carton::cstr;
 
 /// A detected setup context issue with file context.
 #[derive(Debug, Clone)]
@@ -97,17 +97,13 @@ fn create_diagnostic(file_id: FileId, violation: &SetupContextViolation) -> Cros
             )),
         ),
         SetupContextViolationKind::ModuleLevelProvide => (
-            CompactString::new(
-                "`provide()` must be called inside setup() or <script setup>",
-            ),
+            CompactString::new("`provide()` must be called inside setup() or <script setup>"),
             Some(CompactString::new(
                 "provide() requires the component instance context which is only available during setup",
             )),
         ),
         SetupContextViolationKind::ModuleLevelInject => (
-            CompactString::new(
-                "`inject()` must be called inside setup() or <script setup>",
-            ),
+            CompactString::new("`inject()` must be called inside setup() or <script setup>"),
             Some(CompactString::new(
                 "inject() requires the component instance context which is only available during setup",
             )),

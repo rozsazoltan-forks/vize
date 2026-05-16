@@ -5,9 +5,9 @@ use std::{
 
 use super::super::{Diagnostic, TypeCheckResult, VirtualProject};
 use crate::batch::error::{CorsaError, CorsaResult};
-use crate::batch::executor::diagnostics::{should_skip_diagnostic, DiagnosticMapper};
+use crate::batch::executor::diagnostics::{DiagnosticMapper, should_skip_diagnostic};
 use vize_carton::profile;
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 pub(super) fn check_with_cli(
     corsa_path: &Path,
@@ -176,8 +176,8 @@ fn output_message(output: &Output) -> String {
 #[cfg(test)]
 mod tests {
     use super::parse_cli_diagnostics;
-    use crate::batch::executor::diagnostics::DiagnosticMapper;
     use crate::batch::VirtualProject;
+    use crate::batch::executor::diagnostics::DiagnosticMapper;
     use std::{
         fs,
         path::PathBuf,

@@ -10,7 +10,7 @@ use super::{ScriptLintResult, ScriptRule, ScriptRuleMeta};
 use crate::diagnostic::{LintDiagnostic, Severity};
 use oxc_allocator::Allocator;
 use oxc_ast::ast::{BindingPattern, CallExpression, Expression, VariableDeclarator};
-use oxc_ast_visit::{walk::walk_variable_declarator, Visit};
+use oxc_ast_visit::{Visit, walk::walk_variable_declarator};
 use oxc_parser::Parser;
 use oxc_span::{GetSpan, SourceType, Span};
 use vize_carton::{CompactString, FxHashSet};

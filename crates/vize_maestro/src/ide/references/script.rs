@@ -13,47 +13,47 @@ impl ReferencesService {
     pub(super) fn find_definition_location(ctx: &IdeContext, word: &str) -> Option<Location> {
         // Check script setup first
         if let Some(ref virtual_docs) = ctx.virtual_docs {
-            if let Some(ref script_setup) = virtual_docs.script_setup {
-                if let Some(loc) = Self::find_binding_in_script(&script_setup.content, word) {
-                    let script_start_line = Self::get_script_setup_start_line(&ctx.content)?;
-                    let (line, character) = Self::offset_to_position(&script_setup.content, loc);
+            if let Some(ref script_setup) = virtual_docs.script_setup
+                && let Some(loc) = Self::find_binding_in_script(&script_setup.content, word)
+            {
+                let script_start_line = Self::get_script_setup_start_line(&ctx.content)?;
+                let (line, character) = Self::offset_to_position(&script_setup.content, loc);
 
-                    return Some(Location {
-                        uri: ctx.uri.clone(),
-                        range: Range {
-                            start: Position {
-                                line: script_start_line + line,
-                                character,
-                            },
-                            end: Position {
-                                line: script_start_line + line,
-                                character: character + word.len() as u32,
-                            },
+                return Some(Location {
+                    uri: ctx.uri.clone(),
+                    range: Range {
+                        start: Position {
+                            line: script_start_line + line,
+                            character,
                         },
-                    });
-                }
+                        end: Position {
+                            line: script_start_line + line,
+                            character: character + word.len() as u32,
+                        },
+                    },
+                });
             }
 
             // Check regular script
-            if let Some(ref script) = virtual_docs.script {
-                if let Some(loc) = Self::find_binding_in_script(&script.content, word) {
-                    let script_start_line = Self::get_script_start_line(&ctx.content)?;
-                    let (line, character) = Self::offset_to_position(&script.content, loc);
+            if let Some(ref script) = virtual_docs.script
+                && let Some(loc) = Self::find_binding_in_script(&script.content, word)
+            {
+                let script_start_line = Self::get_script_start_line(&ctx.content)?;
+                let (line, character) = Self::offset_to_position(&script.content, loc);
 
-                    return Some(Location {
-                        uri: ctx.uri.clone(),
-                        range: Range {
-                            start: Position {
-                                line: script_start_line + line,
-                                character,
-                            },
-                            end: Position {
-                                line: script_start_line + line,
-                                character: character + word.len() as u32,
-                            },
+                return Some(Location {
+                    uri: ctx.uri.clone(),
+                    range: Range {
+                        start: Position {
+                            line: script_start_line + line,
+                            character,
                         },
-                    });
-                }
+                        end: Position {
+                            line: script_start_line + line,
+                            character: character + word.len() as u32,
+                        },
+                    },
+                });
             }
         }
 

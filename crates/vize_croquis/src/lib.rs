@@ -72,17 +72,17 @@ pub use vize_carton::{
 pub use scope::{
     BindingFlags, BlockKind, BlockScopeData, CallbackScopeData, ClientOnlyScopeData,
     ClosureScopeData, EventHandlerScopeData, ExternalModuleScopeData, JsGlobalScopeData, JsRuntime,
-    NonScriptSetupScopeData, ParamNames, ParentScopes, Scope, ScopeBinding, ScopeChain, ScopeData,
-    ScopeId, ScopeKind, ScriptSetupScopeData, Span, UniversalScopeData, VForScopeData,
-    VSlotScopeData, VueGlobalScopeData, PARAM_INLINE_CAP,
+    NonScriptSetupScopeData, PARAM_INLINE_CAP, ParamNames, ParentScopes, Scope, ScopeBinding,
+    ScopeChain, ScopeData, ScopeId, ScopeKind, ScriptSetupScopeData, Span, UniversalScopeData,
+    VForScopeData, VSlotScopeData, VueGlobalScopeData,
 };
 pub use symbol::{Symbol, SymbolFlags, SymbolId, SymbolTable};
 
 // Re-export analysis types
 pub use analysis::{
-    AnalysisStats, BindingMetadata, Croquis, ImportStatementInfo, InvalidExport, InvalidExportKind,
-    ReExportInfo, TemplateExpression, TemplateExpressionKind, TypeExport, TypeExportKind,
-    UndefinedRef, UnusedTemplateVar, UnusedVarContext, COMPILER_MACRO_NAMES,
+    AnalysisStats, BindingMetadata, COMPILER_MACRO_NAMES, Croquis, ImportStatementInfo,
+    InvalidExport, InvalidExportKind, ReExportInfo, TemplateExpression, TemplateExpressionKind,
+    TypeExport, TypeExportKind, UndefinedRef, UnusedTemplateVar, UnusedVarContext,
 };
 pub use analyzer::{Analyzer, AnalyzerOptions};
 

@@ -16,7 +16,7 @@ mod setup_emit;
 
 use std::borrow::Cow;
 
-use vize_carton::{profile, String, ToCompactString};
+use vize_carton::{String, ToCompactString, profile};
 
 use crate::script::ScriptCompileContext;
 use crate::types::SfcError;
@@ -182,26 +182,26 @@ fn build_script_setup_context(
 
     // Merge type definitions from normal <script> block so that
     // defineProps<TypeRef>() can resolve types defined there.
-    if let Some(normal_src) = normal_script_content {
-        if !normal_src.is_empty() {
-            profile!(
-                "atelier.script_inline.collect_normal_types",
-                ctx.collect_types_from(normal_src)
-            );
-        }
+    if let Some(normal_src) = normal_script_content
+        && !normal_src.is_empty()
+    {
+        profile!(
+            "atelier.script_inline.collect_normal_types",
+            ctx.collect_types_from(normal_src)
+        );
     }
     if let Some(path) = filename {
         profile!(
             "atelier.script_inline.collect_setup_import_types",
             ctx.collect_imported_types_from_path(content, path)
         );
-        if let Some(normal_src) = normal_script_content {
-            if !normal_src.is_empty() {
-                profile!(
-                    "atelier.script_inline.collect_normal_import_types",
-                    ctx.collect_imported_types_from_path(normal_src, path)
-                );
-            }
+        if let Some(normal_src) = normal_script_content
+            && !normal_src.is_empty()
+        {
+            profile!(
+                "atelier.script_inline.collect_normal_import_types",
+                ctx.collect_imported_types_from_path(normal_src, path)
+            );
         }
     }
     profile!("atelier.script_inline.context.analyze", ctx.analyze());

@@ -1,12 +1,12 @@
 use super::{
-    corsa_session::{CorsaTypeAwareSession, TypeProbe},
     LintResult, Linter,
+    corsa_session::{CorsaTypeAwareSession, TypeProbe},
 };
 use crate::diagnostic::LintDiagnostic;
 use corsa::utils::{
     is_any_like_type_texts, is_promise_like_type_texts, is_unknown_like_type_texts,
 };
-use vize_carton::{profile, String, ToCompactString};
+use vize_carton::{String, ToCompactString, profile};
 
 mod driver;
 mod markers;

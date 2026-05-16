@@ -13,7 +13,7 @@ use vize_carton::CompactString;
 use vize_carton::String;
 use vize_carton::ToCompactString;
 
-use super::formatting::{render_help, HelpRenderTarget};
+use super::formatting::{HelpRenderTarget, render_help};
 
 /// Lint diagnostic severity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]

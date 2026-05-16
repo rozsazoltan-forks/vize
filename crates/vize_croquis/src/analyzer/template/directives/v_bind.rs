@@ -6,11 +6,11 @@
 //! - Inline callback parameter scope creation
 
 use crate::scope::CallbackScopeData;
-use vize_carton::{cstr, profile, CompactString};
+use vize_carton::{CompactString, cstr, profile};
 use vize_relief::ast::{ElementNode, ExpressionNode};
 
-use crate::analyzer::helpers::extract_inline_callback_params;
 use crate::analyzer::Analyzer;
+use crate::analyzer::helpers::extract_inline_callback_params;
 
 impl Analyzer {
     /// Handle v-bind directive.

@@ -68,22 +68,27 @@ pub fn generate_virtual_ts(
     from_file: Option<&Path>,
     template_offset: u32,
 ) -> VirtualTsOutput {
-    let mut gen = VirtualTsGenerator::new();
+    let mut generator = VirtualTsGenerator::new();
     if let Some(resolver) = import_resolver {
-        gen = gen.with_import_resolver(resolver);
+        generator = generator.with_import_resolver(resolver);
     }
 
     // Generate script output first if present
     let script_output = profile!(
         "croquis.virtual_ts.script",
-        script_content.map(|s| gen.generate_script_setup(s, bindings, from_file))
+        script_content.map(|s| generator.generate_script_setup(s, bindings, from_file))
     );
     let has_script = script_output.is_some();
 
     // Generate template output
     let template_output = profile!(
         "croquis.virtual_ts.template",
-        template_ast.map(|ast| gen.generate_template(ast, bindings, template_offset, !has_script))
+        template_ast.map(|ast| generator.generate_template(
+            ast,
+            bindings,
+            template_offset,
+            !has_script
+        ))
     );
 
     // Combine outputs
@@ -122,14 +127,14 @@ pub fn generate_virtual_ts_with_croquis(
     import_resolver: Option<ImportResolver>,
     from_file: Option<&Path>,
 ) -> VirtualTsOutput {
-    let mut gen = VirtualTsGenerator::new();
+    let mut generator = VirtualTsGenerator::new();
     if let Some(resolver) = import_resolver {
-        gen = gen.with_import_resolver(resolver);
+        generator = generator.with_import_resolver(resolver);
     }
 
     profile!(
         "croquis.virtual_ts.from_croquis",
-        gen.generate_from_croquis(
+        generator.generate_from_croquis(
             script_content,
             parse_result,
             template_ast,
@@ -157,8 +162,8 @@ const count = ref(0);
         bindings.add("msg", BindingType::SetupRef);
         bindings.add("count", BindingType::SetupRef);
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_script_setup(script, &bindings, None);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_script_setup(script, &bindings, None);
 
         insta::assert_snapshot!(output.content.as_str());
     }
@@ -178,8 +183,8 @@ const count = ref(0)
             template_offset: 0,
         };
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_from_croquis(script, &parse_result, None, &config, None);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_from_croquis(script, &parse_result, None, &config, None);
 
         insta::assert_snapshot!(output.content.as_str());
     }
@@ -193,8 +198,8 @@ const count = ref(0)
         let mut bindings = BindingMetadata::default();
         bindings.add("message", BindingType::SetupRef);
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_template(&ast, &bindings, 0, true);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_template(&ast, &bindings, 0, true);
 
         assert!(!output.source_map.is_empty());
         insta::assert_snapshot!(output.content.as_str());
@@ -208,8 +213,8 @@ const props = defineProps<{ msg: string }>()
         let mut bindings = BindingMetadata::default();
         bindings.add("props", BindingType::SetupConst);
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_script_setup(script, &bindings, None);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_script_setup(script, &bindings, None);
 
         insta::assert_snapshot!(output.content.as_str());
     }
@@ -227,8 +232,8 @@ const props = defineProps<{ msg: string }>()
             template_offset: 0,
         };
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_from_croquis(script, &parse_result, None, &config, None);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_from_croquis(script, &parse_result, None, &config, None);
 
         insta::assert_snapshot!(output.content.as_str());
     }
@@ -261,8 +266,8 @@ function increment() {
         let parse_result = parse_script_setup(script);
         let config = VirtualTsConfig::default();
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_from_croquis(script, &parse_result, None, &config, None);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_from_croquis(script, &parse_result, None, &config, None);
 
         insta::assert_snapshot!(output.content);
     }
@@ -287,8 +292,8 @@ const emit = defineEmits<{
             template_offset: 0,
         };
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_from_croquis(script, &parse_result, None, &config, None);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_from_croquis(script, &parse_result, None, &config, None);
 
         insta::assert_snapshot!(output.content);
     }
@@ -307,8 +312,8 @@ const processed = computed(() => data.map(d => d.name))
             template_offset: 0,
         };
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_from_croquis(script, &parse_result, None, &config, None);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_from_croquis(script, &parse_result, None, &config, None);
 
         insta::assert_snapshot!(output.content);
     }
@@ -322,8 +327,8 @@ const processed = computed(() => data.map(d => d.name))
         let mut bindings = BindingMetadata::default();
         bindings.add("items", BindingType::SetupRef);
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_template(&ast, &bindings, 0, true);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_template(&ast, &bindings, 0, true);
 
         insta::assert_snapshot!(output.content);
     }
@@ -338,8 +343,8 @@ const processed = computed(() => data.map(d => d.name))
         bindings.add("isVisible", BindingType::SetupRef);
         bindings.add("isAlternate", BindingType::SetupRef);
 
-        let mut gen = VirtualTsGenerator::new();
-        let output = gen.generate_template(&ast, &bindings, 0, true);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_template(&ast, &bindings, 0, true);
 
         insta::assert_snapshot!(output.content);
     }
@@ -363,9 +368,14 @@ const increment = () => count.value++
             ..Default::default()
         };
 
-        let mut gen = VirtualTsGenerator::new();
-        let output =
-            gen.generate_from_croquis(script, &parse_result, Some(&template_ast), &config, None);
+        let mut generator = VirtualTsGenerator::new();
+        let output = generator.generate_from_croquis(
+            script,
+            &parse_result,
+            Some(&template_ast),
+            &config,
+            None,
+        );
 
         insta::assert_snapshot!(output.content);
     }

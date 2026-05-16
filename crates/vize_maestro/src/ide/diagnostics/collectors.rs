@@ -12,9 +12,9 @@ use tower_lsp::lsp_types::{
 use oxc_allocator::Allocator as OxcAllocator;
 use oxc_parser::Parser as OxcParser;
 use oxc_span::SourceType;
-use vize_patina::{render_help, HelpRenderTarget};
+use vize_patina::{HelpRenderTarget, render_help};
 
-use super::{offset_to_line_col, sources, DiagnosticService};
+use super::{DiagnosticService, offset_to_line_col, sources};
 use vize_carton::append;
 
 impl DiagnosticService {

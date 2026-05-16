@@ -77,7 +77,7 @@ impl NoUnusedVars {
         }
 
         // Check custom ignore pattern
-        if let Some(ref pattern) = &self.ignore_pattern {
+        if let Some(pattern) = &self.ignore_pattern {
             if pattern == "^_" {
                 return name.starts_with('_');
             }

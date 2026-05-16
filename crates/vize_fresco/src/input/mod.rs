@@ -10,7 +10,7 @@ pub mod ime;
 mod keyboard;
 mod mouse;
 
-pub use event::{poll, poll_nonblocking, read_event, Event};
+pub use event::{Event, poll, poll_nonblocking, read_event};
 pub use ime::ImeState;
 pub use keyboard::{Key, KeyEvent, KeyModifiers};
 pub use mouse::{MouseButton, MouseEvent, MouseEventKind};

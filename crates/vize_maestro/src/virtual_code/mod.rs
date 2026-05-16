@@ -35,14 +35,14 @@ mod style_code;
 mod template_code;
 
 pub use generator::{
-    find_art_block_at_offset, find_block_at_offset, ArtCursorPosition, ArtVariantInfo,
-    BatchVirtualCodeGenerator, BlockType, VirtualCodeGenerator,
+    ArtCursorPosition, ArtVariantInfo, BatchVirtualCodeGenerator, BlockType, VirtualCodeGenerator,
+    find_art_block_at_offset, find_block_at_offset,
 };
-pub use script_code::{extract_simple_bindings, ScriptCodeGenerator};
+pub use script_code::{ScriptCodeGenerator, extract_simple_bindings};
 pub use source_map::{MappingData, MappingFeatures, SourceMap, SourceMapping};
 pub use style_code::{StyleCodeGenerator, StyleMetadata};
 pub use template_code::{
-    extract_expressions, ExpressionKind, TemplateCodeGenerator, TemplateExpression,
+    ExpressionKind, TemplateCodeGenerator, TemplateExpression, extract_expressions,
 };
 
 /// Virtual language types supported by the LSP.

@@ -101,11 +101,11 @@ pub fn extract_key_prop<'a>(el: &mut ElementNode<'a>) -> Option<PropNode<'a>> {
                 break;
             }
             PropNode::Directive(dir) if dir.name == "bind" => {
-                if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                    if arg.content == "key" {
-                        key_index = Some(i);
-                        break;
-                    }
+                if let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                    && arg.content == "key"
+                {
+                    key_index = Some(i);
+                    break;
                 }
             }
             _ => {}
@@ -181,15 +181,13 @@ pub fn transform_v_if<'a>(
         };
 
         // Process user_key expression for identifier prefixing (e.g., keyA -> _ctx.keyA)
-        if let Some(PropNode::Directive(ref mut dir)) = user_key {
-            if ctx.options.prefix_identifiers || ctx.options.is_ts {
-                if let Some(ref exp) = dir.exp {
-                    let processed = crate::transforms::transform_expression::process_expression(
-                        ctx, exp, false,
-                    );
-                    dir.exp = Some(processed);
-                }
-            }
+        if let Some(PropNode::Directive(ref mut dir)) = user_key
+            && (ctx.options.prefix_identifiers || ctx.options.is_ts)
+            && let Some(ref exp) = dir.exp
+        {
+            let processed =
+                crate::transforms::transform_expression::process_expression(ctx, exp, false);
+            dir.exp = Some(processed);
         }
 
         // Create branch with the taken element
@@ -302,15 +300,13 @@ pub fn transform_v_if<'a>(
             };
 
             // Process user_key expression for identifier prefixing
-            if let Some(PropNode::Directive(ref mut dir)) = user_key {
-                if ctx.options.prefix_identifiers || ctx.options.is_ts {
-                    if let Some(ref exp) = dir.exp {
-                        let processed = crate::transforms::transform_expression::process_expression(
-                            ctx, exp, false,
-                        );
-                        dir.exp = Some(processed);
-                    }
-                }
+            if let Some(PropNode::Directive(ref mut dir)) = user_key
+                && (ctx.options.prefix_identifiers || ctx.options.is_ts)
+                && let Some(ref exp) = dir.exp
+            {
+                let processed =
+                    crate::transforms::transform_expression::process_expression(ctx, exp, false);
+                dir.exp = Some(processed);
             }
 
             // Check for key collision with existing branches (vuejs/core #13881)

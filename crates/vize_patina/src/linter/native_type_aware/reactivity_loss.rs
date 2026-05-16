@@ -1,8 +1,8 @@
 use super::{
-    markers::marker_insert_offset, push_warning, LintResult, Linter, RULE_NO_REACTIVITY_LOSS,
+    LintResult, Linter, RULE_NO_REACTIVITY_LOSS, markers::marker_insert_offset, push_warning,
 };
 use crate::diagnostic::LintDiagnostic;
-use vize_carton::{cstr, CompactString, FxHashSet, String, ToCompactString};
+use vize_carton::{CompactString, FxHashSet, String, ToCompactString, cstr};
 use vize_croquis::{
     reactivity::{ReactivityLoss, ReactivityLossKind},
     script_parser::ScriptParseResult,
@@ -235,7 +235,10 @@ fn reactivity_loss_diagnostic(loss: &ReactivityLoss) -> ReactivityLossQuery {
             "Keep the reactive object intact, or copy through refs with `toRefs(...)` when destructuring is intentional.",
         ),
         ReactivityLossKind::ReactiveReassign { source_name } => (
-            cstr!("Reassigning reactive binding '{}' breaks tracked identity", source_name),
+            cstr!(
+                "Reassigning reactive binding '{}' breaks tracked identity",
+                source_name
+            ),
             "Mutate the reactive object in place or store replaceable state in a ref.",
         ),
     };

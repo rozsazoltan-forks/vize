@@ -32,19 +32,19 @@
         workspaceVersion = workspaceCargo.workspace.package.version;
         moonbitArtifacts = {
           aarch64-darwin = {
-            version = "latest-2026-04-20";
+            version = "0.9.2-2026-05-13";
             url = "https://cli.moonbitlang.com/binaries/latest/moonbit-darwin-aarch64.tar.gz";
-            hash = "sha256-YMfegcuZa6lZ5oSbJDxh6nXIVgvX0vg1kjpP8IyKdek=";
+            hash = "sha256-5OtkpeuCcOi8YoJVVEOMMlVm5kHHCJ4vO/Vk6RhDMbk=";
           };
           x86_64-linux = {
-            version = "latest-2026-04-20";
+            version = "0.9.2-2026-05-13";
             url = "https://cli.moonbitlang.com/binaries/latest/moonbit-linux-x86_64.tar.gz";
-            hash = "sha256-Q0DItKe3+CA/Y1wnPNZ7CplCxg+4UpEDZk6KDDfQliQ=";
+            hash = "sha256-LDpa8gIMnOs/4R5kV+ZHohWEbZfXHI54Sz0KfIz8YGs=";
           };
           aarch64-linux = {
-            version = "latest-2026-04-20";
+            version = "0.9.2-2026-05-13";
             url = "https://cli.moonbitlang.com/binaries/latest/moonbit-linux-aarch64.tar.gz";
-            hash = "sha256-ASUvvvTxPUIpXRZL684qhYYTV8Wzch2WZ9y4e0CS9bw=";
+            hash = "sha256-0n7Hu3h4+TLbrcyja6/0xOIntAChGFoChSE5HPp7kPg=";
           };
         };
         moonbit =
@@ -58,12 +58,39 @@
               src = pkgs.fetchurl {
                 inherit (artifact) url hash;
               };
+              coreSrc = pkgs.fetchurl {
+                url = "https://cli.moonbitlang.com/cores/core-latest.tar.gz";
+                hash = "sha256-xoulYgG9jZnbRCtt9ZnCwhewUo7ex9bebocbblicUC4=";
+              };
+              nativeBuildInputs = lib.optionals pkgs.stdenv.isLinux [ pkgs.patchelf ];
               dontUnpack = true;
               dontConfigure = true;
               dontBuild = true;
               installPhase = ''
                 mkdir -p $out
                 tar -xzf $src -C $out
+                chmod -R a+rX,u+w $out
+                find $out/bin -type f -exec chmod a+x {} +
+                ${lib.optionalString pkgs.stdenv.isLinux ''
+                  for binary in $out/bin/*; do
+                    if patchelf --print-interpreter "$binary" >/dev/null 2>&1; then
+                      patchelf \
+                        --set-interpreter "${pkgs.stdenv.cc.bintools.dynamicLinker}" \
+                        --set-rpath "${
+                          lib.makeLibraryPath [
+                            pkgs.glibc
+                            pkgs.stdenv.cc.cc.lib
+                            pkgs.zlib
+                          ]
+                        }" \
+                        "$binary"
+                    fi
+                  done
+                ''}
+                mkdir -p $out/lib
+                tar -xzf $coreSrc -C $out/lib
+                PATH=$out/bin:$PATH $out/bin/moon -C $out/lib/core bundle --warn-list -a --all
+                PATH=$out/bin:$PATH $out/bin/moon -C $out/lib/core bundle --warn-list -a --target wasm-gc --quiet
               '';
               meta = {
                 description = "MoonBit native toolchain";
@@ -160,7 +187,7 @@
             exit 127
           '';
         };
-        rustToolchain = pkgs.rust-bin.stable."1.94.1".default.override {
+        rustToolchain = pkgs.rust-bin.stable."1.95.0".default.override {
           extensions = [
             "clippy"
             "rust-src"
@@ -238,19 +265,29 @@
               export RUSTFLAGS="-L native=$VIZE_DARWIN_LIBICONV_LIB''${RUSTFLAGS:+ $RUSTFLAGS}"
             ''}
             ${lib.optionalString (moonbit != null) ''
-              export MOON_HOME="${moonbit}"
+              export MOON_HOME="$VIZE_WORKSPACE_ROOT/.cache/moonbit"
+              moonbit_version_file="$MOON_HOME/.nix-version"
+              if [ ! -x "$MOON_HOME/bin/moon" ] || [ "$(cat "$moonbit_version_file" 2>/dev/null || true)" != "${moonbit.version}" ]; then
+                rm -rf "$MOON_HOME/bin" "$MOON_HOME/include" "$MOON_HOME/lib"
+                mkdir -p "$MOON_HOME"
+                cp -R "${moonbit}/bin" "${moonbit}/include" "${moonbit}/lib" "$MOON_HOME"/
+                chmod -R u+rwX "$MOON_HOME/bin" "$MOON_HOME/include" "$MOON_HOME/lib"
+                printf '%s\n' "${moonbit.version}" > "$moonbit_version_file"
+              fi
               if [ -n "''${HOME:-}" ]; then
                 PATH=":$PATH:"
                 PATH="''${PATH//:$HOME/.moon/bin:/:}"
                 PATH="''${PATH#:}"
                 PATH="''${PATH%:}"
               fi
-              export PATH="${moonbit}/bin:$PATH"
+              export PATH="$MOON_HOME/bin:$PATH"
             ''}
 
             echo "Vize dev shell ready."
             echo "Nix provides Node, pnpm, Rust, wasm-pack, wasm-bindgen, binaryen, and MoonBit."
-            ${lib.optionalString (moonbit == null) ''echo "MoonBit native toolchain is not available for ${system}; install it separately if needed."''}
+            ${lib.optionalString (moonbit == null)
+              ''echo "MoonBit native toolchain is not available for ${system}; install it separately if needed."''
+            }
             echo "Run: vp install --frozen-lockfile"
             echo "Then: vp check / vp fmt / vp dev / vp build"
           '';

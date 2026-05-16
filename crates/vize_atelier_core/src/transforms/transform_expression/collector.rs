@@ -5,8 +5,8 @@
 
 use oxc_ast::ast as oxc_ast_types;
 use oxc_ast_visit::{
-    walk::{walk_assignment_expression, walk_object_property, walk_update_expression},
     Visit,
+    walk::{walk_assignment_expression, walk_object_property, walk_update_expression},
 };
 use vize_carton::FxHashSet;
 use vize_carton::String;
@@ -61,10 +61,10 @@ impl<'a, 'ctx> IdentifierCollector<'a, 'ctx> {
                 return kind.needs_value_access();
             }
             // Fallback: binding_metadata
-            if let Some(bindings) = &self.ctx.options.binding_metadata {
-                if let Some(binding_type) = bindings.bindings.get(name) {
-                    return matches!(binding_type, crate::options::BindingType::SetupRef);
-                }
+            if let Some(bindings) = &self.ctx.options.binding_metadata
+                && let Some(binding_type) = bindings.bindings.get(name)
+            {
+                return matches!(binding_type, crate::options::BindingType::SetupRef);
             }
         }
         false
@@ -79,10 +79,10 @@ impl<'a, 'ctx> IdentifierCollector<'a, 'ctx> {
             return kind.needs_value_access();
         }
 
-        if let Some(bindings) = &self.ctx.options.binding_metadata {
-            if let Some(binding_type) = bindings.bindings.get(name) {
-                return matches!(binding_type, crate::options::BindingType::SetupRef);
-            }
+        if let Some(bindings) = &self.ctx.options.binding_metadata
+            && let Some(binding_type) = bindings.bindings.get(name)
+        {
+            return matches!(binding_type, crate::options::BindingType::SetupRef);
         }
 
         false
@@ -107,15 +107,15 @@ impl<'a, 'ctx> IdentifierCollector<'a, 'ctx> {
         // Fallback: SetupLet/SetupMaybeRef have unknown type, need _unref().
         // SetupRef also needs _unref in function mode because `$setup.foo`
         // refers to the raw ref/computed object.
-        if let Some(bindings) = &self.ctx.options.binding_metadata {
-            if let Some(binding_type) = bindings.bindings.get(name) {
-                return match binding_type {
-                    crate::options::BindingType::SetupRef => !self.ctx.options.inline,
-                    crate::options::BindingType::SetupLet
-                    | crate::options::BindingType::SetupMaybeRef => true,
-                    _ => false,
-                };
-            }
+        if let Some(bindings) = &self.ctx.options.binding_metadata
+            && let Some(binding_type) = bindings.bindings.get(name)
+        {
+            return match binding_type {
+                crate::options::BindingType::SetupRef => !self.ctx.options.inline,
+                crate::options::BindingType::SetupLet
+                | crate::options::BindingType::SetupMaybeRef => true,
+                _ => false,
+            };
         }
         false
     }
@@ -361,55 +361,55 @@ impl<'a, 'ctx> Visit<'_> for IdentifierCollector<'a, 'ctx> {
     }
 
     fn visit_object_property(&mut self, prop: &oxc_ast_types::ObjectProperty<'_>) {
-        if prop.shorthand {
-            if let oxc_ast_types::PropertyKey::StaticIdentifier(ident) = &prop.key {
-                let name = ident.name.as_str();
-                if self.local_scope.contains(name) || is_global_allowed(name) {
-                    return;
-                }
-                if self.ctx.is_in_scope(name) {
-                    return;
-                }
+        if prop.shorthand
+            && let oxc_ast_types::PropertyKey::StaticIdentifier(ident) = &prop.key
+        {
+            let name = ident.name.as_str();
+            if self.local_scope.contains(name) || is_global_allowed(name) {
+                return;
+            }
+            if self.ctx.is_in_scope(name) {
+                return;
+            }
 
-                let prefix = get_identifier_prefix(name, self.ctx);
-                let is_ref = self.is_ref_binding(name);
-                let needs_unref = self.needs_unref(name);
+            let prefix = get_identifier_prefix(name, self.ctx);
+            let is_ref = self.is_ref_binding(name);
+            let needs_unref = self.needs_unref(name);
 
-                // Expand shorthand if identifier needs a prefix, is a ref binding,
-                // or needs _unref() wrapping.
-                // In inline mode, refs have no prefix but need .value, so shorthand
-                // { hasForm } must become { hasForm: hasForm.value } (not { hasForm.value }).
-                // Similarly, SetupLet/SetupMaybeRef bindings need _unref():
-                // { paddingBottom } must become { paddingBottom: _unref(paddingBottom) }
-                if prefix.is_some_and(|p| !p.is_empty()) || is_ref || needs_unref {
-                    let p = prefix.unwrap_or("");
-                    let (value_prefix, value_suffix) = if needs_unref && p.is_empty() {
-                        // Inline mode: wrap with _unref()
-                        ("_unref(", ")")
-                    } else if needs_unref && p == "$setup." {
-                        // Function mode: wrap with _unref($setup.)
-                        ("_unref($setup.", ")")
-                    } else if is_ref {
-                        ("", ".value")
-                    } else {
-                        ("", "")
-                    };
-                    let mut suffix = String::with_capacity(
-                        2 + value_prefix.len() + p.len() + name.len() + value_suffix.len(),
-                    );
-                    suffix.push_str(": ");
-                    suffix.push_str(value_prefix);
-                    if !needs_unref {
-                        suffix.push_str(p);
-                    }
-                    suffix.push_str(name);
-                    suffix.push_str(value_suffix);
-                    self.suffix_rewrites.push((ident.span.end as usize, suffix));
-                    if needs_unref {
-                        self.used_unref = true;
-                    }
-                    return;
+            // Expand shorthand if identifier needs a prefix, is a ref binding,
+            // or needs _unref() wrapping.
+            // In inline mode, refs have no prefix but need .value, so shorthand
+            // { hasForm } must become { hasForm: hasForm.value } (not { hasForm.value }).
+            // Similarly, SetupLet/SetupMaybeRef bindings need _unref():
+            // { paddingBottom } must become { paddingBottom: _unref(paddingBottom) }
+            if prefix.is_some_and(|p| !p.is_empty()) || is_ref || needs_unref {
+                let p = prefix.unwrap_or("");
+                let (value_prefix, value_suffix) = if needs_unref && p.is_empty() {
+                    // Inline mode: wrap with _unref()
+                    ("_unref(", ")")
+                } else if needs_unref && p == "$setup." {
+                    // Function mode: wrap with _unref($setup.)
+                    ("_unref($setup.", ")")
+                } else if is_ref {
+                    ("", ".value")
+                } else {
+                    ("", "")
+                };
+                let mut suffix = String::with_capacity(
+                    2 + value_prefix.len() + p.len() + name.len() + value_suffix.len(),
+                );
+                suffix.push_str(": ");
+                suffix.push_str(value_prefix);
+                if !needs_unref {
+                    suffix.push_str(p);
                 }
+                suffix.push_str(name);
+                suffix.push_str(value_suffix);
+                self.suffix_rewrites.push((ident.span.end as usize, suffix));
+                if needs_unref {
+                    self.used_unref = true;
+                }
+                return;
             }
         }
 

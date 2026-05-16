@@ -1,5 +1,5 @@
 use crate::ir::{SetDynamicPropsIRNode, SetHtmlIRNode, SetPropIRNode, SetTextIRNode};
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 use super::super::{context::GenerateContext, setup::is_svg_tag};
 

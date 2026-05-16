@@ -18,7 +18,7 @@ use crate::cross_file::diagnostics::{
 use crate::cross_file::graph::DependencyGraph;
 use crate::cross_file::registry::{FileId, ModuleRegistry};
 use crate::reactivity::ReactiveKind;
-use vize_carton::{cstr, CompactString, FxHashSet};
+use vize_carton::{CompactString, FxHashSet, cstr};
 
 /// Kind of reactivity issue.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -427,14 +427,14 @@ fn extract_vue_imports(analysis: &crate::Croquis) -> FxHashSet<&str> {
     let mut vue_imports = FxHashSet::default();
 
     for scope in analysis.scopes.iter() {
-        if scope.kind == ScopeKind::ExternalModule {
-            if let crate::scope::ScopeData::ExternalModule(data) = scope.data() {
-                // Check if this is a vue import
-                if data.source.as_str() == "vue" || data.source.starts_with("vue/") {
-                    // Collect all bindings from this import
-                    for (name, _) in scope.bindings() {
-                        vue_imports.insert(name);
-                    }
+        if scope.kind == ScopeKind::ExternalModule
+            && let crate::scope::ScopeData::ExternalModule(data) = scope.data()
+        {
+            // Check if this is a vue import
+            if data.source.as_str() == "vue" || data.source.starts_with("vue/") {
+                // Collect all bindings from this import
+                for (name, _) in scope.bindings() {
+                    vue_imports.insert(name);
                 }
             }
         }

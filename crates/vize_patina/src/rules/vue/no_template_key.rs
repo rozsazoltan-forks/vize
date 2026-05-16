@@ -68,16 +68,16 @@ impl Rule for NoTemplateKey {
                     }
                 }
                 PropNode::Directive(dir) => {
-                    if dir.name.as_str() == "bind" {
-                        if let Some(ref arg) = dir.arg {
-                            if get_expression_content(arg) == "key" && !has_v_for {
-                                ctx.error_with_help(
-                                    ctx.t("vue/no-template-key.message"),
-                                    &dir.loc,
-                                    ctx.t("vue/no-template-key.help"),
-                                );
-                            }
-                        }
+                    if dir.name.as_str() == "bind"
+                        && let Some(ref arg) = dir.arg
+                        && get_expression_content(arg) == "key"
+                        && !has_v_for
+                    {
+                        ctx.error_with_help(
+                            ctx.t("vue/no-template-key.message"),
+                            &dir.loc,
+                            ctx.t("vue/no-template-key.help"),
+                        );
                     }
                 }
             }

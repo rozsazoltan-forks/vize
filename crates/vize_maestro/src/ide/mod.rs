@@ -33,9 +33,9 @@ pub mod workspace_symbols;
 
 pub use code_action::CodeActionService;
 pub use code_lens::CodeLensService;
-pub use completion::{trigger_characters, CompletionService, TRIGGER_CHARACTERS};
+pub use completion::{CompletionService, TRIGGER_CHARACTERS, trigger_characters};
 pub use definition::{BindingKind, BindingLocation, DefinitionService};
-pub use diagnostics::{sources, DiagnosticBuilder, DiagnosticService, Severity};
+pub use diagnostics::{DiagnosticBuilder, DiagnosticService, Severity, sources};
 pub use document_link::DocumentLinkService;
 pub use file_rename::FileRenameService;
 pub use hover::{HoverBuilder, HoverService};
@@ -50,7 +50,7 @@ use tower_lsp::lsp_types::Url;
 
 use crate::server::ServerState;
 use crate::virtual_code::{
-    find_art_block_at_offset, find_block_at_offset, ArtCursorPosition, BlockType, VirtualDocuments,
+    ArtCursorPosition, BlockType, VirtualDocuments, find_art_block_at_offset, find_block_at_offset,
 };
 
 // =============================================================================

@@ -15,7 +15,7 @@ use vize_atelier_core::ast::{
 };
 use vize_carton::{FxHashSet, String, ToCompactString};
 
-use super::{helpers::escape_html_attr, helpers::extract_destructure_params, SsrCodegenContext};
+use super::{SsrCodegenContext, helpers::escape_html_attr, helpers::extract_destructure_params};
 use vize_carton::cstr;
 
 /// One JavaScript property emitted into a generated SSR prop object.

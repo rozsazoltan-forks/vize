@@ -35,13 +35,13 @@ pub(crate) fn has_von_object(props: &[PropNode<'_>]) -> bool {
 /// Generate the v-bind object expression
 pub(crate) fn generate_vbind_object_exp(ctx: &mut CodegenContext, props: &[PropNode<'_>]) {
     for p in props {
-        if let PropNode::Directive(dir) = p {
-            if dir.name == "bind" && dir.arg.is_none() {
-                if let Some(exp) = &dir.exp {
-                    generate_expression(ctx, exp);
-                    return;
-                }
-            }
+        if let PropNode::Directive(dir) = p
+            && dir.name == "bind"
+            && dir.arg.is_none()
+            && let Some(exp) = &dir.exp
+        {
+            generate_expression(ctx, exp);
+            return;
         }
     }
 }
@@ -52,14 +52,14 @@ pub(crate) fn generate_von_object_exp(ctx: &mut CodegenContext, props: &[PropNod
     ctx.push(ctx.helper(RuntimeHelper::ToHandlers));
     ctx.push("(");
     for p in props {
-        if let PropNode::Directive(dir) = p {
-            if dir.name == "on" && dir.arg.is_none() {
-                if let Some(exp) = &dir.exp {
-                    generate_expression(ctx, exp);
-                    ctx.push(", true"); // true for handlerOnly
-                    break;
-                }
-            }
+        if let PropNode::Directive(dir) = p
+            && dir.name == "on"
+            && dir.arg.is_none()
+            && let Some(exp) = &dir.exp
+        {
+            generate_expression(ctx, exp);
+            ctx.push(", true"); // true for handlerOnly
+            break;
         }
     }
     ctx.push(")");

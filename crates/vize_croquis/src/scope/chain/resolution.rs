@@ -3,7 +3,7 @@
 //! Provides lookup, mark-used, mark-mutated, and depth calculation methods
 //! for the [`ScopeChain`].
 
-use super::{smallvec, CompactString, Scope, ScopeBinding, ScopeChain, ScopeId, SmallVec};
+use super::{CompactString, Scope, ScopeBinding, ScopeChain, ScopeId, SmallVec, smallvec};
 
 impl ScopeChain {
     /// Look up a binding by name, searching through all parent scopes

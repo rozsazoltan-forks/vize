@@ -13,7 +13,7 @@ use crate::provide::ProvideKey;
 use crate::race::RaceConditionRiskKind;
 use crate::reactivity::ReactiveKind;
 use crate::setup_context::SetupContextViolationKind;
-use vize_carton::{cstr, CompactString, FxHashMap, FxHashSet, String};
+use vize_carton::{CompactString, FxHashMap, FxHashSet, String, cstr};
 use vize_relief::BindingType;
 
 use super::{ReactiveGetterContext, ReactiveValueOrigin, ScriptParseResult};
@@ -151,17 +151,17 @@ pub fn extract_props_from_type(
     for tp in type_params.iter() {
         if let TSType::TSTypeLiteral(lit) = tp {
             for member in lit.members.iter() {
-                if let oxc_ast::ast::TSSignature::TSPropertySignature(prop) = member {
-                    if let PropertyKey::StaticIdentifier(id) = &prop.key {
-                        let name = id.name.as_str();
-                        result.macros.add_prop(PropDefinition {
-                            name: CompactString::new(name),
-                            required: !prop.optional,
-                            prop_type: None,
-                            default_value: None,
-                        });
-                        result.bindings.add(name, BindingType::Props);
-                    }
+                if let oxc_ast::ast::TSSignature::TSPropertySignature(prop) = member
+                    && let PropertyKey::StaticIdentifier(id) = &prop.key
+                {
+                    let name = id.name.as_str();
+                    result.macros.add_prop(PropDefinition {
+                        name: CompactString::new(name),
+                        required: !prop.optional,
+                        prop_type: None,
+                        default_value: None,
+                    });
+                    result.bindings.add(name, BindingType::Props);
                 }
             }
         }
@@ -376,14 +376,12 @@ fn runtime_ctor_type(name: &str) -> Option<&'static str> {
 fn detect_required_prop(value: &Expression<'_>) -> bool {
     if let Expression::ObjectExpression(obj) = value {
         for prop in obj.properties.iter() {
-            if let ObjectPropertyKind::ObjectProperty(p) = prop {
-                if let PropertyKey::StaticIdentifier(id) = &p.key {
-                    if id.name.as_str() == "required" {
-                        if let Expression::BooleanLiteral(b) = &p.value {
-                            return b.value;
-                        }
-                    }
-                }
+            if let ObjectPropertyKind::ObjectProperty(p) = prop
+                && let PropertyKey::StaticIdentifier(id) = &p.key
+                && id.name.as_str() == "required"
+                && let Expression::BooleanLiteral(b) = &p.value
+            {
+                return b.value;
             }
         }
     }
@@ -402,18 +400,15 @@ pub fn extract_emits_from_type(
             for member in lit.members.iter() {
                 if let oxc_ast::ast::TSSignature::TSCallSignatureDeclaration(call_sig) = member {
                     // First parameter is usually the event name: (e: 'eventName', ...)
-                    if let Some(first_param) = call_sig.params.items.first() {
-                        if let Some(type_ann) = &first_param.type_annotation {
-                            if let TSType::TSLiteralType(lit_type) = &type_ann.type_annotation {
-                                if let oxc_ast::ast::TSLiteral::StringLiteral(s) = &lit_type.literal
-                                {
-                                    result.macros.add_emit(EmitDefinition {
-                                        name: CompactString::new(s.value.as_str()),
-                                        payload_type: None,
-                                    });
-                                }
-                            }
-                        }
+                    if let Some(first_param) = call_sig.params.items.first()
+                        && let Some(type_ann) = &first_param.type_annotation
+                        && let TSType::TSLiteralType(lit_type) = &type_ann.type_annotation
+                        && let oxc_ast::ast::TSLiteral::StringLiteral(s) = &lit_type.literal
+                    {
+                        result.macros.add_emit(EmitDefinition {
+                            name: CompactString::new(s.value.as_str()),
+                            payload_type: None,
+                        });
                     }
                 }
             }
@@ -968,10 +963,10 @@ fn scan_statement_for_race(result: &ScriptParseResult, stmt: &Statement<'_>, sca
             }
         }
         Statement::ForStatement(for_stmt) => {
-            if let Some(init) = &for_stmt.init {
-                if let Some(expr) = init.as_expression() {
-                    scan_expression_for_race(result, expr, scan);
-                }
+            if let Some(init) = &for_stmt.init
+                && let Some(expr) = init.as_expression()
+            {
+                scan_expression_for_race(result, expr, scan);
             }
             if let Some(test) = &for_stmt.test {
                 scan_expression_for_race(result, test, scan);
@@ -1662,10 +1657,10 @@ fn function_body_return_expression<'a>(
     statements: &'a oxc_allocator::Vec<'a, Statement<'a>>,
 ) -> Option<&'a Expression<'a>> {
     for stmt in statements.iter() {
-        if let Statement::ReturnStatement(ret) = stmt {
-            if let Some(argument) = &ret.argument {
-                return Some(argument);
-            }
+        if let Statement::ReturnStatement(ret) = stmt
+            && let Some(argument) = &ret.argument
+        {
+            return Some(argument);
         }
     }
     None
@@ -1690,18 +1685,17 @@ fn reactive_plain_value_from_expr(
             })
         }
         Expression::StaticMemberExpression(member) => {
-            if member.property.name.as_str() == "value" {
-                if let Some(root) = member_chain_root_identifier(&member.object) {
-                    if result.reactivity.needs_value_access(root.as_str()) {
-                        return Some(ReactivePlainValue {
-                            source_name: expression_label(source, member.span),
-                            argument_name: expression_label(source, member.span),
-                            getter_name: root,
-                            start: member.span.start,
-                            end: member.span.end,
-                        });
-                    }
-                }
+            if member.property.name.as_str() == "value"
+                && let Some(root) = member_chain_root_identifier(&member.object)
+                && result.reactivity.needs_value_access(root.as_str())
+            {
+                return Some(ReactivePlainValue {
+                    source_name: expression_label(source, member.span),
+                    argument_name: expression_label(source, member.span),
+                    getter_name: root,
+                    start: member.span.start,
+                    end: member.span.end,
+                });
             }
 
             let (root, prop_name) = extract_member_chain_root(expr)?;
@@ -1933,28 +1927,27 @@ pub fn check_ref_value_extraction(
     };
 
     // Check for ref.value pattern: someRef.value
-    if let Expression::StaticMemberExpression(member) = init {
-        if member.property.name.as_str() == "value" {
-            if let Expression::Identifier(obj_id) = &member.object {
-                let ref_name = CompactString::new(obj_id.name.as_str());
-                if result.reactivity.needs_value_access(ref_name.as_str()) {
-                    use crate::reactivity::{ReactivityLoss, ReactivityLossKind};
-                    result.reactivity.add_loss(ReactivityLoss {
-                        kind: ReactivityLossKind::RefValueExtract {
-                            source_name: ref_name.clone(),
-                            target_name: CompactString::new(target_name),
-                        },
-                        start: member.span.start,
-                        end: member.span.end,
-                    });
-                    result.reactive_value_origins.insert(
-                        CompactString::new(target_name),
-                        ReactiveValueOrigin::RefValue {
-                            source_name: ref_name,
-                        },
-                    );
-                }
-            }
+    if let Expression::StaticMemberExpression(member) = init
+        && member.property.name.as_str() == "value"
+        && let Expression::Identifier(obj_id) = &member.object
+    {
+        let ref_name = CompactString::new(obj_id.name.as_str());
+        if result.reactivity.needs_value_access(ref_name.as_str()) {
+            use crate::reactivity::{ReactivityLoss, ReactivityLossKind};
+            result.reactivity.add_loss(ReactivityLoss {
+                kind: ReactivityLossKind::RefValueExtract {
+                    source_name: ref_name.clone(),
+                    target_name: CompactString::new(target_name),
+                },
+                start: member.span.start,
+                end: member.span.end,
+            });
+            result.reactive_value_origins.insert(
+                CompactString::new(target_name),
+                ReactiveValueOrigin::RefValue {
+                    source_name: ref_name,
+                },
+            );
         }
     }
 }

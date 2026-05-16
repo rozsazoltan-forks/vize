@@ -249,20 +249,18 @@ impl SemanticTokensService {
                         let value_start = abs_start + attr.len() + 1; // after =
                         if value_start < content.len() {
                             let quote_char = content.as_bytes()[value_start];
-                            if quote_char == b'"' || quote_char == b'\'' {
-                                if let Some(end) =
+                            if (quote_char == b'"' || quote_char == b'\'')
+                                && let Some(end) =
                                     content[value_start + 1..].find(quote_char as char)
-                                {
-                                    let (val_line, val_col) =
-                                        offset_to_line_col(content, value_start);
-                                    tokens.push(AbsoluteToken {
-                                        line: val_line,
-                                        start: val_col,
-                                        length: (end + 2) as u32, // include quotes
-                                        token_type: TokenType::String as u32,
-                                        modifiers: 0,
-                                    });
-                                }
+                            {
+                                let (val_line, val_col) = offset_to_line_col(content, value_start);
+                                tokens.push(AbsoluteToken {
+                                    line: val_line,
+                                    start: val_col,
+                                    length: (end + 2) as u32, // include quotes
+                                    token_type: TokenType::String as u32,
+                                    modifiers: 0,
+                                });
                             }
                         }
                     }
@@ -303,73 +301,73 @@ impl SemanticTokensService {
     /// Collect tokens from script in Art files.
     fn collect_art_script_tokens(content: &str, tokens: &mut Vec<AbsoluteToken>) {
         // Find script setup block
-        if let Some(script_start) = content.find("<script") {
-            if let Some(script_end) = content[script_start..].find("</script>") {
-                let script_content_start = content[script_start..]
-                    .find('>')
-                    .map(|p| script_start + p + 1)
-                    .unwrap_or(script_start);
-                let script_content_end = script_start + script_end;
+        if let Some(script_start) = content.find("<script")
+            && let Some(script_end) = content[script_start..].find("</script>")
+        {
+            let script_content_start = content[script_start..]
+                .find('>')
+                .map(|p| script_start + p + 1)
+                .unwrap_or(script_start);
+            let script_content_end = script_start + script_end;
 
-                if script_content_start < script_content_end {
-                    let script_content = &content[script_content_start..script_content_end];
-                    let base_offset = script_content_start;
+            if script_content_start < script_content_end {
+                let script_content = &content[script_content_start..script_content_end];
+                let base_offset = script_content_start;
 
-                    // Highlight import keyword
-                    let mut pos = 0;
-                    while let Some(start) = script_content[pos..].find("import ") {
-                        let abs_start = base_offset + pos + start;
-                        let (line, col) = offset_to_line_col(content, abs_start);
-                        tokens.push(AbsoluteToken {
-                            line,
-                            start: col,
-                            length: 6, // "import"
-                            token_type: TokenType::Keyword as u32,
-                            modifiers: 0,
-                        });
-                        pos += start + 6;
-                    }
+                // Highlight import keyword
+                let mut pos = 0;
+                while let Some(start) = script_content[pos..].find("import ") {
+                    let abs_start = base_offset + pos + start;
+                    let (line, col) = offset_to_line_col(content, abs_start);
+                    tokens.push(AbsoluteToken {
+                        line,
+                        start: col,
+                        length: 6, // "import"
+                        token_type: TokenType::Keyword as u32,
+                        modifiers: 0,
+                    });
+                    pos += start + 6;
+                }
 
-                    // Highlight from keyword
-                    pos = 0;
-                    while let Some(start) = script_content[pos..].find(" from ") {
-                        let abs_start = base_offset + pos + start + 1; // skip leading space
-                        let (line, col) = offset_to_line_col(content, abs_start);
-                        tokens.push(AbsoluteToken {
-                            line,
-                            start: col,
-                            length: 4, // "from"
-                            token_type: TokenType::Keyword as u32,
-                            modifiers: 0,
-                        });
-                        pos += start + 5;
-                    }
+                // Highlight from keyword
+                pos = 0;
+                while let Some(start) = script_content[pos..].find(" from ") {
+                    let abs_start = base_offset + pos + start + 1; // skip leading space
+                    let (line, col) = offset_to_line_col(content, abs_start);
+                    tokens.push(AbsoluteToken {
+                        line,
+                        start: col,
+                        length: 4, // "from"
+                        token_type: TokenType::Keyword as u32,
+                        modifiers: 0,
+                    });
+                    pos += start + 5;
+                }
 
-                    // Highlight string literals (import paths)
-                    pos = 0;
-                    while pos < script_content.len() {
-                        let remaining = &script_content[pos..];
-                        let quote_pos = remaining.find(['"', '\'']);
-                        if let Some(start) = quote_pos {
-                            let quote_char = remaining.as_bytes()[start];
-                            let after_quote = &remaining[start + 1..];
-                            if let Some(end) = after_quote.find(quote_char as char) {
-                                let abs_start = base_offset + pos + start;
-                                let (line, col) = offset_to_line_col(content, abs_start);
-                                tokens.push(AbsoluteToken {
-                                    line,
-                                    start: col,
-                                    length: (end + 2) as u32, // include quotes
-                                    token_type: TokenType::String as u32,
-                                    modifiers: 0,
-                                });
-                                pos += start + end + 2;
-                            } else {
-                                pos += start + 1;
-                            }
+                // Highlight string literals (import paths)
+                pos = 0;
+                while pos < script_content.len() {
+                    let remaining = &script_content[pos..];
+                    let quote_pos = remaining.find(['"', '\'']);
+                    if let Some(start) = quote_pos {
+                        let quote_char = remaining.as_bytes()[start];
+                        let after_quote = &remaining[start + 1..];
+                        if let Some(end) = after_quote.find(quote_char as char) {
+                            let abs_start = base_offset + pos + start;
+                            let (line, col) = offset_to_line_col(content, abs_start);
+                            tokens.push(AbsoluteToken {
+                                line,
+                                start: col,
+                                length: (end + 2) as u32, // include quotes
+                                token_type: TokenType::String as u32,
+                                modifiers: 0,
+                            });
+                            pos += start + end + 2;
                         } else {
-                            break;
+                            pos += start + 1;
                         }
+                    } else {
+                        break;
                     }
                 }
             }
@@ -514,19 +512,18 @@ impl SemanticTokensService {
                         let value_start = rel_pos + attr.len() + 1;
                         if value_start < slice.len() {
                             let quote_char = slice.as_bytes()[value_start];
-                            if quote_char == b'"' || quote_char == b'\'' {
-                                if let Some(end) = slice[value_start + 1..].find(quote_char as char)
-                                {
-                                    let abs_val = range_start + value_start;
-                                    let (val_line, val_col) = offset_to_line_col(content, abs_val);
-                                    tokens.push(AbsoluteToken {
-                                        line: val_line,
-                                        start: val_col,
-                                        length: (end + 2) as u32,
-                                        token_type: TokenType::String as u32,
-                                        modifiers: 0,
-                                    });
-                                }
+                            if (quote_char == b'"' || quote_char == b'\'')
+                                && let Some(end) = slice[value_start + 1..].find(quote_char as char)
+                            {
+                                let abs_val = range_start + value_start;
+                                let (val_line, val_col) = offset_to_line_col(content, abs_val);
+                                tokens.push(AbsoluteToken {
+                                    line: val_line,
+                                    start: val_col,
+                                    length: (end + 2) as u32,
+                                    token_type: TokenType::String as u32,
+                                    modifiers: 0,
+                                });
                             }
                         }
                     }
@@ -570,8 +567,8 @@ impl SemanticTokensService {
 #[cfg(test)]
 mod tests {
     use super::{
-        encoding::offset_to_line_col, expressions, template, SemanticTokensService, TokenModifier,
-        TokenType,
+        SemanticTokensService, TokenModifier, TokenType, encoding::offset_to_line_col, expressions,
+        template,
     };
     use tower_lsp::lsp_types::SemanticTokensResult;
 

@@ -12,11 +12,11 @@ use std::{
     time::{Duration, Instant},
 };
 
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 use crate::commands::{
     check::{CheckArgs, JsonRpcResponse, ServerCheckResult},
-    profile::{print_profile_report, ProfilePhase, ProfilePhaseKind, ProfileReport},
+    profile::{ProfilePhase, ProfilePhaseKind, ProfileReport, print_profile_report},
 };
 
 use super::collect::collect_vue_files;

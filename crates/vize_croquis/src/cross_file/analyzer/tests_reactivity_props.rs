@@ -1,8 +1,8 @@
 use super::{CrossFileAnalyzer, CrossFileOptions};
+use crate::AnalyzerOptions;
 use crate::analysis::{ComponentUsage, PassedProp};
 use crate::cross_file::analyzers::CrossFileReactivityIssueKind;
 use crate::cross_file::diagnostics::{CrossFileDiagnosticKind, DiagnosticSeverity};
-use crate::AnalyzerOptions;
 use std::path::Path;
 use vize_carton::{CompactString, SmallVec};
 
@@ -332,12 +332,16 @@ const { item } = props"#,
         .collect::<Vec<_>>();
 
     assert_eq!(losses.len(), 2);
-    assert!(losses
-        .iter()
-        .any(|issue| issue.related_file == Some(parent_a)));
-    assert!(losses
-        .iter()
-        .any(|issue| issue.related_file == Some(parent_b)));
+    assert!(
+        losses
+            .iter()
+            .any(|issue| issue.related_file == Some(parent_a))
+    );
+    assert!(
+        losses
+            .iter()
+            .any(|issue| issue.related_file == Some(parent_b))
+    );
 }
 
 #[test]

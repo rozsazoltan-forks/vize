@@ -1,24 +1,24 @@
 use super::{
-    has_promise_like_return, has_unsafe_template_type, push_warning,
-    should_warn_for_emit_validator, should_warn_for_prop_access, should_warn_for_reactivity_loss,
-    with_corsa_session, LintResult, Linter, RULE_NO_FLOATING_PROMISES,
-    RULE_NO_UNSAFE_TEMPLATE_BINDING, RULE_REQUIRE_TYPED_EMITS, RULE_REQUIRE_TYPED_PROPS,
+    LintResult, Linter, RULE_NO_FLOATING_PROMISES, RULE_NO_UNSAFE_TEMPLATE_BINDING,
+    RULE_REQUIRE_TYPED_EMITS, RULE_REQUIRE_TYPED_PROPS, has_promise_like_return,
+    has_unsafe_template_type, push_warning, should_warn_for_emit_validator,
+    should_warn_for_prop_access, should_warn_for_reactivity_loss, with_corsa_session,
 };
 use crate::diagnostic::LintDiagnostic;
 use std::path::Path;
 use vize_armature::Parser as TemplateParser;
-use vize_carton::{profile, FxHashSet};
+use vize_carton::{FxHashSet, profile};
 use vize_croquis::{
     script_parser,
-    virtual_ts::{generate_virtual_ts_with_croquis, VirtualTsConfig},
+    virtual_ts::{VirtualTsConfig, generate_virtual_ts_with_croquis},
 };
 
 use super::{
-    markers::{push_promise_marker, QueryKind},
+    markers::{QueryKind, push_promise_marker},
     parsing::collect_floating_candidates,
     reactivity_loss::collect_reactivity_loss_queries,
-    rule_queries::{collect_emit_queries, collect_prop_queries, push_macro_warning, MacroWarning},
-    template_queries::{collect_template_query_sets, TemplateQueryKind},
+    rule_queries::{MacroWarning, collect_emit_queries, collect_prop_queries, push_macro_warning},
+    template_queries::{TemplateQueryKind, collect_template_query_sets},
 };
 
 pub(super) fn lint_with_descriptor<'a>(
@@ -228,14 +228,14 @@ pub(super) fn lint_with_descriptor<'a>(
                         should_warn_for_emits |= should_warn_for_emit_validator(probe.as_ref());
                     }
                     QueryKind::Promise => {
-                        if let Some(probe) = probe.as_ref() {
-                            if has_promise_like_return(probe)
+                        if let Some(probe) = probe.as_ref()
+                            && (has_promise_like_return(probe)
                                 || corsa::utils::is_promise_like_type_texts(
                                     &probe.type_texts,
                                     &probe.property_names,
-                                )
-                            {
-                                push_warning(
+                                ))
+                        {
+                            push_warning(
                                 &mut result,
                                 LintDiagnostic::warn(
                                     RULE_NO_FLOATING_PROMISES,
@@ -247,7 +247,6 @@ pub(super) fn lint_with_descriptor<'a>(
                                     "Add `await`, return the Promise, or prefix it with `void` when the fire-and-forget behavior is intentional.",
                                 ),
                             );
-                            }
                         }
                     }
                 }
@@ -334,8 +333,7 @@ pub(super) fn lint_with_descriptor<'a>(
             base_offset: script_block.loc.start as u32,
             rule_name: RULE_REQUIRE_TYPED_PROPS,
             message: "Prop should have a type definition",
-            help:
-                "Use `defineProps<Props>()` or a runtime prop object with concrete constructor types.",
+            help: "Use `defineProps<Props>()` or a runtime prop object with concrete constructor types.",
             should_warn: should_warn_for_props,
         },
     );

@@ -1,7 +1,7 @@
 use oxc_allocator::Allocator as OxcAllocator;
 use oxc_parser::Parser as OxcParser;
 use oxc_span::SourceType;
-use vize_carton::{profile, String, ToCompactString};
+use vize_carton::{String, ToCompactString, profile};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ScriptParseDiagnostic {

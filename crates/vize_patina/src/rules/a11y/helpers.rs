@@ -90,10 +90,10 @@ pub fn is_focusable_element(element: &ElementNode) -> bool {
     }
 
     // Check for contenteditable
-    if let Some(val) = get_static_attribute_value(element, "contenteditable") {
-        if val != "false" {
-            return true;
-        }
+    if let Some(val) = get_static_attribute_value(element, "contenteditable")
+        && val != "false"
+    {
+        return true;
     }
 
     false
@@ -103,10 +103,10 @@ pub fn is_focusable_element(element: &ElementNode) -> bool {
 /// Returns None if the attribute is not found or is dynamically bound.
 pub fn get_static_attribute_value<'a>(element: &'a ElementNode, name: &str) -> Option<&'a str> {
     for prop in &element.props {
-        if let PropNode::Attribute(attr) = prop {
-            if attr.name == name {
-                return attr.value.as_ref().map(|v| v.content.as_ref());
-            }
+        if let PropNode::Attribute(attr) = prop
+            && attr.name == name
+        {
+            return attr.value.as_ref().map(|v| v.content.as_ref());
         }
     }
     None
@@ -161,14 +161,12 @@ fn string_literal_value(content: &str) -> Option<&str> {
 /// Check if an element has a specific event handler (v-on directive)
 pub fn has_event_handler(element: &ElementNode, event_name: &str) -> bool {
     for prop in &element.props {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "on" {
-                if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                    if arg.content == event_name {
-                        return true;
-                    }
-                }
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "on"
+            && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+            && arg.content == event_name
+        {
+            return true;
         }
     }
     false
@@ -178,10 +176,10 @@ pub fn has_event_handler(element: &ElementNode, event_name: &str) -> bool {
 #[allow(dead_code)]
 pub fn has_any_aria_attribute(element: &ElementNode) -> bool {
     for prop in &element.props {
-        if let PropNode::Attribute(attr) = prop {
-            if attr.name.starts_with("aria-") {
-                return true;
-            }
+        if let PropNode::Attribute(attr) = prop
+            && attr.name.starts_with("aria-")
+        {
+            return true;
         }
     }
     false

@@ -4,7 +4,7 @@
 
 use napi::bindgen_prelude::{Error, Result, Status};
 use napi_derive::napi;
-use vize_glyph::{format_sfc_with_allocator, Allocator, FormatOptions};
+use vize_glyph::{Allocator, FormatOptions, format_sfc_with_allocator};
 
 /// Format options for NAPI.
 #[napi(object)]

@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use vize_carton::profiler::ProfileSummary;
-use vize_carton::{append, appendln, appends, String};
+use vize_carton::{String, append, appendln, appends};
 
 const RESET: &str = "\x1b[0m";
 const BOLD: &str = "\x1b[1m";
@@ -164,10 +164,10 @@ fn render_file_table(mut out: &mut String, report: &ProfileReport<'_>) {
         appends!(out, "  ");
         append!(out, "{}", file.path.display());
 
-        if let Some(note) = file.note.as_ref() {
-            if !note.is_empty() {
-                appends!(out, DIM, "  ", note.as_str(), RESET);
-            }
+        if let Some(note) = file.note.as_ref()
+            && !note.is_empty()
+        {
+            appends!(out, DIM, "  ", note.as_str(), RESET);
         }
         out.push('\n');
     }
@@ -333,12 +333,12 @@ fn percent_of(duration: Duration, total: Duration) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::{
-        render_profile_report, ProfileFileRow, ProfilePhase, ProfilePhaseKind, ProfileReport,
+        ProfileFileRow, ProfilePhase, ProfilePhaseKind, ProfileReport, render_profile_report,
     };
     use std::path::PathBuf;
     use std::time::Duration;
-    use vize_carton::profiler::{ProfileEntry, ProfileSummary};
     use vize_carton::String;
+    use vize_carton::profiler::{ProfileEntry, ProfileSummary};
 
     #[test]
     #[allow(clippy::disallowed_macros)]

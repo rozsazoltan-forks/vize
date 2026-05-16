@@ -13,7 +13,7 @@ use crate::cross_file::registry::{FileId, ModuleEntry, ModuleRegistry};
 use crate::provide::ProvideKey;
 use crate::reactivity::{ReactiveKind, ReactivityLossKind};
 use std::path::{Component, Path, PathBuf};
-use vize_carton::{cstr, CompactString, FxHashMap, FxHashSet, SmallVec, String};
+use vize_carton::{CompactString, FxHashMap, FxHashSet, SmallVec, String, cstr};
 
 #[derive(Debug, Clone)]
 struct PropLoss {
@@ -416,19 +416,17 @@ impl<'a> CrossFileReactivityAnalyzer<'a> {
             let (current, path) = queue[cursor].clone();
             cursor += 1;
 
-            if current != consumer_file_id {
-                if let Some(provides) = self.provides.get(&current) {
-                    if let Some(provider) = provides
-                        .iter()
-                        .rev()
-                        .find(|provider| provider.key_identity.as_str() == key_identity)
-                    {
-                        if seen_providers.insert((provider.file_id, provider.offset)) {
-                            providers.push(provider.clone());
-                        }
-                        continue;
-                    }
+            if current != consumer_file_id
+                && let Some(provides) = self.provides.get(&current)
+                && let Some(provider) = provides
+                    .iter()
+                    .rev()
+                    .find(|provider| provider.key_identity.as_str() == key_identity)
+            {
+                if seen_providers.insert((provider.file_id, provider.offset)) {
+                    providers.push(provider.clone());
                 }
+                continue;
             }
 
             let mut parents: Vec<_> = self
@@ -554,32 +552,28 @@ impl<'a> CrossFileReactivityAnalyzer<'a> {
     fn detect_pinia_issues(&mut self, file_id: FileId, analysis: &crate::Croquis) {
         // Look for imports from pinia
         for scope in analysis.scopes.iter() {
-            if let crate::scope::ScopeKind::ExternalModule = scope.kind {
-                if let crate::scope::ScopeData::ExternalModule(data) = scope.data() {
-                    if data.source.as_str() == "pinia" {
-                        // Check for storeToRefs usage
-                        let has_store_to_refs =
-                            scope.bindings().any(|(name, _)| name == "storeToRefs");
+            if let crate::scope::ScopeKind::ExternalModule = scope.kind
+                && let crate::scope::ScopeData::ExternalModule(data) = scope.data()
+                && data.source.as_str() == "pinia"
+            {
+                // Check for storeToRefs usage
+                let has_store_to_refs = scope.bindings().any(|(name, _)| name == "storeToRefs");
 
-                        if !has_store_to_refs {
-                            // Check if there are store calls that might be destructured
-                            // This is a heuristic - stores are usually named `use*Store`
-                            for composable in analysis.provide_inject.composables() {
-                                if composable.name.ends_with("Store")
-                                    && composable.local_name.is_none()
-                                {
-                                    self.issues.push(CrossFileReactivityIssue {
-                                        file_id,
-                                        kind: CrossFileReactivityIssueKind::StoreDestructured {
-                                            store_name: composable.name.clone(),
-                                            destructured_props: vec![],
-                                        },
-                                        offset: composable.start,
-                                        related_file: None,
-                                        severity: DiagnosticSeverity::Warning,
-                                    });
-                                }
-                            }
+                if !has_store_to_refs {
+                    // Check if there are store calls that might be destructured
+                    // This is a heuristic - stores are usually named `use*Store`
+                    for composable in analysis.provide_inject.composables() {
+                        if composable.name.ends_with("Store") && composable.local_name.is_none() {
+                            self.issues.push(CrossFileReactivityIssue {
+                                file_id,
+                                kind: CrossFileReactivityIssueKind::StoreDestructured {
+                                    store_name: composable.name.clone(),
+                                    destructured_props: vec![],
+                                },
+                                offset: composable.start,
+                                related_file: None,
+                                severity: DiagnosticSeverity::Warning,
+                            });
                         }
                     }
                 }
@@ -741,22 +735,21 @@ fn prop_reactivity_loss(analysis: &crate::Croquis, prop_name: &str) -> Option<Pr
         }
     }
 
-    if let Some(destructure) = analysis.macros.props_destructure() {
-        if destructure
+    if let Some(destructure) = analysis.macros.props_destructure()
+        && (destructure
             .bindings
             .keys()
             .any(|key| prop_names_match(key.as_str(), prop_name))
-            || destructure.rest_id.is_some()
-        {
-            let props = destructure.bindings.keys().cloned().collect::<Vec<_>>();
-            return Some(PropLoss {
-                offset: analysis
-                    .macros
-                    .define_props()
-                    .map_or(0, |define_props| define_props.start),
-                reason: ReactivityLossReason::Destructured { props },
-            });
-        }
+            || destructure.rest_id.is_some())
+    {
+        let props = destructure.bindings.keys().cloned().collect::<Vec<_>>();
+        return Some(PropLoss {
+            offset: analysis
+                .macros
+                .define_props()
+                .map_or(0, |define_props| define_props.start),
+            reason: ReactivityLossReason::Destructured { props },
+        });
     }
 
     None

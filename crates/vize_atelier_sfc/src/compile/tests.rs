@@ -1,6 +1,6 @@
 use super::{compile_sfc, helpers, normal_script};
 use crate::types::{BindingType, ScriptCompileOptions, SfcCompileOptions, TemplateCompileOptions};
-use crate::{parse_sfc, SfcParseOptions};
+use crate::{SfcParseOptions, parse_sfc};
 use std::fs;
 use std::path::PathBuf;
 use vize_carton::ToCompactString;
@@ -113,10 +113,12 @@ const msg = 'ready'
     assert_eq!(artifact.name.as_str(), "definePage");
     assert!(artifact.source.contains("definePage"));
     assert!(artifact.content.contains("requiresAuth"));
-    assert!(artifact
-        .module_code
-        .as_ref()
-        .is_some_and(|code| code.starts_with("export default {")));
+    assert!(
+        artifact
+            .module_code
+            .as_ref()
+            .is_some_and(|code| code.starts_with("export default {"))
+    );
 }
 
 #[test]
@@ -186,10 +188,12 @@ const msg = 'ready'
     assert_eq!(artifact.name.as_str(), "definePageMeta");
     assert!(artifact.source.contains("definePageMeta"));
     assert!(artifact.content.contains("scrollMargin"));
-    assert!(artifact
-        .module_code
-        .as_ref()
-        .is_some_and(|code| code.starts_with("export default {")));
+    assert!(
+        artifact
+            .module_code
+            .as_ref()
+            .is_some_and(|code| code.starts_with("export default {"))
+    );
 }
 
 #[test]
@@ -225,10 +229,12 @@ const msg = 'ready'
     assert_eq!(artifact.name.as_str(), "defineRouteRules");
     assert!(artifact.source.contains("defineRouteRules"));
     assert!(artifact.content.contains("prerender"));
-    assert!(artifact
-        .module_code
-        .as_ref()
-        .is_some_and(|code| code.starts_with("export default {")));
+    assert!(
+        artifact
+            .module_code
+            .as_ref()
+            .is_some_and(|code| code.starts_with("export default {"))
+    );
 }
 
 #[test]

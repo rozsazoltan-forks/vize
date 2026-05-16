@@ -97,9 +97,9 @@ function smokeTestMoon() {
     },
     input: `///|
 import {
-  "moonbitlang/async@0.16.8",
-  "moonbitlang/async@0.16.8/process",
-  "moonbitlang/x@0.4.41/sys",
+  "moonbitlang/async@0.19.0",
+  "moonbitlang/async@0.19.0/process",
+  "moonbitlang/x@0.4.43/sys",
 }
 
 ///|

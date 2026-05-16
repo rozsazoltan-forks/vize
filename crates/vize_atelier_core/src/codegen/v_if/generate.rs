@@ -34,12 +34,11 @@ pub(super) fn should_skip_prop_for_if(
             false
         }
         PropNode::Directive(dir) => {
-            if dir.name == "bind" {
-                if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                    if arg.content == "key" {
-                        return true;
-                    }
-                }
+            if dir.name == "bind"
+                && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                && arg.content == "key"
+            {
+                return true;
             }
             // Skip v-if/v-else-if/v-else directives
             if matches!(dir.name.as_str(), "if" | "else-if" | "else") {
@@ -62,10 +61,10 @@ pub(super) fn extract_static_class_style<'a>(
                 if let Some(val) = &attr.value {
                     static_class = Some(val.content.as_str());
                 }
-            } else if attr.name == "style" {
-                if let Some(val) = &attr.value {
-                    static_style = Some(val.content.as_str());
-                }
+            } else if attr.name == "style"
+                && let Some(val) = &attr.value
+            {
+                static_style = Some(val.content.as_str());
             }
         }
     }
@@ -75,12 +74,11 @@ pub(super) fn extract_static_class_style<'a>(
 /// Check if element has dynamic `:class` binding.
 pub(super) fn has_dynamic_class(el: &ElementNode<'_>) -> bool {
     el.props.iter().any(|p| {
-        if let PropNode::Directive(dir) = p {
-            if dir.name == "bind" {
-                if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                    return arg.content == "class";
-                }
-            }
+        if let PropNode::Directive(dir) = p
+            && dir.name == "bind"
+            && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+        {
+            return arg.content == "class";
         }
         false
     })
@@ -89,12 +87,11 @@ pub(super) fn has_dynamic_class(el: &ElementNode<'_>) -> bool {
 /// Check if element has dynamic `:style` binding.
 pub(super) fn has_dynamic_style(el: &ElementNode<'_>) -> bool {
     el.props.iter().any(|p| {
-        if let PropNode::Directive(dir) = p {
-            if dir.name == "bind" {
-                if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                    return arg.content == "style";
-                }
-            }
+        if let PropNode::Directive(dir) = p
+            && dir.name == "bind"
+            && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+        {
+            return arg.content == "style";
         }
         false
     })
@@ -179,10 +176,10 @@ pub(super) fn generate_if_branch_props_object(
     // Check if there are other props besides key (skip excluded ones)
     let has_other_props = el.props.iter().any(|p| {
         // Skip unsupported directives (v-slot, v-tooltip, custom directives, etc.)
-        if let PropNode::Directive(dir) = p {
-            if !is_supported_directive(dir) {
-                return false;
-            }
+        if let PropNode::Directive(dir) = p
+            && !is_supported_directive(dir)
+        {
+            return false;
         }
         !should_skip_prop_for_if(p, has_dynamic_class, has_dynamic_style)
             && !is_vbind_spread_prop(p)
@@ -215,10 +212,10 @@ pub(super) fn generate_if_branch_props_object(
 
     for prop in el.props.iter() {
         // Skip unsupported directives (v-slot, v-tooltip, custom directives, etc.)
-        if let PropNode::Directive(dir) = prop {
-            if !is_supported_directive(dir) {
-                continue;
-            }
+        if let PropNode::Directive(dir) = prop
+            && !is_supported_directive(dir)
+        {
+            continue;
         }
         if should_skip_prop_for_if(prop, has_dynamic_class, has_dynamic_style) {
             continue;
@@ -229,14 +226,12 @@ pub(super) fn generate_if_branch_props_object(
         if is_von_spread_prop(prop) {
             continue;
         }
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "on" {
-                if let Some(key) = get_static_event_key(dir) {
-                    if !seen_events.insert(key) {
-                        continue;
-                    }
-                }
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "on"
+            && let Some(key) = get_static_event_key(dir)
+            && !seen_events.insert(key)
+        {
+            continue;
         }
         ctx.push(",");
         ctx.newline();

@@ -426,8 +426,8 @@ impl VueReactiveType {
 #[cfg(test)]
 mod tests {
     use super::{
-        parse_content_length, Diagnostic, JsonRpcNotification, JsonRpcRequest, Range,
-        RequestIdGenerator, VueReactiveType,
+        Diagnostic, JsonRpcNotification, JsonRpcRequest, Range, RequestIdGenerator,
+        VueReactiveType, parse_content_length,
     };
 
     #[test]
@@ -480,10 +480,10 @@ mod tests {
 
     #[test]
     fn test_request_id_generator() {
-        let gen = RequestIdGenerator::new();
-        assert_eq!(gen.next(), 0);
-        assert_eq!(gen.next(), 1);
-        assert_eq!(gen.next(), 2);
+        let generator = RequestIdGenerator::new();
+        assert_eq!(generator.next(), 0);
+        assert_eq!(generator.next(), 1);
+        assert_eq!(generator.next(), 2);
     }
 
     #[test]

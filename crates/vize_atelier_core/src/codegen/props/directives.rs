@@ -367,18 +367,18 @@ fn generate_von_prop(ctx: &mut CodegenContext, dir: &DirectiveNode<'_>) {
     // Simple identifiers get safety wrapper: (...args) => (_ctx.handler && _ctx.handler(...args))
     // Inline expressions get: $event => (expression)
     let is_const_handler = dir.exp.as_ref().is_some_and(|exp| {
-        if let ExpressionNode::Simple(simple) = exp {
-            if !simple.is_static {
-                let content = simple.content.trim();
-                // Check if content is a simple identifier that's a setup-const binding
-                if crate::transforms::is_simple_identifier(content) {
-                    if let Some(ref metadata) = ctx.options.binding_metadata {
-                        return matches!(
-                            metadata.bindings.get(content),
-                            Some(crate::options::BindingType::SetupConst)
-                        );
-                    }
-                }
+        if let ExpressionNode::Simple(simple) = exp
+            && !simple.is_static
+        {
+            let content = simple.content.trim();
+            // Check if content is a simple identifier that's a setup-const binding
+            if crate::transforms::is_simple_identifier(content)
+                && let Some(ref metadata) = ctx.options.binding_metadata
+            {
+                return matches!(
+                    metadata.bindings.get(content),
+                    Some(crate::options::BindingType::SetupConst)
+                );
             }
         }
         false
@@ -450,50 +450,50 @@ fn generate_von_prop(ctx: &mut CodegenContext, dir: &DirectiveNode<'_>) {
 fn generate_vmodel_prop(ctx: &mut CodegenContext, dir: &DirectiveNode<'_>) {
     // Handle dynamic v-model on component
     // Generate: [_ctx.prop]: _ctx.value, ["onUpdate:" + _ctx.prop]: handler
-    if let Some(ExpressionNode::Simple(arg_exp)) = &dir.arg {
-        if !arg_exp.is_static {
-            let prop_name = &arg_exp.content;
-            let value_exp = dir
-                .exp
-                .as_ref()
-                .map(|e| match e {
-                    ExpressionNode::Simple(s) => s.content.as_str(),
-                    ExpressionNode::Compound(c) => c.loc.source.as_str(),
-                })
-                .unwrap_or("undefined");
+    if let Some(ExpressionNode::Simple(arg_exp)) = &dir.arg
+        && !arg_exp.is_static
+    {
+        let prop_name = &arg_exp.content;
+        let value_exp = dir
+            .exp
+            .as_ref()
+            .map(|e| match e {
+                ExpressionNode::Simple(s) => s.content.as_str(),
+                ExpressionNode::Compound(c) => c.loc.source.as_str(),
+            })
+            .unwrap_or("undefined");
 
-            // [_ctx.prop]: _ctx.value
-            ctx.push("[_ctx.");
-            ctx.push(prop_name);
-            ctx.push("]: ");
-            ctx.push(value_exp);
+        // [_ctx.prop]: _ctx.value
+        ctx.push("[_ctx.");
+        ctx.push(prop_name);
+        ctx.push("]: ");
+        ctx.push(value_exp);
+        ctx.push(",");
+        ctx.newline();
+
+        // ["onUpdate:" + _ctx.prop]: $event => ((_ctx.value) = $event)
+        ctx.push("[\"onUpdate:\" + _ctx.");
+        ctx.push(prop_name);
+        ctx.push("]: $event => ((");
+        ctx.push(value_exp);
+        ctx.push(") = $event)");
+
+        // Add modifiers if present
+        if !dir.modifiers.is_empty() {
             ctx.push(",");
             ctx.newline();
-
-            // ["onUpdate:" + _ctx.prop]: $event => ((_ctx.value) = $event)
-            ctx.push("[\"onUpdate:\" + _ctx.");
+            // [_ctx.prop + "Modifiers"]: { modifier: true }
+            ctx.push("[_ctx.");
             ctx.push(prop_name);
-            ctx.push("]: $event => ((");
-            ctx.push(value_exp);
-            ctx.push(") = $event)");
-
-            // Add modifiers if present
-            if !dir.modifiers.is_empty() {
-                ctx.push(",");
-                ctx.newline();
-                // [_ctx.prop + "Modifiers"]: { modifier: true }
-                ctx.push("[_ctx.");
-                ctx.push(prop_name);
-                ctx.push(" + \"Modifiers\"]: { ");
-                for (i, modifier) in dir.modifiers.iter().enumerate() {
-                    if i > 0 {
-                        ctx.push(", ");
-                    }
-                    ctx.push(&modifier.content);
-                    ctx.push(": true");
+            ctx.push(" + \"Modifiers\"]: { ");
+            for (i, modifier) in dir.modifiers.iter().enumerate() {
+                if i > 0 {
+                    ctx.push(", ");
                 }
-                ctx.push(" }");
+                ctx.push(&modifier.content);
+                ctx.push(": true");
             }
+            ctx.push(" }");
         }
     }
 }

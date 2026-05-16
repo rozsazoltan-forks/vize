@@ -300,14 +300,14 @@ fn extract_from_child<'a>(
         }
         TemplateChildNode::If(if_node) => {
             for branch in &if_node.branches {
-                if let Some(ref cond) = branch.condition {
-                    if let Some((text, loc)) = get_expression_content(cond) {
-                        expressions.push(TemplateExpression {
-                            text,
-                            range: SourceRange::from(loc),
-                            kind: ExpressionKind::VIf,
-                        });
-                    }
+                if let Some(ref cond) = branch.condition
+                    && let Some((text, loc)) = get_expression_content(cond)
+                {
+                    expressions.push(TemplateExpression {
+                        text,
+                        range: SourceRange::from(loc),
+                        kind: ExpressionKind::VIf,
+                    });
                 }
                 extract_from_children(&branch.children, expressions);
             }
@@ -323,14 +323,14 @@ fn extract_from_child<'a>(
             extract_from_children(&for_node.children, expressions);
         }
         TemplateChildNode::IfBranch(branch) => {
-            if let Some(ref cond) = branch.condition {
-                if let Some((text, loc)) = get_expression_content(cond) {
-                    expressions.push(TemplateExpression {
-                        text,
-                        range: SourceRange::from(loc),
-                        kind: ExpressionKind::VIf,
-                    });
-                }
+            if let Some(ref cond) = branch.condition
+                && let Some((text, loc)) = get_expression_content(cond)
+            {
+                expressions.push(TemplateExpression {
+                    text,
+                    range: SourceRange::from(loc),
+                    kind: ExpressionKind::VIf,
+                });
             }
             extract_from_children(&branch.children, expressions);
         }
@@ -393,8 +393,8 @@ mod tests {
         let allocator = vize_carton::Bump::new();
         let (ast, _) = vize_armature::parse(&allocator, source);
 
-        let mut gen = TemplateCodeGenerator::new();
-        let doc = gen.generate(&ast, source);
+        let mut generator = TemplateCodeGenerator::new();
+        let doc = generator.generate(&ast, source);
 
         assert!(!doc.source_map.is_empty());
         insta::assert_snapshot!(doc.content.as_str());
@@ -406,8 +406,8 @@ mod tests {
         let allocator = vize_carton::Bump::new();
         let (ast, _) = vize_armature::parse(&allocator, source);
 
-        let mut gen = TemplateCodeGenerator::new();
-        let doc = gen.generate(&ast, source);
+        let mut generator = TemplateCodeGenerator::new();
+        let doc = generator.generate(&ast, source);
 
         insta::assert_snapshot!(doc.content.as_str());
     }

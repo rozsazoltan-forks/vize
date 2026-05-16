@@ -1,6 +1,6 @@
 #![allow(clippy::disallowed_types)]
 
-use super::{utils::remap_serialized_uris, CorsaProjectClient};
+use super::{CorsaProjectClient, utils::remap_serialized_uris};
 use crate::file_uri::{file_uri_to_path, path_to_file_uri};
 use corsa::{
     api::{
@@ -17,7 +17,7 @@ use std::{
     path::{Component, Path, PathBuf},
     sync::Arc,
 };
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 pub(super) fn spawn_project_session(
     executable: &str,

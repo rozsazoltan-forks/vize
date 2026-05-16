@@ -1,5 +1,5 @@
 use crate::ir::{ComponentKind, CreateComponentIRNode, IRSlot, OperationNode};
-use vize_carton::{cstr, FxHashMap, String, ToCompactString};
+use vize_carton::{FxHashMap, String, ToCompactString, cstr};
 
 use super::{
     super::context::GenerateContext, component_props::generate_component_props_str,
@@ -50,18 +50,17 @@ pub(super) fn generate_create_component(
     if use_with_vapor_ctx {
         for slot in component.slots.iter() {
             for op in slot.block.operation.iter() {
-                if let OperationNode::CreateComponent(inner_comp) = op {
-                    if (inner_comp.kind == ComponentKind::Regular
+                if let OperationNode::CreateComponent(inner_comp) = op
+                    && (inner_comp.kind == ComponentKind::Regular
                         || inner_comp.kind == ComponentKind::Suspense)
-                        && !ctx.is_component_resolved(inner_comp.tag.as_str())
-                    {
-                        emit_component_resolution(
-                            ctx,
-                            component_resolution_var(inner_comp.tag.as_str()).as_str(),
-                            inner_comp.tag.as_str(),
-                        );
-                        ctx.mark_component_resolved(inner_comp.tag.as_str());
-                    }
+                    && !ctx.is_component_resolved(inner_comp.tag.as_str())
+                {
+                    emit_component_resolution(
+                        ctx,
+                        component_resolution_var(inner_comp.tag.as_str()).as_str(),
+                        inner_comp.tag.as_str(),
+                    );
+                    ctx.mark_component_resolved(inner_comp.tag.as_str());
                 }
             }
         }

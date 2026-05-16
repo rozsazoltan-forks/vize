@@ -35,8 +35,8 @@ use vize_carton::String;
 use vize_carton::ToCompactString;
 use vize_croquis::naming::{is_pascal_case, to_pascal_case};
 use vize_croquis::{Croquis, ScopeData};
-use vize_relief::ast::RootNode;
 use vize_relief::BindingType;
+use vize_relief::ast::RootNode;
 
 static META: RuleMeta = RuleMeta {
     name: "vue/no-unused-components",
@@ -62,10 +62,10 @@ impl NoUnusedComponents {
         }
 
         // Check custom ignore pattern
-        if let Some(ref pattern) = self.ignore_pattern {
-            if name.starts_with(pattern.as_str()) {
-                return true;
-            }
+        if let Some(ref pattern) = self.ignore_pattern
+            && name.starts_with(pattern.as_str())
+        {
+            return true;
         }
 
         false

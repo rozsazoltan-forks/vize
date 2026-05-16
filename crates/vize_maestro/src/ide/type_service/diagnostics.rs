@@ -9,7 +9,7 @@ use tower_lsp::lsp_types::{
     CodeDescription, Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, Location,
     NumberOrString, Position, Range, Url,
 };
-use vize_vitrine::{type_check_sfc, TypeCheckOptions, TypeSeverity};
+use vize_vitrine::{TypeCheckOptions, TypeSeverity, type_check_sfc};
 
 use super::{LspTypeCheckOptions, TypeService};
 use crate::server::ServerState;
@@ -302,7 +302,7 @@ pub(super) fn offset_to_line_col(source: &str, offset: usize) -> (u32, u32) {
 
 #[cfg(test)]
 mod diagnostics_tests {
-    use super::{offset_to_line_col, TypeService};
+    use super::{TypeService, offset_to_line_col};
     use crate::server::ServerState;
     use tower_lsp::lsp_types::{DiagnosticSeverity, NumberOrString, Url};
 

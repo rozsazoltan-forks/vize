@@ -1,5 +1,5 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
   "crates/vize_carton",
   "crates/vize_relief",
@@ -23,7 +23,7 @@ members = [
 
 [workspace.package]
 version = "0.92.0"
-edition = "2021"
+edition = "2024"
 license = "MIT"
 repository = "https://github.com/ubugeeei/vize"
 

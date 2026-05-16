@@ -8,7 +8,7 @@ use tower_lsp::lsp_types::{
     PrepareRenameResponse, Range, TextEdit, Url, WorkspaceEdit,
 };
 use vize_canon::LspLocation;
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 use super::IdeContext;
 use crate::virtual_code::{SourceRange, VirtualDocument};

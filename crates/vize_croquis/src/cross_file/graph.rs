@@ -130,25 +130,23 @@ impl DependencyGraph {
     /// Add a dependency edge between two modules.
     pub fn add_edge(&mut self, from: FileId, to: FileId, edge_type: DependencyEdge) {
         // Add to importer's imports
-        if let Some(from_node) = self.nodes.get_mut(&from) {
-            if !from_node
+        if let Some(from_node) = self.nodes.get_mut(&from)
+            && !from_node
                 .imports
                 .iter()
                 .any(|(id, edge)| *id == to && *edge == edge_type)
-            {
-                from_node.imports.push((to, edge_type));
-            }
+        {
+            from_node.imports.push((to, edge_type));
         }
 
         // Add to importee's importers
-        if let Some(to_node) = self.nodes.get_mut(&to) {
-            if !to_node
+        if let Some(to_node) = self.nodes.get_mut(&to)
+            && !to_node
                 .importers
                 .iter()
                 .any(|(id, edge)| *id == from && *edge == edge_type)
-            {
-                to_node.importers.push((from, edge_type));
-            }
+        {
+            to_node.importers.push((from, edge_type));
         }
     }
 

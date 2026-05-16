@@ -275,17 +275,17 @@ fn has_inline_handler(ctx: &CodegenContext, dir: &DirectiveNode<'_>) -> bool {
 
 fn is_setup_const_handler(ctx: &CodegenContext, dir: &DirectiveNode<'_>) -> bool {
     dir.exp.as_ref().is_some_and(|exp| {
-        if let ExpressionNode::Simple(simple) = exp {
-            if !simple.is_static {
-                let content = simple.content.trim();
-                if crate::transforms::is_simple_identifier(content) {
-                    return ctx
-                        .options
-                        .binding_metadata
-                        .as_ref()
-                        .and_then(|metadata| metadata.bindings.get(content))
-                        .is_some_and(|binding| *binding == BindingType::SetupConst);
-                }
+        if let ExpressionNode::Simple(simple) = exp
+            && !simple.is_static
+        {
+            let content = simple.content.trim();
+            if crate::transforms::is_simple_identifier(content) {
+                return ctx
+                    .options
+                    .binding_metadata
+                    .as_ref()
+                    .and_then(|metadata| metadata.bindings.get(content))
+                    .is_some_and(|binding| *binding == BindingType::SetupConst);
             }
         }
         false

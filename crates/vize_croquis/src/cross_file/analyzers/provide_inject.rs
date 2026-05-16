@@ -11,7 +11,7 @@ use crate::cross_file::diagnostics::{
 use crate::cross_file::graph::{DependencyEdge, DependencyGraph};
 use crate::cross_file::registry::{FileId, ModuleRegistry};
 use crate::provide::{InjectEntry, InjectPattern, ProvideEntry, ProvideKey};
-use vize_carton::{cstr, CompactString, FxHashMap, FxHashSet, String};
+use vize_carton::{CompactString, FxHashMap, FxHashSet, String, cstr};
 
 /// Information about a provide/inject match.
 #[derive(Debug, Clone)]
@@ -166,19 +166,18 @@ impl ProvideInjectIndex {
             cursor += 1;
 
             // A provider shadows farther ancestors on the same render branch.
-            if current != consumer {
-                if let Some(component_provides) = self.provides.get(&current) {
-                    if let Some(provide) = matching_provider(component_provides, key) {
-                        if seen_providers.insert((current, provide.id.as_u32())) {
-                            matches.push(ResolvedProvider {
-                                provider_id: current,
-                                provide: provide.clone(),
-                                path: path_from_frame(&frames, frame_index),
-                            });
-                        }
-                        continue;
-                    }
+            if current != consumer
+                && let Some(component_provides) = self.provides.get(&current)
+                && let Some(provide) = matching_provider(component_provides, key)
+            {
+                if seen_providers.insert((current, provide.id.as_u32())) {
+                    matches.push(ResolvedProvider {
+                        provider_id: current,
+                        provide: provide.clone(),
+                        path: path_from_frame(&frames, frame_index),
+                    });
                 }
+                continue;
             }
 
             let Some(parents) = self.component_parents.get(&current) else {

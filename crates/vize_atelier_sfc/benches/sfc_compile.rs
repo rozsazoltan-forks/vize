@@ -2,10 +2,10 @@
 //!
 //! Run with: cargo bench -p vize_atelier_sfc --bench sfc_compile
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
+use criterion::{Criterion, Throughput, black_box, criterion_group, criterion_main};
 use vize_atelier_sfc::{
-    compile_sfc, parse_sfc, ScriptCompileOptions, SfcCompileOptions, SfcParseOptions,
-    StyleCompileOptions, TemplateCompileOptions,
+    ScriptCompileOptions, SfcCompileOptions, SfcParseOptions, StyleCompileOptions,
+    TemplateCompileOptions, compile_sfc, parse_sfc,
 };
 
 const SIMPLE_TEMPLATE_ONLY: &str = r#"<template>

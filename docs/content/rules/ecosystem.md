@@ -13,7 +13,7 @@ they are not part of `happy-path`, `nuxt`, or `opinionated`.
 
 Requires `to` or `:to` on `<RouterLink>`, `<router-link>`, `<NuxtLink>`, and `<nuxt-link>`.
 
-Default severity: `error`  
+Default severity: `error`
 Presets: none
 
 Bad:
@@ -37,7 +37,7 @@ Good:
 Warns on static internal path strings in RouterLink-like components. Named route objects keep Vue
 Router typed routes and editor completions centered around route names and params.
 
-Default severity: `warning`  
+Default severity: `warning`
 Presets: none
 
 Bad:
@@ -60,7 +60,7 @@ Good:
 
 Warns on `router.push("/path")`, `router.replace("/path")`, and route objects with a static `path`.
 
-Default severity: `warning`  
+Default severity: `warning`
 Presets: none
 
 Bad:
@@ -80,7 +80,7 @@ router.push({ name: "settings" });
 Warns on internal `<a href="/...">` links in Nuxt-oriented code. External links, downloads, and
 `target="_blank"` remain plain anchors.
 
-Default severity: `warning`  
+Default severity: `warning`
 Presets: none
 
 Bad:
@@ -104,7 +104,7 @@ Good:
 Warns when a Pinia store is destructured directly. Use `storeToRefs()` for state and getters, and
 keep actions on the store instance.
 
-Default severity: `warning`  
+Default severity: `warning`
 Presets: none
 
 Bad:
@@ -125,7 +125,7 @@ const { name } = storeToRefs(store);
 Warns when a static `$t()`, `$te()`, `$tm()`, `t()`, `te()`, or `tm()` key is missing from the same
 SFC's local `<i18n lang="json">` block.
 
-Default severity: `warning`  
+Default severity: `warning`
 Presets: none
 
 Bad:
@@ -153,7 +153,7 @@ Good:
 Warns on `expect(wrapper.html()).toMatchSnapshot()`. Prefer focused assertions around visible text,
 attributes, emitted events, or component state.
 
-Default severity: `warning`  
+Default severity: `warning`
 Presets: none
 
 Bad:

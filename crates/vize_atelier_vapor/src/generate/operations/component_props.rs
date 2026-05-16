@@ -1,5 +1,5 @@
 use crate::ir::{CreateComponentIRNode, IRProp};
-use vize_carton::{cstr, String, ToCompactString};
+use vize_carton::{String, ToCompactString, cstr};
 
 use super::{super::context::GenerateContext, events::is_inline_statement};
 

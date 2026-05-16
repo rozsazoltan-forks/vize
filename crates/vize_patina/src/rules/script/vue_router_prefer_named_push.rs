@@ -12,7 +12,7 @@ use oxc_allocator::Allocator;
 use oxc_ast::ast::{
     Argument, CallExpression, Expression, ObjectExpression, ObjectPropertyKind, PropertyKey,
 };
-use oxc_ast_visit::{walk::walk_call_expression, Visit};
+use oxc_ast_visit::{Visit, walk::walk_call_expression};
 use oxc_parser::Parser;
 use oxc_span::{SourceType, Span};
 
@@ -50,9 +50,10 @@ struct RouterPushVisitor<'result> {
 
 impl<'a> Visit<'a> for RouterPushVisitor<'_> {
     fn visit_call_expression(&mut self, it: &CallExpression<'a>) {
-        if is_router_navigation_call(it) {
-            if let Some(span) = static_path_argument_span(it.arguments.first()) {
-                self.result.add_diagnostic(
+        if is_router_navigation_call(it)
+            && let Some(span) = static_path_argument_span(it.arguments.first())
+        {
+            self.result.add_diagnostic(
                     LintDiagnostic::warn(
                         META.name,
                         "Prefer a named route object for router navigation",
@@ -63,7 +64,6 @@ impl<'a> Visit<'a> for RouterPushVisitor<'_> {
                         "Use `router.push({ name: 'route-name' })` or `router.replace({ name: 'route-name' })` so typed routes can validate params and editor completions.",
                     ),
                 );
-            }
         }
 
         walk_call_expression(self, it);

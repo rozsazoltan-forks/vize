@@ -37,18 +37,19 @@ impl FileRenameService {
         {
             state.invalidate_batch_cache();
 
-            if !renamed.is_empty() && state.has_corsa_bridge() {
-                if let Some(bridge) = state.get_corsa_bridge().await {
-                    for (old_uri, _) in &renamed {
-                        for request_path in [
-                            crate::ide::corsa_support::template_request_path(old_uri),
-                            crate::ide::corsa_support::script_request_path(old_uri, false),
-                            crate::ide::corsa_support::script_request_path(old_uri, true),
-                        ] {
-                            let request_uri =
-                                crate::ide::corsa_support::request_file_uri(&request_path);
-                            let _ = bridge.close_virtual_document(&request_uri).await;
-                        }
+            if !renamed.is_empty()
+                && state.has_corsa_bridge()
+                && let Some(bridge) = state.get_corsa_bridge().await
+            {
+                for (old_uri, _) in &renamed {
+                    for request_path in [
+                        crate::ide::corsa_support::template_request_path(old_uri),
+                        crate::ide::corsa_support::script_request_path(old_uri, false),
+                        crate::ide::corsa_support::script_request_path(old_uri, true),
+                    ] {
+                        let request_uri =
+                            crate::ide::corsa_support::request_file_uri(&request_path);
+                        let _ = bridge.close_virtual_document(&request_uri).await;
                     }
                 }
             }
@@ -276,9 +277,11 @@ mod tests {
 
         assert_eq!(edits.len(), 2);
         assert!(edits.iter().any(|edit| edit.text_document.uri == base_uri));
-        assert!(edits
-            .iter()
-            .any(|edit| edit.text_document.uri == overlay_uri));
+        assert!(
+            edits
+                .iter()
+                .any(|edit| edit.text_document.uri == overlay_uri)
+        );
     }
 
     #[test]
@@ -316,9 +319,11 @@ mod tests {
 
         assert_eq!(edits.len(), 2);
         assert!(edits.iter().any(|edit| edit.text_document.uri == base_uri));
-        assert!(edits
-            .iter()
-            .any(|edit| edit.text_document.uri == overlay_uri));
+        assert!(
+            edits
+                .iter()
+                .any(|edit| edit.text_document.uri == overlay_uri)
+        );
     }
 
     #[test]

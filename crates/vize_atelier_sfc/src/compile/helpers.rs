@@ -7,7 +7,7 @@ use oxc_span::SourceType;
 use vize_atelier_core::Allocator as TemplateAllocator;
 use vize_carton::{String, ToCompactString};
 
-use crate::script::{resolve_template_v_model_identifiers, ScriptCompileContext};
+use crate::script::{ScriptCompileContext, resolve_template_v_model_identifiers};
 use crate::types::{BindingMetadata, BindingType};
 
 /// Generate scope ID from filename

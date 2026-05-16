@@ -113,12 +113,10 @@ fn materialize_vue_support(project_root: &Path, node_modules_dir: &Path) -> std:
     if let (Some(vue_source), Some(vue_namespace_source)) = (
         resolve_ancestor_package(project_root, "vue"),
         resolve_ancestor_package(project_root, "@vue"),
-    ) {
-        if symlink_path(&vue_source, &vue_target).is_ok()
-            && symlink_path(&vue_namespace_source, &vue_namespace_target).is_ok()
-        {
-            return Ok(());
-        }
+    ) && symlink_path(&vue_source, &vue_target).is_ok()
+        && symlink_path(&vue_namespace_source, &vue_namespace_target).is_ok()
+    {
+        return Ok(());
     }
 
     remove_path(&vue_namespace_target)?;
@@ -128,10 +126,10 @@ fn materialize_vue_support(project_root: &Path, node_modules_dir: &Path) -> std:
 fn materialize_vite_support(project_root: &Path, node_modules_dir: &Path) -> std::io::Result<()> {
     let vite_target = node_modules_dir.join("vite");
 
-    if let Some(vite_source) = resolve_ancestor_package(project_root, "vite") {
-        if symlink_path(&vite_source, &vite_target).is_ok() {
-            return Ok(());
-        }
+    if let Some(vite_source) = resolve_ancestor_package(project_root, "vite")
+        && symlink_path(&vite_source, &vite_target).is_ok()
+    {
+        return Ok(());
     }
 
     write_vite_stub(node_modules_dir)

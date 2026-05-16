@@ -4,7 +4,7 @@ mod text;
 
 pub use text::*;
 
-use crate::diagnostic::{render_help, HelpRenderTarget};
+use crate::diagnostic::{HelpRenderTarget, render_help};
 use crate::linter::LintResult;
 use serde::Serialize;
 use vize_carton::{FxHashMap, SmallVec, String};
@@ -151,7 +151,7 @@ impl SourceLineIndex {
 
 #[cfg(test)]
 mod tests {
-    use crate::{format_results, Linter, OutputFormat};
+    use crate::{Linter, OutputFormat, format_results};
 
     #[test]
     fn json_output_uses_source_line_columns() {

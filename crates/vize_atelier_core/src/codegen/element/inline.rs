@@ -194,22 +194,20 @@ pub fn generate_element(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
             let is_dynamic_component = is_dynamic_component_tag(&el.tag);
             let (dynamic_is, static_is) = if is_dynamic_component {
                 let dynamic = el.props.iter().find_map(|p| {
-                    if let PropNode::Directive(dir) = p {
-                        if dir.name == "bind" {
-                            if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                                if arg.content == "is" {
-                                    return dir.exp.as_ref();
-                                }
-                            }
-                        }
+                    if let PropNode::Directive(dir) = p
+                        && dir.name == "bind"
+                        && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                        && arg.content == "is"
+                    {
+                        return dir.exp.as_ref();
                     }
                     None
                 });
                 let static_val = el.props.iter().find_map(|p| {
-                    if let PropNode::Attribute(attr) = p {
-                        if attr.name == "is" {
-                            return attr.value.as_ref().map(|v| v.content.as_str());
-                        }
+                    if let PropNode::Attribute(attr) = p
+                        && attr.name == "is"
+                    {
+                        return attr.value.as_ref().map(|v| v.content.as_str());
                     }
                     None
                 });
@@ -260,11 +258,11 @@ pub fn generate_element(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
 
             // Slot content is patched through the slot object, so the component vnode
             // itself should not keep the TEXT flag.
-            if has_slot_children(el) {
-                if let Some(flag) = patch_flag {
-                    let new_flag = flag & !1;
-                    patch_flag = if new_flag > 0 { Some(new_flag) } else { None };
-                }
+            if has_slot_children(el)
+                && let Some(flag) = patch_flag
+            {
+                let new_flag = flag & !1;
+                patch_flag = if new_flag > 0 { Some(new_flag) } else { None };
             }
 
             // KeepAlive always needs DYNAMIC_SLOTS. Other components need it when
@@ -316,15 +314,13 @@ pub fn generate_element(ctx: &mut CodegenContext, el: &ElementNode<'_>) {
                         ctx.push(",");
                     }
                     ctx.newline();
-                    if is_keep_alive {
-                        if let TemplateChildNode::Element(child_el) = child {
-                            if child_el.tag_type == ElementType::Component
-                                && is_dynamic_component_tag(&child_el.tag)
-                            {
-                                super::block::generate_element_block(ctx, child_el);
-                                continue;
-                            }
-                        }
+                    if is_keep_alive
+                        && let TemplateChildNode::Element(child_el) = child
+                        && child_el.tag_type == ElementType::Component
+                        && is_dynamic_component_tag(&child_el.tag)
+                    {
+                        super::block::generate_element_block(ctx, child_el);
+                        continue;
                     }
                     generate_node(ctx, child);
                 }

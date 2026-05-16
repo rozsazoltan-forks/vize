@@ -13,7 +13,7 @@ use std::borrow::Cow;
 use oxc_allocator::Allocator;
 use oxc_parser::Parser;
 use oxc_span::SourceType;
-use vize_carton::{profile, CompactString};
+use vize_carton::{CompactString, profile};
 
 #[allow(clippy::disallowed_types)]
 /// Strip JS/TS comments while preserving string literals.
@@ -342,10 +342,10 @@ fn extract_identifiers_oxc_slow(expr: &str) -> Vec<CompactString> {
                 for prop in obj.properties.iter() {
                     match prop {
                         ObjectPropertyKind::ObjectProperty(p) => {
-                            if p.computed {
-                                if let Some(key_expr) = p.key.as_expression() {
-                                    walk_expr(key_expr, identifiers);
-                                }
+                            if p.computed
+                                && let Some(key_expr) = p.key.as_expression()
+                            {
+                                walk_expr(key_expr, identifiers);
                             }
                             if p.shorthand {
                                 if let PropertyKey::StaticIdentifier(id) = &p.key {
@@ -441,17 +441,16 @@ fn extract_identifiers_oxc_slow(expr: &str) -> Vec<CompactString> {
                     collect_binding_names(&param.pattern, &mut param_names);
                 }
 
-                if arrow.expression {
-                    if let Some(oxc_ast::ast::Statement::ExpressionStatement(expr_stmt)) =
+                if arrow.expression
+                    && let Some(oxc_ast::ast::Statement::ExpressionStatement(expr_stmt)) =
                         arrow.body.statements.first()
-                    {
-                        // Walk body but filter out parameter references
-                        let mut body_idents = Vec::new();
-                        walk_expr(&expr_stmt.expression, &mut body_idents);
-                        for ident in body_idents {
-                            if !param_names.contains(&ident.as_str()) {
-                                identifiers.push(ident);
-                            }
+                {
+                    // Walk body but filter out parameter references
+                    let mut body_idents = Vec::new();
+                    walk_expr(&expr_stmt.expression, &mut body_idents);
+                    for ident in body_idents {
+                        if !param_names.contains(&ident.as_str()) {
+                            identifiers.push(ident);
                         }
                     }
                 }

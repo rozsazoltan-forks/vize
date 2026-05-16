@@ -17,10 +17,10 @@ pub fn has_v_for(el: &ElementNode<'_>) -> bool {
 /// Get the v-for expression from an element
 pub fn get_for_expression<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionNode<'a>> {
     for prop in el.props.iter() {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "for" {
-                return dir.exp.as_ref();
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "for"
+        {
+            return dir.exp.as_ref();
         }
     }
     None
@@ -30,11 +30,11 @@ pub fn get_for_expression<'a>(el: &'a ElementNode<'a>) -> Option<&'a ExpressionN
 pub fn remove_for_directive(el: &mut ElementNode<'_>) {
     let mut i = 0;
     while i < el.props.len() {
-        if let PropNode::Directive(dir) = &el.props[i] {
-            if dir.name == "for" {
-                el.props.remove(i);
-                return;
-            }
+        if let PropNode::Directive(dir) = &el.props[i]
+            && dir.name == "for"
+        {
+            el.props.remove(i);
+            return;
         }
         i += 1;
     }
@@ -191,7 +191,7 @@ pub fn process_v_for(ctx: &mut TransformContext<'_>) {
 #[cfg(test)]
 mod tests {
     use super::{
-        has_v_for, parse_for_expression, ExpressionNode, SourceLocation, TemplateChildNode,
+        ExpressionNode, SourceLocation, TemplateChildNode, has_v_for, parse_for_expression,
     };
     use crate::parser::parse;
     use bumpalo::Bump;

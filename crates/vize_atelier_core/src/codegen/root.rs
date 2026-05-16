@@ -8,7 +8,7 @@ use crate::ast::{RootNode, RuntimeHelper, TemplateChildNode};
 use super::context::CodegenContext;
 use super::element::helpers::is_dynamic_component_tag;
 use super::helpers::to_valid_asset_identifier;
-use vize_carton::{camelize, capitalize, String};
+use vize_carton::{String, camelize, capitalize};
 
 /// Check if a root-level text node is ignorable whitespace.
 pub(super) fn is_ignorable_root_text(child: &TemplateChildNode<'_>) -> bool {

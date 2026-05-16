@@ -13,19 +13,19 @@ use std::{
 };
 
 use vize_canon::{
-    batch::TypeChecker as BatchTypeCheckerTrait, BatchTypeChecker, BatchTypeCheckerOptions,
-    DeclarationEmitOptions,
+    BatchTypeChecker, BatchTypeCheckerOptions, DeclarationEmitOptions,
+    batch::TypeChecker as BatchTypeCheckerTrait,
 };
-use vize_carton::{cstr, profiler::global_profiler, String};
+use vize_carton::{String, cstr, profiler::global_profiler};
 
 use crate::commands::profile::{
-    print_profile_report, ProfilePhase, ProfilePhaseKind, ProfileReport,
+    ProfilePhase, ProfilePhaseKind, ProfileReport, print_profile_report,
 };
 
 use super::{
+    CheckArgs,
     reporting::{JsonFileResult, JsonOutput},
     tsconfig_inputs::collect_default_check_files,
-    CheckArgs,
 };
 
 mod collect;
@@ -415,15 +415,15 @@ fn render_diagnostics(
 
 fn write_profile_virtual_ts(files: &[&vize_canon::VirtualFile]) {
     let profile_dir = PathBuf::from("node_modules/.vize/check-profile");
-    if profile_dir.exists() {
-        if let Err(error) = fs::remove_dir_all(&profile_dir) {
-            eprintln!(
-                "Failed to clean profile directory {}: {}",
-                profile_dir.display(),
-                error
-            );
-            return;
-        }
+    if profile_dir.exists()
+        && let Err(error) = fs::remove_dir_all(&profile_dir)
+    {
+        eprintln!(
+            "Failed to clean profile directory {}: {}",
+            profile_dir.display(),
+            error
+        );
+        return;
     }
 
     if let Err(error) = fs::create_dir_all(&profile_dir) {
@@ -472,17 +472,17 @@ fn build_virtual_ts_options(
         .as_deref()
         .map(|candidate| resolve_from_config_dir(config_dir, candidate));
 
-    if template_globals.is_empty() {
-        if let Some(ref globals_path) = globals_path {
-            match parse_dts_globals(globals_path) {
-                Ok(globals) => template_globals = globals,
-                Err(error) => {
-                    eprintln!(
-                        "\x1b[33mWarning:\x1b[0m Failed to parse globals from {}: {}",
-                        globals_path.display(),
-                        error
-                    );
-                }
+    if template_globals.is_empty()
+        && let Some(ref globals_path) = globals_path
+    {
+        match parse_dts_globals(globals_path) {
+            Ok(globals) => template_globals = globals,
+            Err(error) => {
+                eprintln!(
+                    "\x1b[33mWarning:\x1b[0m Failed to parse globals from {}: {}",
+                    globals_path.display(),
+                    error
+                );
             }
         }
     }

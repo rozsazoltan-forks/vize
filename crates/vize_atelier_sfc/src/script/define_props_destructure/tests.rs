@@ -304,8 +304,8 @@ return { msg, count }"#;
     #[allow(clippy::disallowed_macros)]
     mod snapshots {
         use super::{
-            make_bindings, transform_destructured_props, PropsDestructureBinding,
-            PropsDestructuredBindings,
+            PropsDestructureBinding, PropsDestructuredBindings, make_bindings,
+            transform_destructured_props,
         };
         use vize_carton::ToCompactString;
 

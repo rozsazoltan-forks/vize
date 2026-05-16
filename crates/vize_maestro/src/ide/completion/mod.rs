@@ -92,8 +92,8 @@ mod tests {
     use std::fs;
 
     use super::{
-        is_inside_html_comment, items, script, style, template, trigger_characters,
-        CompletionService,
+        CompletionService, is_inside_html_comment, items, script, style, template,
+        trigger_characters,
     };
     use crate::{ide::IdeContext, server::ServerState};
     use tower_lsp::lsp_types::{CompletionItemKind, CompletionResponse, InsertTextFormat, Url};

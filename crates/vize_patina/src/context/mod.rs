@@ -13,9 +13,9 @@ use crate::diagnostic::{HelpLevel, LintDiagnostic, Severity};
 use std::borrow::Cow;
 use vize_carton::String;
 use vize_carton::{
-    directive::DirectiveSeverity,
-    i18n::{t, t_fmt, Locale},
     Allocator, CompactString, FxHashMap, FxHashSet,
+    directive::DirectiveSeverity,
+    i18n::{Locale, t, t_fmt},
 };
 use vize_croquis::Croquis;
 

@@ -95,11 +95,11 @@ mod visitor;
 
 pub use context::LintContext;
 pub use diagnostic::{
-    render_help, Fix, HelpLevel, HelpRenderTarget, LintDiagnostic, LintSummary, Severity, TextEdit,
+    Fix, HelpLevel, HelpRenderTarget, LintDiagnostic, LintSummary, Severity, TextEdit, render_help,
 };
-pub use linter::script_rules::{builtin_script_rules, BuiltinScriptRuleMeta};
+pub use linter::script_rules::{BuiltinScriptRuleMeta, builtin_script_rules};
 pub use linter::{LintResult, Linter};
-pub use output::{format_results, format_summary, OutputFormat};
+pub use output::{OutputFormat, format_results, format_summary};
 pub use preset::LintPreset;
 pub use rule::{Rule, RuleCategory, RuleMeta, RuleRegistry};
 pub use telegraph::{Emitter, JsonEmitter, LspDiagnostic, LspEmitter, Telegraph, TextEmitter};

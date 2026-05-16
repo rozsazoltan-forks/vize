@@ -138,7 +138,7 @@ fn generate_children_inner(
             // Single space text: _createTextVNode() with no args (Vue convention)
             let is_single_space = !has_interp
                 && run.len() == 1
-                && matches!(run[0], TemplateChildNode::Text(ref t) if t.content == " ");
+                && matches!(run[0], TemplateChildNode::Text(t) if t.content == " ");
             if is_single_space {
                 ctx.push("()");
                 continue;

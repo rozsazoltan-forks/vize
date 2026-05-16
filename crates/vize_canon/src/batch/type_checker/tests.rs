@@ -1,13 +1,13 @@
 use super::{BatchTypeChecker, DeclarationEmitOptions, Diagnostic, TypeCheckResult};
 use crate::batch::TypeChecker;
-use crate::sfc_typecheck::{type_check_sfc, SfcTypeCheckOptions};
+use crate::sfc_typecheck::{SfcTypeCheckOptions, type_check_sfc};
 use corsa::{
     api::{ApiMode, ApiSpawnConfig, ProjectSession},
     runtime::block_on,
 };
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
-use vize_carton::{cstr, String};
+use vize_carton::{String, cstr};
 
 #[test]
 fn test_type_check_result() {

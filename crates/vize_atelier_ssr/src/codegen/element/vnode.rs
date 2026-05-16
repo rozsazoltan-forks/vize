@@ -217,10 +217,10 @@ impl<'a> SsrCodegenContext<'a> {
             return "null".to_compact_string();
         }
 
-        if children.len() == 1 {
-            if let TemplateChildNode::Text(text) = &children[0] {
-                return quoted_js_string(&text.content);
-            }
+        if children.len() == 1
+            && let TemplateChildNode::Text(text) = &children[0]
+        {
+            return quoted_js_string(&text.content);
         }
 
         self.vnode_children_expression(children)

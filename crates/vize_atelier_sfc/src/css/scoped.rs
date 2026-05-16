@@ -34,11 +34,11 @@ pub(crate) fn apply_scoped_css<'a>(bump: &'a Bump, css: &str, scope_id: &str) ->
 
     while let Some((i, c)) = chars.next() {
         if in_comment {
-            if c == '*' {
-                if let Some(&(_, '/')) = chars.peek() {
-                    chars.next();
-                    in_comment = false;
-                }
+            if c == '*'
+                && let Some(&(_, '/')) = chars.peek()
+            {
+                chars.next();
+                in_comment = false;
             }
             continue;
         }
@@ -260,13 +260,14 @@ pub(super) fn add_scope_to_element(out: &mut BumpVec<u8>, selector: &str, attr_s
     }
 
     // Handle pseudo-classes (:hover, :focus, etc.)
-    if let Some(pseudo_pos) = rfind_byte(bytes, b':') {
-        if pseudo_pos > 0 && bytes[pseudo_pos - 1] != b'\\' {
-            out.extend_from_slice(&bytes[..pseudo_pos]);
-            out.extend_from_slice(attr_selector);
-            out.extend_from_slice(&bytes[pseudo_pos..]);
-            return;
-        }
+    if let Some(pseudo_pos) = rfind_byte(bytes, b':')
+        && pseudo_pos > 0
+        && bytes[pseudo_pos - 1] != b'\\'
+    {
+        out.extend_from_slice(&bytes[..pseudo_pos]);
+        out.extend_from_slice(attr_selector);
+        out.extend_from_slice(&bytes[pseudo_pos..]);
+        return;
     }
 
     out.extend_from_slice(bytes);

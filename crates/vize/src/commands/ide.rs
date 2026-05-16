@@ -278,11 +278,11 @@ fn zed_install() {
                 std::process::exit(1);
             };
 
-            if vize_dir.exists() {
-                if let Err(e) = std::fs::remove_dir_all(&vize_dir) {
-                    eprintln!("Failed to replace existing extension: {}", e);
-                    std::process::exit(1);
-                }
+            if vize_dir.exists()
+                && let Err(e) = std::fs::remove_dir_all(&vize_dir)
+            {
+                eprintln!("Failed to replace existing extension: {}", e);
+                std::process::exit(1);
             }
 
             if let Err(e) = copy_dir_all(&source_dir, &vize_dir) {
@@ -295,8 +295,12 @@ fn zed_install() {
             println!();
             println!("  Start with lint-only mode:");
             println!("  {{");
-            println!("    \"languages\": {{ \"Vue\": {{ \"language_servers\": [\"vize\", \"...\"] }} }},");
-            println!("    \"lsp\": {{ \"vize\": {{ \"initialization_options\": {{ \"lint\": true }} }} }}");
+            println!(
+                "    \"languages\": {{ \"Vue\": {{ \"language_servers\": [\"vize\", \"...\"] }} }},"
+            );
+            println!(
+                "    \"lsp\": {{ \"vize\": {{ \"initialization_options\": {{ \"lint\": true }} }} }}"
+            );
             println!("  }}");
         }
         None => {

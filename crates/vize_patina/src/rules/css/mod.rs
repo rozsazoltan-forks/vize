@@ -276,17 +276,17 @@ impl DisabledRules {
     /// Check if a rule is disabled at a given line
     pub fn is_disabled(&self, rule_name: &str, line: usize) -> bool {
         // Check line-specific disables
-        if let Some((_, set)) = self.line_disabled.iter().find(|(l, _)| *l == line) {
-            if set.contains(rule_name) {
-                return true;
-            }
+        if let Some((_, set)) = self.line_disabled.iter().find(|(l, _)| *l == line)
+            && set.contains(rule_name)
+        {
+            return true;
         }
 
         // Check next-line disables
-        if let Some((_, set)) = self.next_line_disabled.iter().find(|(l, _)| *l == line) {
-            if set.contains(rule_name) {
-                return true;
-            }
+        if let Some((_, set)) = self.next_line_disabled.iter().find(|(l, _)| *l == line)
+            && set.contains(rule_name)
+        {
+            return true;
         }
 
         // Check block disables (need to track state across all lines up to this one)
@@ -410,13 +410,12 @@ impl CssLinter {
         // Filter out disabled diagnostics
         if let Some(disabled) = disabled_rules {
             let line_starts: Vec<usize> = std::iter::once(0)
-                .chain(source.bytes().enumerate().filter_map(|(i, b)| {
-                    if b == b'\n' {
-                        Some(i + 1)
-                    } else {
-                        None
-                    }
-                }))
+                .chain(
+                    source
+                        .bytes()
+                        .enumerate()
+                        .filter_map(|(i, b)| if b == b'\n' { Some(i + 1) } else { None }),
+                )
                 .collect();
 
             let get_line =
@@ -452,7 +451,7 @@ impl Default for CssLinter {
 
 #[cfg(test)]
 mod disable_tests {
-    use super::{strip_vize_comments, CssLinter, DisabledRules};
+    use super::{CssLinter, DisabledRules, strip_vize_comments};
 
     #[test]
     fn test_parse_disable_comments() {
@@ -493,10 +492,12 @@ mod disable_tests {
         let source = ".foo { color: red !important; } /* vize-disable-line css/no-important */";
         let result = linter.lint(source, 0);
         // Should not have warnings for !important on this line
-        assert!(!result
-            .diagnostics
-            .iter()
-            .any(|d| d.rule_name == "css/no-important"));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.rule_name == "css/no-important")
+        );
     }
 
     #[test]
@@ -515,13 +516,13 @@ mod disable_tests {
 
         // Calculate line starts
         let line_starts: Vec<usize> = std::iter::once(0)
-            .chain(source.bytes().enumerate().filter_map(|(i, b)| {
-                if b == b'\n' {
-                    Some(i + 1)
-                } else {
-                    None
-                }
-            }))
+            .chain(
+                source.bytes().enumerate().filter_map(
+                    |(i, b)| {
+                        if b == b'\n' { Some(i + 1) } else { None }
+                    },
+                ),
+            )
             .collect();
         println!("line_starts: {:?}", line_starts);
 

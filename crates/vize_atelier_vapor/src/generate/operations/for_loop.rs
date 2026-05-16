@@ -1,5 +1,5 @@
 use crate::ir::ForIRNode;
-use vize_carton::{cstr, FxHashMap, String, ToCompactString};
+use vize_carton::{FxHashMap, String, ToCompactString, cstr};
 
 use super::{
     super::{

@@ -8,7 +8,7 @@
 
 use std::path::PathBuf;
 use vize_carton::String;
-use vize_test_runner::{run_fixture_tests, CompilerMode};
+use vize_test_runner::{CompilerMode, run_fixture_tests};
 
 fn main() {
     let args: Vec<String> = std::env::args().map(String::from).collect();
@@ -120,16 +120,16 @@ fn main() {
         // Show details if verbose
         if (verbose || show_diff) && failed > 0 {
             for result in &results {
-                if !result.passed {
-                    if let Some(ref err) = result.error {
-                        if show_diff {
-                            println!("    \x1b[31m✗\x1b[0m {}", result.name);
-                            for line in err.lines().take(5) {
-                                println!("      {}", line);
-                            }
-                        } else if verbose {
-                            println!("    \x1b[31m✗\x1b[0m {}", result.name);
+                if !result.passed
+                    && let Some(ref err) = result.error
+                {
+                    if show_diff {
+                        println!("    \x1b[31m✗\x1b[0m {}", result.name);
+                        for line in err.lines().take(5) {
+                            println!("      {}", line);
                         }
+                    } else if verbose {
+                        println!("    \x1b[31m✗\x1b[0m {}", result.name);
                     }
                 }
             }

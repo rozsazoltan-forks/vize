@@ -64,12 +64,11 @@ impl FormControlHasLabel {
                     }
                 }
                 PropNode::Directive(dir) => {
-                    if dir.name == "bind" {
-                        if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                            if arg.content == "aria-label" || arg.content == "aria-labelledby" {
-                                return true;
-                            }
-                        }
+                    if dir.name == "bind"
+                        && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                        && (arg.content == "aria-label" || arg.content == "aria-labelledby")
+                    {
+                        return true;
                     }
                 }
             }
@@ -92,12 +91,11 @@ impl FormControlHasLabel {
                     }
                 }
                 PropNode::Directive(dir) => {
-                    if dir.name == "bind" {
-                        if let Some(ExpressionNode::Simple(arg)) = &dir.arg {
-                            if arg.content == "id" {
-                                return true;
-                            }
-                        }
+                    if dir.name == "bind"
+                        && let Some(ExpressionNode::Simple(arg)) = &dir.arg
+                        && arg.content == "id"
+                    {
+                        return true;
                     }
                 }
             }
@@ -108,15 +106,14 @@ impl FormControlHasLabel {
     /// Check if element has a placeholder (weak but sometimes acceptable)
     fn has_placeholder(element: &ElementNode) -> bool {
         for prop in &element.props {
-            if let PropNode::Attribute(attr) = prop {
-                if attr.name == "placeholder"
-                    && attr
-                        .value
-                        .as_ref()
-                        .is_some_and(|v| !v.content.trim().is_empty())
-                {
-                    return true;
-                }
+            if let PropNode::Attribute(attr) = prop
+                && attr.name == "placeholder"
+                && attr
+                    .value
+                    .as_ref()
+                    .is_some_and(|v| !v.content.trim().is_empty())
+            {
+                return true;
             }
         }
         false
@@ -125,15 +122,14 @@ impl FormControlHasLabel {
     /// Check if element has a title attribute
     fn has_title(element: &ElementNode) -> bool {
         for prop in &element.props {
-            if let PropNode::Attribute(attr) = prop {
-                if attr.name == "title"
-                    && attr
-                        .value
-                        .as_ref()
-                        .is_some_and(|v| !v.content.trim().is_empty())
-                {
-                    return true;
-                }
+            if let PropNode::Attribute(attr) = prop
+                && attr.name == "title"
+                && attr
+                    .value
+                    .as_ref()
+                    .is_some_and(|v| !v.content.trim().is_empty())
+            {
+                return true;
             }
         }
         false

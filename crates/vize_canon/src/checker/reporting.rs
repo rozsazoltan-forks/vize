@@ -9,8 +9,8 @@ use crate::{
 };
 
 use super::runner::TypeChecker;
-use vize_carton::cstr;
 use vize_carton::String;
+use vize_carton::cstr;
 
 impl TypeChecker {
     /// Get type information at a specific offset.

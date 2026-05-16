@@ -1,8 +1,8 @@
 use super::{
+    CorsaProjectClient, DiagnosticFetch, LspDiagnostic,
     diagnostics_api::{document_identifier_uri, flatten_file_diagnostics, map_project_diagnostics},
     session::uri_document_identifier,
     utils::convert_diagnostics,
-    CorsaProjectClient, DiagnosticFetch, LspDiagnostic,
 };
 use crate::file_uri::{file_uri_to_path, path_to_file_uri};
 use corsa::{
@@ -14,12 +14,12 @@ use lsp_types::{Diagnostic, DocumentDiagnosticReport, DocumentDiagnosticReportRe
 use std::{
     str::FromStr,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     time::Duration,
 };
-use vize_carton::{cstr, FxHashMap, String};
+use vize_carton::{FxHashMap, String, cstr};
 
 type DiagnosticBatch = Vec<(String, Vec<LspDiagnostic>)>;
 const LSP_DIAGNOSTICS_BATCH_CHUNK_SIZE: usize = 128;
@@ -44,16 +44,16 @@ impl CorsaProjectClient {
         &mut self,
         uris: &[String],
     ) -> Result<Vec<(String, Vec<LspDiagnostic>)>, String> {
-        if self.has_materialized_documents(uris) {
-            if let Some(results) = self.request_diagnostics_batch_via_materialized_files(uris)? {
-                return Ok(results);
-            }
+        if self.has_materialized_documents(uris)
+            && let Some(results) = self.request_diagnostics_batch_via_materialized_files(uris)?
+        {
+            return Ok(results);
         }
 
-        if self.can_batch_with_project_diagnostics(uris) {
-            if let Some(results) = self.request_diagnostics_batch_via_project_api(uris)? {
-                return Ok(results);
-            }
+        if self.can_batch_with_project_diagnostics(uris)
+            && let Some(results) = self.request_diagnostics_batch_via_project_api(uris)?
+        {
+            return Ok(results);
         }
 
         if let Some(results) = self.request_diagnostics_batch_via_lsp(uris)? {
@@ -72,16 +72,18 @@ impl CorsaProjectClient {
         &mut self,
         uri: &str,
     ) -> Result<DiagnosticFetch, String> {
-        if self.supports_file_diagnostics_api() && self.can_use_api_for_uri(uri) {
-            if let Some(fetch) = self.request_diagnostics_full_via_file_api(uri)? {
-                return fetch;
-            }
+        if self.supports_file_diagnostics_api()
+            && self.can_use_api_for_uri(uri)
+            && let Some(fetch) = self.request_diagnostics_full_via_file_api(uri)?
+        {
+            return fetch;
         }
 
-        if self.supports_project_diagnostics_api() && self.can_use_api_for_uri(uri) {
-            if let Some(fetch) = self.request_diagnostics_full_via_project_api(uri)? {
-                return fetch;
-            }
+        if self.supports_project_diagnostics_api()
+            && self.can_use_api_for_uri(uri)
+            && let Some(fetch) = self.request_diagnostics_full_via_project_api(uri)?
+        {
+            return fetch;
         }
 
         if let Some(fetch) = self.request_diagnostics_full_via_lsp(uri)? {
@@ -217,12 +219,11 @@ impl CorsaProjectClient {
             pairs.push((uri.clone(), self.session_document_uri(uri.as_str())));
         }
 
-        if self.supports_project_diagnostics_api() {
-            if let Some(results) =
+        if self.supports_project_diagnostics_api()
+            && let Some(results) =
                 self.request_materialized_diagnostics_batch_via_project_api(&pairs)?
-            {
-                return Ok(Some(results));
-            }
+        {
+            return Ok(Some(results));
         }
 
         let mut results = Vec::with_capacity(pairs.len());

@@ -11,7 +11,7 @@ use crate::cross_file::diagnostics::{
     CrossFileDiagnostic, CrossFileDiagnosticKind, DiagnosticSeverity,
 };
 use crate::cross_file::registry::{FileId, ModuleRegistry};
-use vize_carton::{cstr, CompactString, FxHashMap};
+use vize_carton::{CompactString, FxHashMap, cstr};
 
 /// Information about a unique ID issue.
 #[derive(Debug, Clone)]

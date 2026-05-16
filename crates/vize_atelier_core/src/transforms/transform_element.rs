@@ -2,7 +2,7 @@
 //!
 //! Transforms element nodes and their props.
 
-use vize_carton::{capitalize, is_native_tag, String};
+use vize_carton::{String, capitalize, is_native_tag};
 
 use crate::ast::*;
 use crate::transform::TransformContext;
@@ -48,15 +48,15 @@ fn is_component(ctx: &TransformContext<'_>, tag: &str, el: &ElementNode<'_>) -> 
     }
     // Check for is attribute
     for prop in el.props.iter() {
-        if let PropNode::Directive(dir) = prop {
-            if dir.name == "is" {
-                return true;
-            }
+        if let PropNode::Directive(dir) = prop
+            && dir.name == "is"
+        {
+            return true;
         }
-        if let PropNode::Attribute(attr) = prop {
-            if attr.name == "is" {
-                return true;
-            }
+        if let PropNode::Attribute(attr) = prop
+            && attr.name == "is"
+        {
+            return true;
         }
     }
     false
@@ -120,22 +120,22 @@ pub fn build_props<'a>(
                 match dir.name.as_str() {
                     "bind" => {
                         has_runtime_props = true;
-                        if let Some(ExpressionNode::Simple(exp)) = &dir.arg {
-                            if !exp.is_static {
-                                dynamic_prop_names.push(exp.content.clone());
-                            }
+                        if let Some(ExpressionNode::Simple(exp)) = &dir.arg
+                            && !exp.is_static
+                        {
+                            dynamic_prop_names.push(exp.content.clone());
                         }
                     }
                     "on" => {
                         has_runtime_props = true;
-                        if let Some(ExpressionNode::Simple(exp)) = &dir.arg {
-                            if !exp.is_static {
-                                let cap = capitalize(&exp.content);
-                                let mut name = String::with_capacity(2 + cap.len());
-                                name.push_str("on");
-                                name.push_str(&cap);
-                                dynamic_prop_names.push(name);
-                            }
+                        if let Some(ExpressionNode::Simple(exp)) = &dir.arg
+                            && !exp.is_static
+                        {
+                            let cap = capitalize(&exp.content);
+                            let mut name = String::with_capacity(2 + cap.len());
+                            name.push_str("on");
+                            name.push_str(&cap);
+                            dynamic_prop_names.push(name);
                         }
                     }
                     _ => {
@@ -257,11 +257,7 @@ fn calculate_patch_flag(el: &ElementNode<'_>) -> Option<i32> {
         }
     }
 
-    if flag > 0 {
-        Some(flag)
-    } else {
-        None
-    }
+    if flag > 0 { Some(flag) } else { None }
 }
 
 /// VNode call for codegen (transform-specific)
@@ -289,7 +285,7 @@ pub enum ChildrenType {
 
 #[cfg(test)]
 mod tests {
-    use super::{resolve_element_type, ElementType};
+    use super::{ElementType, resolve_element_type};
     use crate::ast::TemplateChildNode;
     use crate::parser::parse;
     use crate::transform::TransformContext;

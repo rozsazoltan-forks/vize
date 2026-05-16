@@ -6,4 +6,4 @@ mod config;
 mod preset;
 
 pub use config::{VrtConfig, VrtOptions, VrtThreshold};
-pub use preset::{ViewportPreset, PRESET_VIEWPORTS};
+pub use preset::{PRESET_VIEWPORTS, ViewportPreset};

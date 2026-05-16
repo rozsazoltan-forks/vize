@@ -84,12 +84,12 @@ pub fn process_props_destructure(
     }
 
     // Handle rest spread: { ...rest }
-    if let Some(rest) = &pattern.rest {
-        if let BindingPattern::BindingIdentifier(id) = &rest.argument {
-            let rest_name = id.name.to_compact_string();
-            result.rest_id = Some(rest_name.clone());
-            binding_metadata.insert(rest_name, BindingType::SetupReactiveConst);
-        }
+    if let Some(rest) = &pattern.rest
+        && let BindingPattern::BindingIdentifier(id) = &rest.argument
+    {
+        let rest_name = id.name.to_compact_string();
+        result.rest_id = Some(rest_name.clone());
+        binding_metadata.insert(rest_name, BindingType::SetupReactiveConst);
     }
 
     (result, binding_metadata, props_aliases)

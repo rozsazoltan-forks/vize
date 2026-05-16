@@ -13,7 +13,7 @@ pub use strategy::generate_variants;
 pub use types::{AutogenConfig, AutogenOutput, GeneratedVariant, PropDefinition};
 
 use std::path::Path;
-use vize_carton::{append, String, ToCompactString};
+use vize_carton::{String, ToCompactString, append};
 
 /// Generate an `.art.vue` file from prop definitions.
 pub fn generate_art_file(
@@ -126,7 +126,7 @@ fn render_props(props: &serde_json::Map<std::string::String, serde_json::Value>)
 )]
 mod tests {
     use super::{
-        extract_component_name, generate_art_file, render_props, AutogenConfig, PropDefinition,
+        AutogenConfig, PropDefinition, extract_component_name, generate_art_file, render_props,
     };
     use serde_json::json;
 
