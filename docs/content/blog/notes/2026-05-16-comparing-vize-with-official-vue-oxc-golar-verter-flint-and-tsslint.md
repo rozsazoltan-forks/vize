@@ -1,18 +1,17 @@
 ---
-title: Comparing Vize with Official Vue, Oxc, Golar, Verter, Flint, and TSSLint
+title: Tooling Compare
 description: A practical comparison of Vize and nearby projects across official Vue tooling, Oxc, Golar, Verter, Flint, and TSSLint.
 ---
 
-# Comparing Vize with Official Vue, Oxc, Golar, Verter, Flint, and TSSLint
+# Tooling Compare
 
 <div class="blog-post-meta">
-  <div class="blog-meta-chip">
-    <div>
+  <span class="blog-meta-chip">
+    <span>
       <span class="blog-meta-label">Published</span>
       <span class="blog-meta-value">2026-05-16</span>
-    </div>
-  </div>
-
+    </span>
+  </span>
   <a class="blog-author-card" href="https://github.com/ubugeeei">
     <img src="https://github.com/ubugeeei.png" alt="ubugeeei" />
     <span class="blog-author-text">
@@ -27,6 +26,8 @@ Vize is close enough to several projects that comparison is inevitable.
 That comparison is useful, but only if the axis is clear. "Faster" is not enough. "Rust" is not enough. "Vue support" is not enough.
 
 The real question is: **which layer does each project want to own?**
+
+![Vize toolchain map showing one Vue-aware Rust core feeding compile, lint, type check, Musea, playground, and CI](/blog/vize-toolchain-map.svg)
 
 ## Quick Map
 

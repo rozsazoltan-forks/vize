@@ -1,18 +1,17 @@
 ---
-title: Performance Tuning Notes for a Vue Toolchain
+title: Performance Tuning
 description: Practical performance lessons from building a Vue toolchain where parsing, allocation, parallelism, and feedback loops all matter.
 ---
 
-# Performance Tuning Notes for a Vue Toolchain
+# Performance Tuning
 
 <div class="blog-post-meta">
-  <div class="blog-meta-chip">
-    <div>
+  <span class="blog-meta-chip">
+    <span>
       <span class="blog-meta-label">Published</span>
       <span class="blog-meta-value">2026-05-16</span>
-    </div>
-  </div>
-
+    </span>
+  </span>
   <a class="blog-author-card" href="https://github.com/ubugeeei">
     <img src="https://github.com/ubugeeei.png" alt="ubugeeei" />
     <span class="blog-author-text">
@@ -27,6 +26,8 @@ Performance tuning in a frontend toolchain is not one trick.
 It is not "rewrite it in Rust" and then wait for graphs to go up. It is a long series of small, concrete decisions about where the time goes, how often memory moves, how much work is duplicated, and whether the architecture lets improvements compound.
 
 This note is a knowledge-share of the things Vize keeps optimizing for.
+
+![Feedback loop diagram showing source files, native analysis, snapshots, actions, and shipping confidence](/blog/feedback-loop.svg)
 
 ## Measure the Whole Loop
 

@@ -1,18 +1,17 @@
 ---
-title: Why Musea and Design Systems Matter in the AI Era
+title: Musea & AI
 description: AI can generate UI quickly, but Musea and design systems make the intent, constraints, accessibility, and review workflow durable.
 ---
 
-# Why Musea and Design Systems Matter in the AI Era
+# Musea & AI
 
 <div class="blog-post-meta">
-  <div class="blog-meta-chip">
-    <div>
+  <span class="blog-meta-chip">
+    <span>
       <span class="blog-meta-label">Published</span>
       <span class="blog-meta-value">2026-05-16</span>
-    </div>
-  </div>
-
+    </span>
+  </span>
   <a class="blog-author-card" href="https://github.com/ubugeeei">
     <img src="https://github.com/ubugeeei.png" alt="ubugeeei" />
     <span class="blog-author-text">
@@ -21,6 +20,8 @@ description: AI can generate UI quickly, but Musea and design systems make the i
     </span>
   </a>
 </div>
+
+![Musea home view showing a design-system gallery surface](/musea-home.png)
 
 AI makes it cheap to produce UI.
 
@@ -70,6 +71,8 @@ In an AI-heavy workflow, design intent has to be machine-readable:
 That is the direction Musea takes.
 
 Musea is not just a gallery. It is a way to make the design-system surface part of the toolchain.
+
+![Musea token view showing design tokens as a concrete product surface](/musea-tokens.png)
 
 ## What Musea Is Trying to Provide
 

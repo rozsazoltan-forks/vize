@@ -1,4 +1,69 @@
 const vizeDocsNavigation = (() => {
+  const blogNavigationItems = [
+    ["/blog", "Overview"],
+    ["/blog/notes", "Notes"],
+    ["/blog/releases", "Releases"],
+  ];
+
+  const blogPostLabels = [
+    [
+      "/blog/notes/2026-05-16-comparing-vize-with-official-vue-oxc-golar-verter-flint-and-tsslint",
+      "Tooling Compare",
+    ],
+    [
+      "/blog/notes/2026-05-16-performance-tuning-notes-for-a-vue-toolchain",
+      "Performance Tuning",
+    ],
+    [
+      "/blog/notes/2026-05-16-testing-agentic-coding-and-trust",
+      "Testing & Agents",
+    ],
+    [
+      "/blog/notes/2026-05-16-vapor-mode-and-the-next-vue-compiler-surface",
+      "Vapor Mode",
+    ],
+    [
+      "/blog/notes/2026-05-16-vue-as-a-language-and-the-strongest-frontend-environment",
+      "Vue as Language",
+    ],
+    [
+      "/blog/notes/2026-05-16-why-musea-and-design-systems-matter-in-the-ai-era",
+      "Musea & AI",
+    ],
+    [
+      "/blog/notes/2026-05-16-real-world-feedback-and-the-road-to-production-ready",
+      "Production Ready",
+    ],
+    [
+      "/blog/notes/2026-05-16-unofficial-personal-tooling-and-development-speed",
+      "Personal Speed",
+    ],
+    [
+      "/blog/notes/2026-03-26-the-advantages-and-beauty-of-toolchains-and-vertical-integration",
+      "Vertical Toolchains",
+    ],
+    [
+      "/blog/notes/2026-03-26-why-ai-needs-deterministic-fast-static-analysis",
+      "Static Analysis",
+    ],
+    [
+      "/blog/notes/2026-03-26-where-vize-fits-in-the-vue-tooling-landscape",
+      "Vue Tooling",
+    ],
+    [
+      "/blog/notes/2026-03-26-why-vize-needs-notes",
+      "Notes Lane",
+    ],
+    [
+      "/blog/releases/2026-03-26-oxlint-plugin-vize-alpha",
+      "Oxlint Alpha",
+    ],
+    [
+      "/blog/releases/2026-03-26-docs-blog-support",
+      "Docs Blog",
+    ],
+  ];
+
   const labelByPath = new Map([
     ["/", "Overview"],
     ["/getting-started", "Getting Started"],
@@ -28,7 +93,14 @@ const vizeDocsNavigation = (() => {
     ["/architecture/crates", "Crates"],
     ["/architecture/performance", "Performance"],
     ["/philosophy", "Philosophy"],
+    ...blogNavigationItems,
+    ...blogPostLabels,
   ]);
+
+  const hiddenPathPatterns = [
+    /^\/blog\/notes\/\d{4}-\d{2}-\d{2}-/,
+    /^\/blog\/releases\/\d{4}-\d{2}-\d{2}-/,
+  ];
 
   const navGroups = [
     {
@@ -86,6 +158,10 @@ const vizeDocsNavigation = (() => {
         "/philosophy",
       ],
     },
+    {
+      title: "Blog",
+      paths: blogNavigationItems.map(([path]) => path),
+    },
   ];
 
   function canonicalPath(href) {
@@ -111,6 +187,10 @@ const vizeDocsNavigation = (() => {
     section.append(list);
 
     return section;
+  }
+
+  function isHiddenFallbackPath(path) {
+    return hiddenPathPatterns.some((pattern) => pattern.test(path));
   }
 
   function applyNavigationOrder(root = document) {
@@ -153,7 +233,7 @@ const vizeDocsNavigation = (() => {
     }
 
     const remainingItems = [...itemsByPath]
-      .filter(([path]) => !used.has(path))
+      .filter(([path]) => !used.has(path) && !isHiddenFallbackPath(path))
       .map(([, item]) => item)
       .concat(unusedItems);
     if (remainingItems.length > 0) {

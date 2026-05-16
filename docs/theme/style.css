@@ -164,6 +164,11 @@ body:not(.entry-page) .sidebar nav {
   gap: 0 !important;
 }
 
+body:not(.entry-page) .sidebar .nav-item:has(.nav-link[href*="/blog/notes/20"]),
+body:not(.entry-page) .sidebar .nav-item:has(.nav-link[href*="/blog/releases/20"]) {
+  display: none !important;
+}
+
 body:not(.entry-page) .nav-section {
   padding: 0.85rem 0 !important;
   border-top: 1px solid color-mix(in srgb, var(--octc-color-border) 58%, transparent) !important;
@@ -189,11 +194,15 @@ body:not(.entry-page) .nav-title {
 
 body:not(.entry-page) .nav-link {
   position: relative !important;
+  display: block !important;
+  overflow: hidden !important;
   padding: 0.4rem 0.65rem 0.4rem 0.95rem !important;
   border-radius: 0 !important;
   color: color-mix(in srgb, var(--octc-color-text) 70%, var(--octc-color-text-muted)) !important;
   font-size: 0.84rem !important;
   line-height: 1.35 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
   transition:
     background 0.14s ease,
     color 0.14s ease !important;
@@ -1022,6 +1031,24 @@ body.entry-page .entry-content .content > h2 + p > img {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--octc-color-text-muted);
+}
+
+.content img[src^="/blog/"],
+.content img[src^="/musea-"] {
+  display: block;
+  width: 100%;
+  margin: 1.5rem 0 1.8rem;
+  border: 1px solid color-mix(in srgb, var(--octc-color-border) 82%, transparent);
+  background: color-mix(in srgb, var(--octc-color-bg-alt) 52%, var(--octc-color-bg));
+  box-shadow: 0 14px 42px color-mix(in srgb, var(--octc-color-text) 8%, transparent);
+}
+
+.content img[src^="/blog/"] {
+  max-width: 860px;
+}
+
+.content img[src^="/musea-"] {
+  max-width: 760px;
 }
 
 .blog-post-meta {

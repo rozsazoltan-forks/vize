@@ -1,18 +1,17 @@
 ---
-title: Why the AI Era Needs Deterministic, Fast Static Analysis
+title: Static Analysis for AI
 description: As AI writes more code, we need faster and more reliable static feedback, not less.
 ---
 
-# Why the AI Era Needs Deterministic, Fast Static Analysis
+# Static Analysis for AI
 
 <div class="blog-post-meta">
-  <div class="blog-meta-chip">
-    <div>
+  <span class="blog-meta-chip">
+    <span>
       <span class="blog-meta-label">Published</span>
       <span class="blog-meta-value">2026-03-26</span>
-    </div>
-  </div>
-
+    </span>
+  </span>
   <a class="blog-author-card" href="https://github.com/ubugeeei">
     <img src="https://github.com/ubugeeei.png" alt="ubugeeei" />
     <span class="blog-author-text">

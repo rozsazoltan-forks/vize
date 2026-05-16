@@ -1,18 +1,17 @@
 ---
-title: Testing, Agentic Coding, and Trust
+title: Testing & Agents
 description: Why snapshot-heavy tests, real-world fixtures, and deterministic checks matter more when agents are part of the development loop.
 ---
 
-# Testing, Agentic Coding, and Trust
+# Testing & Agents
 
 <div class="blog-post-meta">
-  <div class="blog-meta-chip">
-    <div>
+  <span class="blog-meta-chip">
+    <span>
       <span class="blog-meta-label">Published</span>
       <span class="blog-meta-value">2026-05-16</span>
-    </div>
-  </div>
-
+    </span>
+  </span>
   <a class="blog-author-card" href="https://github.com/ubugeeei">
     <img src="https://github.com/ubugeeei.png" alt="ubugeeei" />
     <span class="blog-author-text">

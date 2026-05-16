@@ -1,18 +1,17 @@
 ---
-title: Vapor Mode and the Next Vue Compiler Surface
+title: Vapor Mode
 description: Why Vapor Mode matters for Vize, and why a direct fine-grained compiler path changes more than runtime performance.
 ---
 
-# Vapor Mode and the Next Vue Compiler Surface
+# Vapor Mode
 
 <div class="blog-post-meta">
-  <div class="blog-meta-chip">
-    <div>
+  <span class="blog-meta-chip">
+    <span>
       <span class="blog-meta-label">Published</span>
       <span class="blog-meta-value">2026-05-16</span>
-    </div>
-  </div>
-
+    </span>
+  </span>
   <a class="blog-author-card" href="https://github.com/ubugeeei">
     <img src="https://github.com/ubugeeei.png" alt="ubugeeei" />
     <span class="blog-author-text">
