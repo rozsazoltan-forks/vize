@@ -1,17 +1,14 @@
 import path from "node:path";
 import fs from "node:fs";
 import { createRequire } from "node:module";
+import { classifyVitePluginRequest } from "@vizejs/native";
 
 import type { VizePluginState } from "./state.ts";
 import {
   LEGACY_VIZE_PREFIX,
   VIRTUAL_CSS_MODULE,
   RESOLVED_CSS_MODULE,
-  isVizeVirtual,
-  isVizeSsrVirtual,
   toVirtualId,
-  fromVirtualId,
-  normalizeFsIdForBuild,
 } from "../virtual.ts";
 
 export function resolveVuePath(state: VizePluginState, id: string, importer?: string): string {
@@ -27,8 +24,9 @@ export function resolveVuePath(state: VizePluginState, id: string, importer?: st
   } else if (path.isAbsolute(id)) {
     resolved = id;
   } else if (importer) {
-    // If importer is a virtual module, extract the real path
-    const realImporter = isVizeVirtual(importer) ? fromVirtualId(importer) : importer;
+    const importerRequest = classifyVitePluginRequest(importer);
+    const realImporter =
+      importerRequest.vizeVirtualPath ?? importerRequest.strippedVirtualPath ?? importer;
     resolved = path.resolve(path.dirname(realImporter), id);
   } else {
     // Relative path without importer - resolve from root
@@ -49,34 +47,17 @@ interface ResolveContext {
   ): Promise<{ id: string } | null>;
 }
 
-function hasQueryParam(id: string, name: string): boolean {
-  const query = id.split("?")[1];
-  return query ? new URLSearchParams(query).has(name) : false;
-}
-
-function hasMacroQuery(id: string): boolean {
-  const query = id.split("?")[1];
-  return query ? new URLSearchParams(query).get("macro") === "true" : false;
-}
-
-function isMacroVirtualId(id: string): boolean {
-  return id.startsWith("\0") && (hasMacroQuery(id) || hasQueryParam(id, "definePage"));
-}
-
-function isVueSfcPath(id: string): boolean {
-  return (id.split("?")[0] ?? id).endsWith(".vue");
-}
-
 function normalizeRequireBase(importer?: string): string | null {
   if (!importer) {
     return null;
   }
 
   let normalized = importer;
-  if (isVizeVirtual(normalized)) {
-    normalized = fromVirtualId(normalized);
-  } else if (isMacroVirtualId(normalized)) {
-    normalized = normalized.slice(1).split("?")[0] ?? "";
+  const request = classifyVitePluginRequest(normalized);
+  if (request.vizeVirtualPath) {
+    normalized = request.vizeVirtualPath;
+  } else if (request.isMacroVirtualId) {
+    normalized = request.strippedVirtualPath ?? "";
   }
 
   return normalized.split("?")[0] ?? null;
@@ -271,14 +252,16 @@ export async function resolveIdHook(
   options?: { ssr?: boolean },
 ): Promise<string | { id: string } | null | undefined> {
   const isBuild = state.server === null;
-  const isSsrRequest = !!options?.ssr || (importer ? isVizeSsrVirtual(importer) : false);
+  const importerRequest = importer ? classifyVitePluginRequest(importer) : null;
+  const isSsrRequest = !!options?.ssr || (importerRequest?.isVizeSsrVirtual ?? false);
+  const request = classifyVitePluginRequest(id);
 
   // Skip all virtual module IDs
   if (id.startsWith("\0")) {
     // This is one of our .vue.ts virtual modules -- pass through
-    if (isVizeVirtual(id)) {
-      if (isSsrRequest && !isVizeSsrVirtual(id)) {
-        return toVirtualId(fromVirtualId(id), true);
+    if (request.isVizeVirtual) {
+      if (isSsrRequest && !request.isVizeSsrVirtual && request.vizeVirtualPath) {
+        return toVirtualId(request.vizeVirtualPath, true);
       }
       return null;
     }
@@ -304,7 +287,9 @@ export async function resolveIdHook(
         `resolveId: redirecting \0-prefixed non-vue ID to ${pathPart}${querySuffix}`,
       );
       const redirected = pathPart + querySuffix;
-      return isBuild ? normalizeFsIdForBuild(redirected) : redirected;
+      return isBuild
+        ? (classifyVitePluginRequest(redirected).normalizedFsId ?? redirected)
+        : redirected;
     }
     return null;
   }
@@ -317,8 +302,9 @@ export async function resolveIdHook(
     }
     state.logger.log(`resolveId: redirecting stale vize: ID to ${realPath}`);
     const resolved = await ctx.resolve(realPath, importer, { skipSelf: true });
-    if (resolved && isBuild && resolved.id.startsWith("/@fs/")) {
-      return { ...resolved, id: normalizeFsIdForBuild(resolved.id) };
+    const normalizedFsId = resolved ? classifyVitePluginRequest(resolved.id).normalizedFsId : null;
+    if (resolved && isBuild && normalizedFsId) {
+      return { ...resolved, id: normalizedFsId };
     }
     return resolved;
   }
@@ -328,8 +314,8 @@ export async function resolveIdHook(
     return RESOLVED_CSS_MODULE;
   }
 
-  if (isBuild && id.startsWith("/@fs/")) {
-    return normalizeFsIdForBuild(id);
+  if (isBuild && request.normalizedFsId) {
+    return request.normalizedFsId;
   }
 
   // Handle route macro queries.
@@ -338,37 +324,27 @@ export async function resolveIdHook(
   // Nuxt's router generates `import { default } from "page.vue?macro=true"` to extract
   // route metadata. Without @vitejs/plugin-vue, Vize must resolve this query so the
   // load hook can return compile-time macro artifact modules.
-  if ((hasMacroQuery(id) || hasQueryParam(id, "definePage")) && isVueSfcPath(id)) {
-    const filePath = id.split("?")[0];
-    const querySuffix = id.slice(id.indexOf("?"));
-    const resolved = resolveVuePath(state, filePath, importer);
+  if ((request.hasMacroQuery || request.hasDefinePageQuery) && request.isVueSfcPath) {
+    const resolved = resolveVuePath(state, request.path, importer);
     if (resolved && fs.existsSync(resolved)) {
-      return `\0${resolved}${querySuffix}`;
+      return `\0${resolved}${request.querySuffix}`;
     }
   }
 
   // Handle virtual style imports:
   //   Component.vue?vue&type=style&index=0&lang=scss
   //   Component.vue?vue&type=style&index=0&lang=scss&module
-  if (id.includes("?vue&type=style") || id.includes("?vue=&type=style")) {
-    const params = new URLSearchParams(id.split("?")[1]);
-    const lang = params.get("lang") || "css";
-    if (params.has("module")) {
-      // For CSS Modules, append .module.{lang} suffix so Vite's CSS pipeline
-      // automatically treats it as a CSS module and returns the class mapping.
-      return `\0${id}.module.${lang}`;
-    }
-    // Append .{lang} suffix so Vite's CSS pipeline recognizes the file type
-    // and applies the appropriate preprocessor (SCSS, Less, etc.).
-    return `\0${id}.${lang}`;
+  if (request.isVueStyleQuery && request.styleVirtualSuffix) {
+    return `\0${id}${request.styleVirtualSuffix}`;
   }
 
   // If importer is a vize virtual module or macro module, resolve imports against the real path
-  const isMacroImporter = importer ? isMacroVirtualId(importer) : false;
-  if (importer && (isVizeVirtual(importer) || isMacroImporter)) {
+  const isMacroImporter = importerRequest?.isMacroVirtualId ?? false;
+  const isVizeVirtualImporter = importerRequest?.isVizeVirtual ?? false;
+  if (importer && (isVizeVirtualImporter || isMacroImporter)) {
     const cleanImporter = isMacroImporter
-      ? importer.slice(1).split("?")[0]!
-      : fromVirtualId(importer);
+      ? (importerRequest?.strippedVirtualPath ?? "")
+      : (importerRequest?.vizeVirtualPath ?? "");
 
     state.logger.log(`resolveId from virtual: id=${id}, cleanImporter=${cleanImporter}`);
 
@@ -402,8 +378,9 @@ export async function resolveIdHook(
           const resolved = await ctx.resolve(id, cleanImporter, { skipSelf: true });
           if (resolved) {
             state.logger.log(`resolveId: resolved bare ${id} to ${resolved.id} via Vite resolver`);
-            if (isBuild && resolved.id.startsWith("/@fs/")) {
-              return { ...resolved, id: normalizeFsIdForBuild(resolved.id) };
+            const normalizedFsId = classifyVitePluginRequest(resolved.id).normalizedFsId;
+            if (isBuild && normalizedFsId) {
+              return { ...resolved, id: normalizedFsId };
             }
 
             const nodeResolved = resolveBareImportCandidatesWithNode(
@@ -440,8 +417,9 @@ export async function resolveIdHook(
               state.logger.log(
                 `resolveId: resolved aliased bare ${id} to ${resolved.id} via Vite resolver`,
               );
-              if (isBuild && resolved.id.startsWith("/@fs/")) {
-                return { ...resolved, id: normalizeFsIdForBuild(resolved.id) };
+              const normalizedFsId = classifyVitePluginRequest(resolved.id).normalizedFsId;
+              if (isBuild && normalizedFsId) {
+                return { ...resolved, id: normalizedFsId };
               }
 
               const nodeResolved = resolveBareImportCandidatesWithNode(
@@ -486,8 +464,9 @@ export async function resolveIdHook(
         const resolved = await ctx.resolve(id, cleanImporter, { skipSelf: true });
         if (resolved) {
           state.logger.log(`resolveId: resolved ${id} to ${resolved.id} via Vite resolver`);
-          if (isBuild && resolved.id.startsWith("/@fs/")) {
-            return { ...resolved, id: normalizeFsIdForBuild(resolved.id) };
+          const normalizedFsId = classifyVitePluginRequest(resolved.id).normalizedFsId;
+          if (isBuild && normalizedFsId) {
+            return { ...resolved, id: normalizedFsId };
           }
           return resolved;
         }

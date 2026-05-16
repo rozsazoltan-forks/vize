@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { classifyVitePluginRequest } from "@vizejs/native";
 import type { TransformResult } from "vite";
 import { transformWithOxc } from "vite";
 
@@ -14,9 +15,6 @@ import { compileFile } from "../compiler.ts";
 import { generateOutput, hasDelegatedStyles } from "../utils/index.ts";
 import { resolveCssImports, scopeCssForPipeline } from "../utils/css.ts";
 import {
-  isVizeVirtual,
-  isVizeSsrVirtual,
-  fromVirtualId,
   LEGACY_VIZE_PREFIX,
   RESOLVED_CSS_MODULE,
   rewriteDynamicTemplateImports,
@@ -33,10 +31,11 @@ export default defineComponent({
 `;
 
 export function getBoundaryPlaceholderCode(realPath: string, ssr: boolean): string | null {
-  if (ssr && realPath.endsWith(".client.vue")) {
+  const boundaryKind = classifyVitePluginRequest(realPath).boundaryKind;
+  if (ssr && boundaryKind === "client") {
     return SERVER_PLACEHOLDER_CODE;
   }
-  if (!ssr && realPath.endsWith(".server.vue")) {
+  if (!ssr && boundaryKind === "server") {
     return SERVER_PLACEHOLDER_CODE;
   }
   return null;
@@ -62,28 +61,6 @@ function getVirtualModuleDefines(
   };
 }
 
-function hasQueryParam(id: string, name: string): boolean {
-  const query = id.split("?")[1];
-  return query ? new URLSearchParams(query).has(name) : false;
-}
-
-function hasMacroQuery(id: string): boolean {
-  const query = id.split("?")[1];
-  return query ? new URLSearchParams(query).get("macro") === "true" : false;
-}
-
-function normalizeMacroRealPath(realPath: string): string {
-  return realPath.endsWith(".vue.ts") ? realPath.slice(0, -3) : realPath;
-}
-
-function isVueSfcPath(realPath: string): boolean {
-  return normalizeMacroRealPath(realPath).endsWith(".vue");
-}
-
-function stripVirtualQuery(id: string): string {
-  return normalizeMacroRealPath(id.slice(1).split("?")[0] ?? "");
-}
-
 function findMacroArtifactModule(
   state: VizePluginState,
   realPath: string,
@@ -91,7 +68,7 @@ function findMacroArtifactModule(
   kind: string,
 ): string | null {
   const cache = getEnvironmentCache(state, ssr);
-  realPath = normalizeMacroRealPath(realPath);
+  realPath = classifyVitePluginRequest(realPath).normalizedVuePath;
   let compiled = cache.get(realPath) ?? state.cache.get(realPath) ?? state.ssrCache.get(realPath);
 
   if (!compiled && fs.existsSync(realPath)) {
@@ -131,6 +108,7 @@ export function loadHook(
 ): string | { code: string; map: null } | null {
   // Pick the correct viteBase for URL resolution based on the build environment.
   const currentBase = loadOptions?.ssr ? state.serverViteBase : state.clientViteBase;
+  const request = classifyVitePluginRequest(id);
 
   // Handle virtual CSS module for production extraction
   if (id === RESOLVED_CSS_MODULE) {
@@ -147,18 +125,16 @@ export function loadHook(
       .replace(/\.\w+$/, ""); // strip .{lang}
   }
 
-  if (styleId.includes("?vue&type=style") || styleId.includes("?vue=&type=style")) {
-    const [filename, queryString] = styleId.split("?");
-    const realPath = isVizeVirtual(filename) ? fromVirtualId(filename) : filename;
-    const params = new URLSearchParams(queryString);
-    const indexStr = params.get("index");
-    const lang = params.get("lang");
-    const _hasModule = params.has("module");
-    const scoped = params.get("scoped");
+  const styleRequest = classifyVitePluginRequest(styleId);
+  if (styleRequest.isVueStyleQuery) {
+    const realPath =
+      classifyVitePluginRequest(styleRequest.path).vizeVirtualPath ?? styleRequest.path;
+    const lang = styleRequest.styleLang ?? null;
+    const scoped = styleRequest.styleScoped ?? null;
 
     const compiled = state.cache.get(realPath);
     const fallbackCompiled = compiled ?? state.ssrCache.get(realPath);
-    const blockIndex = indexStr !== null ? parseInt(indexStr, 10) : -1;
+    const blockIndex = styleRequest.styleIndex ?? -1;
 
     if (
       fallbackCompiled?.styles &&
@@ -215,17 +191,17 @@ export function loadHook(
   }
 
   // Handle Vue Router's ?definePage query through extracted artifacts.
-  if (id.startsWith("\0") && hasQueryParam(id, "definePage")) {
-    const realPath = stripVirtualQuery(id);
-    if (isVueSfcPath(realPath)) {
+  if (id.startsWith("\0") && request.hasDefinePageQuery) {
+    const realPath = request.strippedVirtualPath ?? "";
+    if (request.isVueSfcPath) {
       return loadDefinePageArtifact(state, realPath, !!loadOptions?.ssr);
     }
   }
 
   // Handle ?macro=true queries
-  if (id.startsWith("\0") && hasMacroQuery(id)) {
-    const realPath = stripVirtualQuery(id);
-    if (isVueSfcPath(realPath)) {
+  if (id.startsWith("\0") && request.hasMacroQuery) {
+    const realPath = request.strippedVirtualPath ?? "";
+    if (request.isVueSfcPath) {
       const artifactLoad = loadDefinePageMetaArtifact(state, realPath, !!loadOptions?.ssr);
       if (artifactLoad) {
         return artifactLoad;
@@ -247,9 +223,9 @@ export function loadHook(
   }
 
   // Handle vize virtual modules
-  if (isVizeVirtual(id)) {
-    const realPath = fromVirtualId(id);
-    const isSsr = isVizeSsrVirtual(id) || !!loadOptions?.ssr;
+  if (request.isVizeVirtual) {
+    const realPath = request.vizeVirtualPath ?? "";
+    const isSsr = request.isVizeSsrVirtual || !!loadOptions?.ssr;
 
     if (!realPath.endsWith(".vue")) {
       state.logger.log(`load: skipping non-vue virtual module ${realPath}`);
@@ -324,9 +300,11 @@ export function loadHook(
     if (afterPrefix.includes("?commonjs-")) {
       return null;
     }
-    const [pathPart, queryPart] = afterPrefix.split("?");
-    const querySuffix = queryPart ? `?${queryPart}` : "";
-    const fsPath = pathPart.startsWith("/@fs/") ? pathPart.slice(4) : pathPart;
+    const leakedRequest = classifyVitePluginRequest(afterPrefix);
+    const fsPath = leakedRequest.normalizedFsId
+      ? classifyVitePluginRequest(leakedRequest.normalizedFsId).path
+      : leakedRequest.path;
+    const querySuffix = leakedRequest.querySuffix;
     if (fsPath.startsWith("/") && fs.existsSync(fsPath) && fs.statSync(fsPath).isFile()) {
       const importPath =
         state.server === null
@@ -347,9 +325,11 @@ export async function transformHook(
   id: string,
   options?: { ssr?: boolean },
 ): Promise<TransformResult | null> {
-  const isMacro = id.startsWith("\0") && (hasMacroQuery(id) || hasQueryParam(id, "definePage"));
-  if (isVizeVirtual(id) || isMacro) {
-    const realPath = isMacro ? stripVirtualQuery(id) : fromVirtualId(id);
+  const request = classifyVitePluginRequest(id);
+  if (request.isVizeVirtual || request.isMacroVirtualId) {
+    const realPath = request.isMacroVirtualId
+      ? (request.strippedVirtualPath ?? "")
+      : (request.vizeVirtualPath ?? "");
     try {
       const result = await transformWithOxc(code, realPath, {
         lang: "ts",

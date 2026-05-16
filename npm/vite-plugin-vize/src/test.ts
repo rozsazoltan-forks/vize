@@ -3,6 +3,7 @@ import "./compiler.test.ts";
 import "./utils.test.ts";
 import "./plugin/compat.test.ts";
 import "./plugin/load.test.ts";
+import "./plugin/native.test.ts";
 import "./plugin/resolve.test.ts";
 import "./plugin/state.test.ts";
 import "./plugin/unocss.test.ts";

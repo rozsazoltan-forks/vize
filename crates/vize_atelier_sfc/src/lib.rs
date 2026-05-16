@@ -47,6 +47,7 @@ pub mod rewrite_default;
 pub mod script;
 pub mod style;
 pub mod types;
+pub mod vite_plugin;
 
 // Re-exports for public API
 pub use compile::{compile_sfc, ScriptCompileResult};

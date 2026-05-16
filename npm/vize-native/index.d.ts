@@ -166,6 +166,13 @@ export interface CatalogOutputNapi {
   tags: Array<string>;
 }
 
+/**
+ * Classify a Vite plugin module request using the native Vize request model.
+ * This keeps pure query parsing and virtual module categorization in Rust while
+ * JavaScript keeps Vite hook orchestration and filesystem interactions.
+ */
+export declare function classifyVitePluginRequest(id: string): VitePluginRequestNapi;
+
 /** Compile Vue template to VDom render function */
 export declare function compile(
   template: string,
@@ -646,6 +653,47 @@ export interface TypeCheckResultNapi {
   errorCount: number;
   warningCount: number;
   analysisTimeMs?: number;
+}
+
+export interface VitePluginRequestNapi {
+  /** Path segment before the query string. */
+  path: string;
+  /** Query suffix including the leading `?`, or an empty string. */
+  querySuffix: string;
+  /** Path normalized for macro virtual modules (`.vue.ts` -> `.vue`). */
+  normalizedVuePath: string;
+  /** For `\0...` virtual macro IDs, the real path without the virtual prefix. */
+  strippedVirtualPath?: string;
+  /** Whether this ID is a Vize-compiled virtual Vue module. */
+  isVizeVirtual: boolean;
+  /** Whether this ID is a Vize SSR virtual Vue module. */
+  isVizeSsrVirtual: boolean;
+  /** Real `.vue` path extracted from a Vize virtual Vue module ID. */
+  vizeVirtualPath?: string;
+  /** Build-safe ID with Vite's `/@fs` prefix removed when present. */
+  normalizedFsId?: string;
+  /** Whether the query contains `macro=true`. */
+  hasMacroQuery: boolean;
+  /** Whether the query contains `definePage`. */
+  hasDefinePageQuery: boolean;
+  /** Whether this is a `\0` virtual ID carrying a macro query. */
+  isMacroVirtualId: boolean;
+  /** Whether the request points at a Vue SFC after macro normalization. */
+  isVueSfcPath: boolean;
+  /** Whether the request is a Vite Vue style virtual query. */
+  isVueStyleQuery: boolean;
+  /** Style block language, defaulting to `css` for style virtual queries. */
+  styleLang?: string;
+  /** Style block index for style virtual queries. */
+  styleIndex?: number;
+  /** Scoped attribute value for style virtual queries. */
+  styleScoped?: string;
+  /** Whether the style query carries a CSS modules marker. */
+  hasStyleModule: boolean;
+  /** Extension suffix Vite should see for the style pipeline. */
+  styleVirtualSuffix?: string;
+  /** Vue boundary file kind: `client`, `server`, or undefined. */
+  boundaryKind?: string;
 }
 
 /** Type diagnostic for NAPI */

@@ -10,6 +10,7 @@
 mod art;
 mod format;
 mod lint;
+mod plugin;
 mod sfc;
 mod template;
 
@@ -20,5 +21,6 @@ pub use napi_typecheck::*;
 pub use art::*;
 pub use format::*;
 pub use lint::*;
+pub use plugin::*;
 pub use sfc::*;
 pub use template::*;
