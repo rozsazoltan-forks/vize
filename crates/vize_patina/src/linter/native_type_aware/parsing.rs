@@ -1,6 +1,6 @@
 use oxc_allocator::Allocator as OxcAllocator;
 use oxc_ast::ast::{
-    CallExpression, ChainElement, Expression, ExpressionStatement, ObjectExpression,
+    Argument, CallExpression, ChainElement, Expression, ExpressionStatement, ObjectExpression,
     ObjectPropertyKind, PropertyKey, Statement,
 };
 use oxc_ast_visit::{walk::walk_expression_statement, Visit};
@@ -175,8 +175,23 @@ fn is_handled_call(call: &CallExpression<'_>) -> bool {
     };
 
     match member.static_property_name() {
-        Some("then" | "catch") => true,
+        Some("then") => has_present_handler_argument(call, 1),
+        Some("catch") => has_present_handler_argument(call, 0),
         Some("finally") => is_handled_promise_chain(member.object()),
+        _ => false,
+    }
+}
+
+fn has_present_handler_argument(call: &CallExpression<'_>, index: usize) -> bool {
+    call.arguments
+        .get(index)
+        .is_some_and(|argument| !is_missing_handler_argument(argument))
+}
+
+fn is_missing_handler_argument(argument: &Argument<'_>) -> bool {
+    match argument {
+        Argument::Identifier(identifier) => identifier.name == "undefined",
+        Argument::NullLiteral(_) => true,
         _ => false,
     }
 }

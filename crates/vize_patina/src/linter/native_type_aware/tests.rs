@@ -151,6 +151,72 @@ loadData().catch(report).finally(cleanup)
 }
 
 #[test]
+fn then_without_rejection_handler_reports_floating_promise() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+async function loadData(): Promise<number> {
+  return 1
+}
+
+loadData().then((value) => console.log(value))
+</script>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "Component.vue");
+    assert!(result
+        .diagnostics
+        .iter()
+        .any(|diag| diag.rule_name == RULE_NO_FLOATING_PROMISES));
+}
+
+#[test]
+fn then_with_rejection_handler_is_ignored() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+async function loadData(): Promise<number> {
+  return 1
+}
+function report(error: unknown) {
+  console.error(error)
+}
+
+loadData().then((value) => console.log(value), report)
+</script>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "Component.vue");
+    assert!(!result
+        .diagnostics
+        .iter()
+        .any(|diag| diag.rule_name == RULE_NO_FLOATING_PROMISES));
+}
+
+#[test]
+fn catch_without_handler_reports_floating_promise() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+async function loadData(): Promise<number> {
+  return 1
+}
+
+loadData().catch()
+</script>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "Component.vue");
+    assert!(result
+        .diagnostics
+        .iter()
+        .any(|diag| diag.rule_name == RULE_NO_FLOATING_PROMISES));
+}
+
+#[test]
 fn no_floating_promises_reports_template_event_calls() {
     if !corsa_available() {
         return;
@@ -163,6 +229,27 @@ async function save(): Promise<void> {}
 
 <template>
   <button @click="save()">Save</button>
+</template>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "Component.vue");
+    assert!(result.diagnostics.iter().any(|diag| {
+        diag.rule_name == RULE_NO_FLOATING_PROMISES
+            && diag.message.contains("Template event handler")
+    }));
+}
+
+#[test]
+fn no_floating_promises_reports_bare_template_event_handlers() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+async function save(): Promise<void> {}
+</script>
+
+<template>
+  <button @click="save">Save</button>
 </template>"#;
     let result = lint_sfc_with_corsa(&linter, source, "Component.vue");
     assert!(result.diagnostics.iter().any(|diag| {
@@ -523,6 +610,27 @@ async function save(): Promise<void> {}
         .diagnostics
         .iter()
         .any(|diag| diag.rule_name == RULE_NO_FLOATING_PROMISES));
+}
+
+#[test]
+fn template_then_without_rejection_handler_reports_floating_promise() {
+    if !corsa_available() {
+        return;
+    }
+
+    let linter = Linter::with_preset(LintPreset::Opinionated);
+    let source = r#"<script setup lang="ts">
+async function save(): Promise<void> {}
+</script>
+
+<template>
+  <button @click="save().then(() => {})">Save</button>
+</template>"#;
+    let result = lint_sfc_with_corsa(&linter, source, "Component.vue");
+    assert!(result.diagnostics.iter().any(|diag| {
+        diag.rule_name == RULE_NO_FLOATING_PROMISES
+            && diag.message.contains("Template event handler")
+    }));
 }
 
 #[test]
