@@ -985,6 +985,12 @@ body.entry-page .entry-content .content > h2 + p > img {
 /* ================================================
    BLOG
    ================================================ */
+.content a:not(.blog-card):not(.blog-author-card):not(.blog-post-list-item) {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 0.08em;
+}
+
 .blog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1031,6 +1037,44 @@ body.entry-page .entry-content .content > h2 + p > img {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--octc-color-text-muted);
+}
+
+.blog-post-list {
+  display: grid;
+  gap: 0;
+  margin: 1.25rem 0 2rem;
+  border-top: 1px solid color-mix(in srgb, var(--octc-color-border) 78%, transparent);
+}
+
+.blog-post-list-item {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--octc-color-border) 62%, transparent);
+  color: var(--octc-color-text) !important;
+  text-decoration: none;
+}
+
+.blog-post-list-item:hover strong {
+  color: var(--octc-color-text);
+  text-decoration-thickness: 0.12em;
+}
+
+.blog-post-list-item strong {
+  width: fit-content;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 0.08em;
+}
+
+.blog-post-list-item span {
+  max-width: 68ch;
+  color: var(--octc-color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
 .content img[src^="/blog/"],
