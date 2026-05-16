@@ -12,6 +12,6 @@ export {
   runTasks,
 } from "./task-commands.ts";
 export { noCacheTask, task } from "./task-definition.ts";
-export { shellQuote, withRustTaskEnvironment } from "./task-shell.ts";
+export { shellCommand, shellQuote, withRustTaskEnvironment } from "./task-shell.ts";
 export { defineTasks } from "./task-types.ts";
 export type { PackagePath, TaskInput } from "./task-types.ts";
