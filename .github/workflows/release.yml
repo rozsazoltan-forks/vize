@@ -61,6 +61,9 @@ jobs:
         with:
           targets: ${{ matrix.settings.target }}
 
+      - name: Install Rust target
+        run: rustup target add ${{ matrix.settings.target }}
+
       - name: Install cross-compilation tools (Linux ARM64)
         if: matrix.settings.target == 'aarch64-unknown-linux-gnu'
         run: moon run --target native - -- < tools/moon/scripts/github/install_cross_compile_tools.mbtx
@@ -344,6 +347,9 @@ jobs:
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
           targets: ${{ matrix.settings.target }}
+
+      - name: Install Rust target
+        run: rustup target add ${{ matrix.settings.target }}
 
       - name: Cache Rust
         uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2

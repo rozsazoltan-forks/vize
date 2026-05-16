@@ -121,6 +121,30 @@ test("PR CI jobs cap runtime with explicit timeouts", () => {
   }
 });
 
+test("release workflow explicitly installs matrix Rust targets", () => {
+  const workflow = readRepoFile(".github", "workflows", "release.yml");
+
+  for (const jobName of ["build-cli", "build-native-all"]) {
+    const job = workflowJobBody(workflow, jobName);
+    const setupRust = job.indexOf("name: Setup Rust");
+    const installTarget = job.indexOf("name: Install Rust target");
+    const cacheRust = job.indexOf("name: Cache Rust");
+
+    assert.notEqual(setupRust, -1, `${jobName} is missing Setup Rust`);
+    assert.notEqual(installTarget, -1, `${jobName} is missing Install Rust target`);
+    assert.notEqual(cacheRust, -1, `${jobName} is missing Cache Rust`);
+    assert.ok(
+      setupRust < installTarget && installTarget < cacheRust,
+      `${jobName} must install the matrix Rust target before caching/building`,
+    );
+    assert.match(
+      job,
+      /run:\s*rustup target add \$\{\{\s*matrix\.settings\.target\s*\}\}/,
+      `${jobName} must install the matrix Rust target explicitly`,
+    );
+  }
+});
+
 test("benchmark workflow comments from trusted code after a read-only benchmark run", () => {
   const workflow = readRepoFile(".github", "workflows", "benchmark.yml");
   const benchmarkJob = workflowJobBody(workflow, "pr-benchmark");
