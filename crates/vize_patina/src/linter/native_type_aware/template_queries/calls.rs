@@ -1,5 +1,5 @@
 use oxc_allocator::Allocator as OxcAllocator;
-use oxc_ast::ast::{CallExpression, ChainElement, Expression, ExpressionStatement};
+use oxc_ast::ast::{Argument, CallExpression, ChainElement, Expression, ExpressionStatement};
 use oxc_ast_visit::{
     Visit,
     walk::{walk_call_expression, walk_expression_statement},
@@ -57,6 +57,11 @@ pub(super) fn collect_template_call_ranges(
             ranges.callees = collector.into_relative_ranges(0, source.len() as u32);
         }
         if include_floating_promises {
+            if allow_statement_fallback {
+                if let Some(range) = bare_handler_reference_range_for_expression(&expression) {
+                    ranges.floating_promises.push(range);
+                }
+            }
             if expression.span().end as usize == source.trim_end().len() {
                 profile!(
                     "patina.type_aware.template_floating.visit_expression",
@@ -86,6 +91,72 @@ pub(super) fn collect_template_call_ranges(
     }
 
     ranges
+}
+
+fn bare_handler_reference_range_for_expression(
+    expression: &Expression<'_>,
+) -> Option<FloatingPromiseRange> {
+    match expression {
+        Expression::Identifier(_) => Some(floating_promise_range_from_span(expression.span())),
+        Expression::StaticMemberExpression(member) => is_member_handler_reference(&member.object)
+            .then(|| floating_promise_range_from_span(expression.span())),
+        Expression::ChainExpression(chain) => {
+            chain_member_handler_reference_range(chain, expression.span())
+        }
+        Expression::ParenthesizedExpression(paren) => {
+            bare_handler_reference_range_for_expression(&paren.expression)
+        }
+        Expression::TSAsExpression(ts_as) => {
+            bare_handler_reference_range_for_expression(&ts_as.expression)
+        }
+        Expression::TSSatisfiesExpression(ts_satisfies) => {
+            bare_handler_reference_range_for_expression(&ts_satisfies.expression)
+        }
+        Expression::TSNonNullExpression(ts_non_null) => {
+            bare_handler_reference_range_for_expression(&ts_non_null.expression)
+        }
+        _ => None,
+    }
+}
+
+fn chain_member_handler_reference_range(
+    chain: &oxc_ast::ast::ChainExpression<'_>,
+    span: Span,
+) -> Option<FloatingPromiseRange> {
+    match &chain.expression {
+        ChainElement::StaticMemberExpression(member) => is_member_handler_reference(&member.object)
+            .then(|| floating_promise_range_from_span(span)),
+        ChainElement::TSNonNullExpression(non_null) => {
+            bare_handler_reference_range_for_expression(&non_null.expression)
+        }
+        _ => None,
+    }
+}
+
+fn is_member_handler_reference(expression: &Expression<'_>) -> bool {
+    match expression {
+        Expression::Identifier(_) | Expression::ThisExpression(_) => true,
+        Expression::StaticMemberExpression(member) => is_member_handler_reference(&member.object),
+        Expression::ChainExpression(chain) => match &chain.expression {
+            ChainElement::StaticMemberExpression(member) => {
+                is_member_handler_reference(&member.object)
+            }
+            ChainElement::TSNonNullExpression(non_null) => {
+                is_member_handler_reference(&non_null.expression)
+            }
+            _ => false,
+        },
+        _ => false,
+    }
+}
+
+fn floating_promise_range_from_span(span: Span) -> FloatingPromiseRange {
+    FloatingPromiseRange {
+        start: span.start,
+        end: span.end,
+        probe_start: span.start,
+        probe_end: span.end,
+    }
 }
 
 fn collect_statement_call_callee_ranges(
@@ -338,8 +409,23 @@ fn is_handled_call(call: &CallExpression<'_>) -> bool {
     };
 
     match member.static_property_name() {
-        Some("then" | "catch") => true,
+        Some("then") => has_present_handler_argument(call, 1),
+        Some("catch") => has_present_handler_argument(call, 0),
         Some("finally") => is_handled_promise_chain(member.object()),
+        _ => false,
+    }
+}
+
+fn has_present_handler_argument(call: &CallExpression<'_>, index: usize) -> bool {
+    call.arguments
+        .get(index)
+        .is_some_and(|argument| !is_missing_handler_argument(argument))
+}
+
+fn is_missing_handler_argument(argument: &Argument<'_>) -> bool {
+    match argument {
+        Argument::Identifier(identifier) => identifier.name == "undefined",
+        Argument::NullLiteral(_) => true,
         _ => false,
     }
 }
@@ -426,6 +512,77 @@ mod tests {
         assert_eq!(
             promise_slices(source, &ranges.floating_promises),
             vec!["save()", "track()"]
+        );
+    }
+
+    #[test]
+    fn collects_bare_event_handler_references_as_floating_candidates() {
+        let source = "save";
+        let ranges = collect_template_call_ranges(source, true, false, true);
+
+        assert_eq!(
+            promise_slices(source, &ranges.floating_promises),
+            vec!["save"]
+        );
+    }
+
+    #[test]
+    fn collects_member_event_handler_references_as_floating_candidates() {
+        let source = "actions.save";
+        let ranges = collect_template_call_ranges(source, true, false, true);
+
+        assert_eq!(
+            promise_slices(source, &ranges.floating_promises),
+            vec!["actions.save"]
+        );
+    }
+
+    #[test]
+    fn collects_optional_member_event_handler_references_as_floating_candidates() {
+        let source = "actions?.save";
+        let ranges = collect_template_call_ranges(source, true, false, true);
+
+        assert_eq!(
+            promise_slices(source, &ranges.floating_promises),
+            vec!["actions?.save"]
+        );
+    }
+
+    #[test]
+    fn ignores_bare_references_without_event_fallback() {
+        let source = "save";
+        let ranges = collect_template_call_ranges(source, false, false, true);
+
+        assert!(ranges.floating_promises.is_empty());
+    }
+
+    #[test]
+    fn reports_then_without_rejection_handler_as_floating() {
+        let source = "save().then(() => {})";
+        let ranges = collect_template_call_ranges(source, false, false, true);
+
+        assert_eq!(
+            promise_slices(source, &ranges.floating_promises),
+            vec!["save().then(() => {})"]
+        );
+    }
+
+    #[test]
+    fn ignores_then_with_rejection_handler() {
+        let source = "save().then(() => {}, report)";
+        let ranges = collect_template_call_ranges(source, false, false, true);
+
+        assert!(ranges.floating_promises.is_empty());
+    }
+
+    #[test]
+    fn reports_empty_catch_as_floating() {
+        let source = "save().catch()";
+        let ranges = collect_template_call_ranges(source, false, false, true);
+
+        assert_eq!(
+            promise_slices(source, &ranges.floating_promises),
+            vec!["save().catch()"]
         );
     }
 }

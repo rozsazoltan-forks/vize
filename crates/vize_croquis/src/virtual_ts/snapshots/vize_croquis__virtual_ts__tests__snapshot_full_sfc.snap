@@ -46,7 +46,7 @@ function __setup() {
   const increment = () => count.value++
   
   // Template scope (inherits from setup)
-  (function __template() {
+  ;(function __template() {
     // Template refs (auto-unwrapped)
     const __unwrapped_count = count.value;
     

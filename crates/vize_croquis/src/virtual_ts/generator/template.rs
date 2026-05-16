@@ -69,7 +69,8 @@ impl VirtualTsGenerator {
     pub(crate) fn emit_template_scope(&mut self, ast: &RootNode, bindings: &BindingMetadata) {
         self.emit_line("");
         self.emit_line("// Template scope (inherits from setup)");
-        self.emit_line("(function __template() {");
+        // Keep the template IIFE from being parsed as a call on the last setup expression.
+        self.emit_line(";(function __template() {");
         self.indent_level += 1;
 
         // Declare refs for template ref access
