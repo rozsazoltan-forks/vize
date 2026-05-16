@@ -1,5 +1,5 @@
 import type { PackagePath } from "./task-types.ts";
-import { shellQuote } from "./task-shell.ts";
+import { shellCommand } from "./task-shell.ts";
 
 export const localVp = "./node_modules/.bin/vp";
 
@@ -10,7 +10,7 @@ export const localVp = "./node_modules/.bin/vp";
  * package-manager scripts directly instead of going through `vp run --filter`.
  */
 export const runInDirectory = (cwd: string, command: string) =>
-  `sh -c ${shellQuote(`cd ${cwd} && ${command}`)}`;
+  shellCommand(`cd ${cwd} && ${command}`);
 
 export const runPackageScriptDirectly = (taskName: string, packages: readonly PackagePath[]) =>
   packages.map((pkg) => runInDirectory(pkg, `pnpm run ${taskName}`)).join(" && ");

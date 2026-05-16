@@ -1,4 +1,4 @@
-import { defineTasks, moonScript, noCacheTask, runTask } from "../task-helpers.ts";
+import { defineTasks, moonScript, noCacheTask, runTask, shellCommand } from "../task-helpers.ts";
 
 /**
  * Code generation tasks and local CLI smoke commands.
@@ -18,7 +18,7 @@ export const generationAndCliTasks = defineTasks({
   ),
   gen: noCacheTask(runTask("gen:types")),
   cli: noCacheTask(
-    'sh -c \'if [ "${usage_debug:-$1}" = "true" ] || [ "$1" = "--debug" ]; then cargo install --path crates/vize --force --locked --debug && echo "Installed vize CLI (debug build)"; else cargo install --path crates/vize --force --locked && echo "Installed vize CLI (release build)"; fi\' --',
+    `${shellCommand('if [ "${usage_debug:-$1}" = "true" ] || [ "$1" = "--debug" ]; then cargo install --path crates/vize --force --locked --debug && echo "Installed vize CLI (debug build)"; else cargo install --path crates/vize --force --locked && echo "Installed vize CLI (release build)"; fi')} --`,
   ),
   "cli:help": noCacheTask("vize --help"),
   "cli:example": noCacheTask("vize './**/*.vue' -o . -v"),
