@@ -10,6 +10,10 @@
     "vite-plugin",
     "vue"
   ],
+  "homepage": "https://github.com/ubugeeei/vize",
+  "bugs": {
+    "url": "https://github.com/ubugeeei/vize/issues"
+  },
   "license": "MIT",
   "author": "ubugeeei",
   "repository": {

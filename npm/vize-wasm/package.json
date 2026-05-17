@@ -3,6 +3,9 @@
   "version": "0.103.0",
   "description": "Vize WASM bindings for browser environments",
   "homepage": "https://github.com/ubugeeei/vize",
+  "bugs": {
+    "url": "https://github.com/ubugeeei/vize/issues"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",

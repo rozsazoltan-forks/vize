@@ -185,6 +185,35 @@ test("native package catalog pins and generated loader version checks stay align
   assert.doesNotMatch(nativeTargetsLoader, /bindingPackageVersion !== "[^"]+"/);
 });
 
+test("published package manifests declare support metadata", () => {
+  const failures: string[] = [];
+
+  for (const entry of fs.readdirSync(npmDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+
+    const packageDir = path.join("npm", entry.name);
+    const packageJsonPath = path.join(root, packageDir, "package.json");
+    if (!fs.existsSync(packageJsonPath)) continue;
+
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")) as {
+      bugs?: { url?: string };
+      homepage?: string;
+      name?: string;
+      private?: boolean;
+    };
+    if (packageJson.private === true) continue;
+
+    if (packageJson.bugs?.url !== "https://github.com/ubugeeei/vize/issues") {
+      failures.push(`${packageJson.name ?? packageDir}: missing canonical bugs.url`);
+    }
+    if (packageJson.homepage !== "https://github.com/ubugeeei/vize") {
+      failures.push(`${packageJson.name ?? packageDir}: missing canonical homepage`);
+    }
+  }
+
+  assert.deepEqual(failures, []);
+});
+
 test("documented install commands point at supported release artifacts", () => {
   const vizeNpmPackage = JSON.parse(readRepoFile("npm/vize/package.json")) as {
     bin?: Record<string, string>;
