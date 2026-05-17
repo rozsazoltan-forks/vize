@@ -192,7 +192,8 @@ const msg = 'ready'
         artifact
             .module_code
             .as_ref()
-            .is_some_and(|code| code.starts_with("export default {"))
+            .is_some_and(|code| code.starts_with("const __nuxt_page_meta = {")
+                && code.contains("export default __nuxt_page_meta"))
     );
 }
 
