@@ -48,6 +48,7 @@ const s2EmitOptionFields = [
   "comments",
   "experimental_in_tag_comments",
   "custom_element_patterns",
+  "custom_element_predicate",
   "bindings",
 ];
 const codegenOptionsOwnedByDomCompiler = [
@@ -174,6 +175,21 @@ test("DOM S2 production switch classifies every adapter codegen option", () => {
       ...codegenOptionsNoopForDomS2,
     ]),
     [...fields].sort(),
+  );
+});
+
+test("DOM SFC parser-backed sections do not force legacy codegen", () => {
+  const source = readRepoFile("crates", "vize_atelier_dom", "src", "compile", "sfc.rs");
+
+  assert.match(
+    source,
+    /if use_s2_emit && fast_path_supported && !codegen_opts\.source_map/u,
+    "the direct SFC fast path guard must stay explicit",
+  );
+  assert.doesNotMatch(
+    source,
+    /else\s+if\s+use_s2_emit\s*&&\s*!\s*fast_path_supported/u,
+    "parser-backed SFC sections must stay eligible for S2 after recovery",
   );
 });
 
